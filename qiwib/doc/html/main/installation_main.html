@@ -1,0 +1,61 @@
+<a name="header"></div>
+<h2><div align="center"><u>Installation</u></h2>
+
+
+QiwiB has been written and tested in linux operating systems with Fedora 13 and 14, Ubuntu 10.04, PCLinuxOS 2010 and OpenSuse 11.4 installed. Also, QiwiB works for MacOSX, however it has not been thoroughly tested yet.<br>
+QiwiB has been tested for GNU Octave versions 3.2.3, 3.2.4 (old versions) and 3.4 (current stable). Usually the big linux distributions provide binary packages of octave and octave-forge. If there are no packages available or different versions of octave than provided are needed one can follow the instructions below. MacOS users might want to download the octave packages from MacPorts (recommended), Fink repositories or <a href="http://octave.sourceforge.net/" name="Octave-Forge">Octave Forge</a> directly.<br><br>
+
+<h4><a name="binary"></a>Instructions for installing octave binary packages</h4>
+All big linux distributions include octave as a binary package and can easily be installed from your distribution's package manager. The following packages are needed (names might vary depending on your distribution):
+<ul>
+	<li>octave</li>
+	<li>octave-headers</li>
+	<li>octave-odepkg</li>
+	<li>octave-general</li>	
+</ul>
+MacOS Users can download a copy from <a href="http://octave.sourceforge.net/" name="Octave-Forge">Octave Forge</a> or use the Fink or MacPorts (recommended) repositories. In order to install the <i>odepkg</i> and <i>general</i> packages please follow the instructions below in "Compile additional Octave packages".
+<br><br><a href="#header">top</a>
+
+
+<h4><a name="source"></a>Instructions for compiling octave from source</h4>
+<ul>
+	<li>Download Octave from <a href="http://www.gnu.org/software/octave/" name="Octave">here</a></li>
+	<li>Install according to the instructions in the download file</li>
+</ul>
+Octave will remind you of missing dependencies, i.e. additional libraries or source code.<br>
+Good introductions to octave programming are given on the GNU Octave <a href="http://www.gnu.org/software/octave/" name="Octave">webpage</a>.
+<br><br><a href="#header">top</a>
+
+
+<h4><a name="forge-source"></a>Compile additional Octave packages</h4>
+<ul>
+	<li>Download additional packages <i>odepkg</i> and <i>general</i> from <a href="http://octave.sourceforge.net/" name="Octave-Forge">here</a></li>
+	<li>Start octave from command line and install packages with <em>'pkg install [packagename]'</em></li>
+</ul>
+OR (for Octave >= 3.4 with internet connection)
+<ul>
+	<li>Start octave from command line and install packages with <em>'pkg install -forge [packagename]'</em>, where <em>[packagename]</em> is <i>odepkg</i> or <i>general</i>.<br>
+	This will automatically download the packages and install them (if download fails please do the manual method above).</li>
+</ul>
+Octave will remind you of missing dependencies, i.e. additional libraries or source code. Furthermore, other packages might be needed to be installed as additional dependencies. The installer will print a message if this is the case. Install these packages first before you continue to install <i>odepkg</i> and <i>general</i>.<br>
+<br><br><a href="#header">top</a>
+
+
+<h4><a name="qiwib"></a>QiwiB</h4>
+Once Octave is installed and working properly start the setup process for qiwib by executing the linux command line command <em>'sh [path to setup.sh]/setup.sh'</em>. This starts the setup script that can be found in the <em>bin/</em> directory of the QiwiB installation. Follow the instructions. It will ask you for the location of the octave binary as it can be possible to have multiple instances of octave installed. After that you can test if the installation has been successful by starting qiwib from the <em>bin/</em> directory on the linux command line.<br>
+Alternatively the setup script can append the following two lines to ~/.bashrc to set PATH to all QiwiB scripts (The QiwiB scripts from the bin/ directory can be executed from any folder without specifying the full path):<br>
+<br><em>echo PATH=$setup_path:"\$PATH"<br>
+echo "export PATH"</em><br><br>
+This can also be done manually after the installation.
+<br><br><a href="#header">top</a>
+
+
+
+<h4><a name="additional"></a>Additional tools</h4>
+Furthermore, QiwiB's movie feature needs the following programs to be installed (you can check from the command line with <i>which convert</i> and <i>which mencoder</i> if those programs are properly already installed):
+<ul>
+	<li>ImageMagick (can be downloaded from <a href="http://www.imagemagick.org" name="ImageMagick">here</a> or installed from a package in your favourite linux distribution)</li>
+	<li>mencoder (can be downloaded from <a href="http://www.mplayerhq.hu" name="mplayer">here</a> or installed from a package in your favourite linux distribution). Also, all necessary codecs to play the movie files should be included in the <i>mplayer</i> package.</li>
+</ul>
+MacOS users can download these programs from <a href="http://www.mplayer.hq/" name="MPlayer">here</a> and <a href="http://www.imagemagick.org/" name="ImageMagick">here</a> as well or alternatively from the Fink or MacPorts repositories.
+<br><br><a href="#header">top</a>

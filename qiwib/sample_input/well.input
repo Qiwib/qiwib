@@ -1,0 +1,93 @@
+%%% This example file is more of a documentation of all parameters.
+%%% Other than that, it simulates interacting bosons in a harmonic trap.
+
+
+%%%%%%%%%% Propagation Properties %%%%%%%%%%
+
+	%% propagation in time (-1), continue simulation (-2) or improved relaxation (>=0) for nth state, follow or lock
+	pa.relaxation = 0;
+	%% ('file') loads from file, (1) for user-defined phi and C, create initial state (0, relaxation only)	
+	%% for pa.ralaxation=-2 not needed as directory of inputfile is the same as the output directory
+	pa.load_phi_C = 0;
+
+	%% here matrices associated with the Hilbert space are saved and/or created ('save' or 'create') or loaded ('load')
+	%% for loading and saving you also have to define a file
+	pa.hilbert = ['create'];
+
+
+%%%%%%%%%% essential Inputvariables for the system %%%%%%%%%%	
+			
+	pa.N=2;						%% number of particles
+	pa.M=4;						%% number of single-particle functions
+	pa.Ng=101;					%% primitive grid size
+	pa.L=8;						%% length of ring
+	pa.xpos0=-4; 					%% xpos0: position left boundary
+	pa.boundary = 'box';				%% boundary conditions, 'periodic' or 'box'
+	
+	pa.nl = -0; pa.nr = 0;			%% boundaries for 3 regions where to calc. particle numbers
+	%% initial phi and C if needed
+	%% for propagation and pa.relaxation=-1 and if phi and C are loaded from file this defines the initial phase
+	%pa.phi = exp( -i*0.3*repmat([pa.xpos0:pa.L/(pa.Ng-1):pa.xpos0+pa.L]',1,pa.M) ); pa.C=0;
+	
+			
+
+%%%%%%%%%% Propagation details for mean fields and saving %%%%%%%%%%
+
+	pa.dE_limit = -1;				%% relaxation only, sim. stops if dE<dE_limit, does not apply if dE<0 
+	pa.endtime=10000; pa.dt=0.001;			%% max. time (-1 for infinity), initial time step
+	pa.CMF_error = 1E-6;				%% error for the constant mean field method
+	pa.max_CMF_step = 10.0;				%% max constant mean field time step
+	pa.save_step = 0.1; 				%% time steps after which the system is saved on disk
+	pa.save_options = [1,1,0,0,0];			%% save [density,g1(0,x),phi and C,natural orbitals,rho_{kq,ksql}] for every time step, g(x,y)
+							%% and phi needs a lot of disk space, set '1' for on and '0' for off
+	pa.nthreads = 0; 				%% number of threads (for wae function not implemented yet), BUGGY!!
+
+
+%%%%%%%%%% Integrators %%%%%%%%%%
+
+	pa.improved_rlx = 'fixed';			%% improved relaxation: always take nth eigenfunction (fixed)
+							%% or the one with highest overlap to previous wavefunction (follow)
+							%% or the one with highest overlap to initial wavefunction (lock)
+							%% or imaginary time propagation (imaginary)
+												
+	%% The integrators (RK23,RK45,RK78,adams,bdf), arnoldi and eigs only for the Cs
+	%% eigs is the only option for improved relaxation
+	pa.ode_phi = "RK78";		
+	pa.ode_phi_opts = odeset("AbsTol",1e-10,"InitialStep",1e-4,"MaxStep",1e-3,"RelTol",1e-10);
+	%pa.ode_C = "RK78";		
+	%pa.ode_C_opts = odeset("AbsTol",1e-10,"InitialStep",1e-4,"MaxStep",1e-3,"RelTol",1e-10);
+	%pa.ode_phi = "adams";				% uses the octave lsode function
+	%pa.ode_phi_opts = [1e-10,1e-10,12];  		% [AbsTol,RelTol,MaxOrder]	
+	%pa.ode_C = "arnoldi";
+	%pa.ode_C_opts = [200,1e-10];   		% [number of lanzcos vectors,error]
+	pa.ode_C = "eigs";
+	pa.ode_C_opts = [5,50,1E-10]; 			% [number of eigenvalues,number of lanczos vectors, error tolerance for convergence]
+							% for C to be calculated
+	
+%% cosmetic options (show plots during propagation)
+	pa.show_plot = 0;	
+	
+	
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%% The time-dependent Hamiltonian %%%%%%%%%%
+
+	% define potential for initial diagonlisation, i.e. initial basis
+	pa.V_build = 0.01*([pa.xpos0:pa.L/(pa.Ng-1):pa.xpos0+pa.L]').^2;
+	pa.H_update_step = -1;				% time step for updating Hamiltonian
+	
+	% define time-dependent prefactors for Hamiltonian
+	% if pa.H_update_step = 1.0 is neglected or ...=-1 this function is run only once at the beginning 
+	function hamiltonian_t(t)
+		mlock(); global pa			% necessary to ensure access to global (input) variables
+							% and to keep the function in memory		
+	% the external potential, one can use pa.V0 to set potential height if given as command line parameter
+		pa.V = ([pa.xpos0:pa.L/(pa.Ng-1):pa.xpos0+pa.L]').^2;				
+		pa.H_Diff = 0;				% prefactor in front of first derivative (default=0)
+		pa.H_Diff2 = -1/2;			% prefactor in front of second derivative (default=-1/2)
+		pa.g= 0.1;				% interaction strength, you can use pa.g0 if
+							% an interaction was specified as input parameter
+		
+	endfunction

@@ -1,0 +1,58 @@
+%%% This example input file simulates the scattering of a bright soliton
+%%% ,that can be created with the soliton_superposition_relax.input file,
+%%% on a small gaussian shaped barrier. After the scattering process
+%%% the soliton has split into two seperate solitons. Further investigation
+%%% shows that it is a superposition state of one soliton moving to the left
+%%% one moving to the right. Use the plotting programs plot_NO and plot_fock_NO
+%%% to visualise this.
+
+%% Propagation Properties
+	pa.relaxation = -1;
+	pa.load_phi_C = 'soliton_superposition_relax/phiC_restart.gz'; %% give the location of the restart file
+
+
+%% essential Inputvariables for the system						
+	pa.N=90;
+	pa.M=2;
+	pa.g= -0.04;
+	pa.Ng=71;
+	pa.L=14;
+	pa.xpos0=-7;
+
+	pa.nl = 0; pa.nr = 0;
+	pa.phi = 1.0 * exp( i*0.5*repmat([pa.xpos0+2.5:pa.L/(pa.Ng-1):pa.xpos0+2.5+pa.L]',1,pa.M) );
+
+%% Propagation details for mean fields and saving
+	pa.endtime = 20;
+	pa.CMF_error = 1E-6;
+	pa.save_step = 0.1;
+	pa.save_options = [1,1,1,1,1];
+
+%% Integrators
+	pa.ode_phi = "RK78";
+	pa.ode_phi_opts = odeset("AbsTol",1e-10,"InitialStep",1e-4,"MaxStep",1e-2,"RelTol",1e-10);
+	pa.ode_C = "lanczos";
+	pa.ode_C_opts = [50,1E-10];
+
+%% cosmetic options (show plots during propagation)
+	pa.show_plot = 1;
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%% define time-dependent prefactors for Hamiltonian	
+	function hamiltonian_t(t)
+		mlock(); global pa
+
+	        x = [pa.xpos0:pa.L/(pa.Ng-1):pa.xpos0+pa.L]';
+	        sigma = 0.15;
+	        pa.V = 0.4 * exp(-x.^2/(2*sigma^2));
+
+		pa.H_Diff = 0;
+		pa.H_Diff2 = -1/2;
+		pa.g = pa.g;
+
+	endfunction
+

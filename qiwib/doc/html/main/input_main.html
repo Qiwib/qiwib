@@ -1,0 +1,272 @@
+<a name="header"></div>
+<h2><div align="center"><u>Input Files</u></h2>
+
+Input Files can have any name and extension. They contain definitons for all variables/parameters needed for a simulation. Every definition in the input file must end with a semicolon (see example files). Furthermore the content of the file is devided into two sections with the first defining several parameters and the second one defining parts for the Hamiltonian. All variables start with <i>pa.</i> as they all belong to a global octave structure.
+<br><br>
+A documented example input file can be found in the <em>sample_input/</em> direcory of the QiwiB installation. The Usage chapter of this documentation gives an example how to start the sample input file.<br>
+Hint: For larger systems the pa.hilbert option helps to increase to speed of the simulations.<br><br>
+
+The input variables can be categorised into compulsory and optional variables and variables associated with the Hamiltonian.
+
+<h2><a name="compulsory"></a>Compulsory variables</h2>
+<table border="1" cellpadding="5" cellspacing="0">
+<tr>
+	<td>pa.relaxation</td>
+	<td><ul>
+	<li>=-1: propagation in time</li>
+	<li>=-2: continue previous simulation</li>
+	<li>>=0: (improved) relaxation to nth excited state, for imaginary relaxation to ground state</li>
+	</ul></td>
+</tr>
+<tr>
+	<td>pa.N</td>
+	<td>number of particles</td>
+</tr>
+<tr>
+	<td>pa.M</td>
+	<td>number of single-particle wave functions</td>
+</tr>
+<tr>
+	<td>pa.Ng</td>
+	<td>number of spatial grid points</td>
+</tr>
+<tr>
+	<td>pa.L</td>
+	<td>length of system</td>
+</tr>
+<tr>
+	<td>pa.xpos0</td>
+	<td>left position of system</td>
+</tr>
+</table>
+<br><br><a href="#header">top</a>
+
+
+<h2><a name="optional"></a>Optional variables</h2>
+<table border="1" cellpadding="5" cellspacing="0" >
+<tr>
+	<td>pa.ode_phi</td>
+	<td><ul>
+	<li>='RK23','RK45' or 'RK78': Runge-Kutta methods 3rd, 5th and 8th order as described in odepkg.pdf in the octave <i>odepkg</i> package (default - RK78)</li>
+	<li>='adams': implicit Adams for non-stiff problems from octave lsode package</li>
+	<li>='bdf': backward differentiation for stiff problems from octave lsode package</li>
+	</ul></td>
+</tr>
+<tr>
+	<td>pa.ode_phi_opts</td>
+	<td><ul>
+	<li>Runge-Kutta methods: =odeset(...), see <em>'help odeset'</em> in the octave terminal for more details (default=<i>odeset("AbsTol",1e-10,"InitialStep",1e-4,"MaxStep",1e-3,"RelTol",1e-10)</i>)</li>
+	<li>Adams or BDF: =[A,R,O], see <em>'help lsode_options'</em> in the octave terminal for more details
+		<ul><li>A = Absolute Tolerance</li>
+		<li>R = Relative Tolerance</li>
+		<li>O = Maximum order of the integrator</li></ul>
+	</li>
+	</ul></td>
+<tr>
+	<td>pa.ode_C</td>
+	<td>For improved relaxation use <i>eigs</i>, for imaginary time propagation and real time propagation everything else.
+	<ul>
+	<li>='eigs': diagonisation routine for improved relaxation (default for relaxation)</li>
+	<li>='RK23','RK45' or 'RK78': Runge-Kutta methods 3rd, 5th and 8th order as described in odepkg.pdf in the octave <i>odepkg</i> package (default - RK78 for propagation)</li>
+	<li>='lanczos': short iterative Lanczos integrator for hermitian Hamiltonians</li>
+	<li>='arnoldi': Arnoldi integrator (only works for hermitian Hamiltonians so far - needs fixing)</li>
+	<li>='adams': implicit Adams for non-stiff problems from octave lsode package</li>
+	<li>='bdf': backward differentiation for stiff problems from octave lsode package</li>	
+	</ul></td>
+</tr>
+<tr>
+	<td>pa.ode_C_opts</td>
+	<td>Same options as in pa.ode_phi, in addition:
+	<ul>
+	<li>Eigs: =[N,L,E] with 
+		<ul><li>N = number of calculated eigenvectors (it is recommended to use more than needed to get the desired excited state) (default=6)</li>
+		<li>L = number of lanzcos vectors where L>=N (recommended: L>=2*N, default=2*N)</li>
+		<li>E = defines the required convergence tolerance, given as E*norm(H_C) (default=eps)</li></ul>
+		ATTENTION! These options are ignored if the size of the Hilbert space is <=10. The OCTAVE eig function for full matrices is used instead.
+	</li>
+	<li>Arnoldi: =[N,T] with
+		<ul><li>N = number of lanzcos vectors</li>
+		<li>T = Tolerance</li></ul>
+	</li>
+	</td>	
+</tr>
+<tr>
+	<td>pa.improved_rlx</td>
+	<td>Specifies type of relaxation.
+	<ul>
+	<li>='fixed': improved relaxation, at every time-step always takes nth eigenfunction of HC=EC (default)</li>
+	<li>='follow': improved relaxation, at every time-step always takes eigenfunction with largest overlap with previous one</li>
+	<li>='lock': improved relaxation, at every time-step always takes eigenfunction with largest overlap with initial one</li>
+	<li>='imaginary': imaginary time propagation for the whole system</li>
+	</ul></td>
+</tr>
+<tr>
+	<td>pa.load_phi_C</td>
+	<td><ul>
+	<li>=0: create an initial basis set from pa.V_build (default)</li>
+	<li>=1: use user-defined single-particle wave functions and C prefactors defined with pa.phi and pa.C</li>
+	<li>='[filename]': loads pa.phi and pa.C from file. Here, the number of single-particle functions of the loaded basis can be smaller than the one for the current simulation (the initial basis will be automatically extended to its necessary size)</li>
+	</ul>
+	pa.load_phi_C is ignored for pa.relaxation=-2 as output directory equals input directory and the restart file from the output directory is taken automatically.</td>
+</tr>
+<tr>
+	<td>pa.boundary</td>
+	<td><ul>
+	<li>='box': box boundary conditions, i.e. hard walls at the ends of the system (default)</li>
+	<li>='periodic': periodic boundary conditions</li>
+	</ul></td>
+</tr>
+<tr>
+	<td>pa.nl<br>pa.nr</td>
+	<td>used to define two points on the spatial axis of the system that divide it into 3 regions<br>the output file <i>spatial_population</i> records the integral over density for each region<br>
+	(default pa.nl=pa.nr=middle of box/ring)</td>
+</tr>
+<tr>
+	<td>pa.phi</td>
+	<td><ul>
+	<li>for pa.load_phi_C=1: specifies initial basis of single-particle wave-functions</li>
+	<li>for pa.load_phi_C='[filename]': multiplies the loaded basis with pa.phi (pa.phi can either be a number, vector or pa.Ng by pa.M matrix)</li>
+	</ul>
+	(default=1)</td>
+</tr>
+<tr>
+	<td>pa.no_prop_phi</td>
+	<td><ul>
+	<li>=0: performs propagation of single-particle functions</li>
+	<li>=1: permits propagation of single-particle functions, i.e. keeps them unchanged for all times</li>
+	</ul>
+	(default=0)</td>
+</tr>
+<tr>
+	<td>pa.C</td>
+	<td>for pa.load_phi_C=1: specifies initial prefactor C<br>
+	(default=[1,0,0...])</td>
+</tr>
+<tr>
+	<td>pa.endtime</td>
+	<td>if >0 simulation runs until t=pa.endtime, if =-1 runs forever	(default=-1)</td>
+</tr>
+<tr>
+	<td>pa.dt</td>
+	<td>initial constant mean field (CMF) time step (default=1E-3)</td>
+</tr>
+<tr>
+	<td>pa.dE_limit</td>
+	<td>if >0 stops simulation if (E(t)+E(t-dt))&lt;pa.dE_limit, otherwise if =-1 simulation runs until pa.endtime (default=-1)</td>
+</tr>
+<tr>
+	<td>pa.CMF_error</td>
+	<td>constant mean field (CMF) error from which the CMF time steps are derived (default=1E-6)</td>
+</tr>
+<tr>
+	<td>pa.max_CMF_step</td>
+	<td>max constant mean field (CMF) time step (default=1.0)</td>
+</tr>
+<tr>
+	<td>pa.save_step</td>
+	<td>time step after which contents of <em>time_dep/</em> directory are saved (default=1)</td>
+</tr>
+<tr>
+	<td>pa.save_options</td>
+	<td>=[A,B,C,D,E]: defines what is being saved in the <em>time_dep/</em> directory, A/B/C/D/E=0 (for not saving data), =1 (for saving data)
+	<ul>
+		<li>A: save the density as [time]_density.gz</li>
+		<li>B: save a slice of the reduced density matrix g1(0,x) as [time]_g1_0x.gz</li>
+		<li>C: save the one-particle basis and C as [time]_phiC.gz</li>
+		<li>D: create and save the natural orbitals as [time]_phiNO.gz (needs more time depending on pa.Ng)</li>
+		<li>E: save data needed for plotting fock space of natural orbitals, g1 and g2 as [time]_rho.gz</li>
+	</ul>
+	(default=[1,0,0,0,0])
+	</td>
+</tr>
+<tr>
+	<td>pa.nthreads</td>
+	<td>ATTENTION! NOT USABLE YET, SOME NASTY BUGS STILL EXIST!<br>
+	parallel computing, defines how many threads are run on the CPU (for propagation of wave functions not implemented yet)
+	<ul>
+		<li>>1: parallelise creation of matrix for C propagation and mean fields</li>
+		<li>=0 or 1: no parallel code</li>
+	</ul>
+	(default=0)
+	</td>
+</tr>
+<tr>
+	<td>pa.show_plot</td>
+	<td>defines if a density plot is shown during the propagation/relaxation<br>
+	<ul>
+		<li>=1: plots the density</li>
+		<li>=0: no plot (default)</li>
+	</ul>
+	</td>
+</tr>
+<tr>
+	<td>pa.hilbert</td>
+	<td>loads/saves/creates the Hiltert space and other needed matrices, it is good to save those if the Hilbert space is big, so they do not have to be calculated at the beginning of each simulation. Creation of those hilbert spaces can be done with the <i>create_hilbert</i> script as well.<br>
+	<ul>
+		<li>['create']: creates all matrices from scratch (default)</li>
+		<li>['save','[filename]']: creates matrices and saves them into [filename] (compressed via gzip to save space)</li>
+		<li>['load','[filename]']: loads matrices from [filename]</li>
+	</ul>
+	</td>
+</tr>
+
+</table>
+<br><br><a href="#header">top</a>
+
+<h2><a name="Hamiltonian"></a>Defining the Hamiltonian (optional but recommended)</h2>
+For relaxation it is possible to define an initial basis of single-particle wave functions and the corresponding C vector for a certain external potential V_build.<br><br>
+<table border="1" cellpadding="5" cellspacing="0">
+<tr>
+	<td>pa.V_build</td>
+	<td>build a basis of pa.M single-particle wave function for this potential if pa.load_phi_C=0<br>	(default=0)</td>
+</tr>
+</table><br>
+
+Defining the Hamiltonian for the propagation/relaxation is optional as all the variables in this section have been assigned default values.
+The Hamiltonian can be chosen to be time-dependent, i.e. it can be updated every time step by<br><br>
+<table border="1" cellpadding="5" cellspacing="0">
+<tr>
+	<td>pa.H_update_step</td>
+	<td>time step for updating the prefactors in the Hamiltonian. For a constant Hamiltonian set pa.H_update_step=-1, for the Hamiltonian to be updated at every CMF time step set pa.H_update_step=0 (default=-1)</td>
+</tr>
+</table><br>
+ For the definition of the Hamiltonian you have to define a function of the form<br><br>
+<em>function Hamiltonian_t(t)<br>
+...<br>
+endfunction</em><br><br>
+Inside this function we define prefactors that change the hamitonian after each pa.H_update_step time step. However, the first line (see table below) is needed to ensure consistency with QiwiB.<br><br>
+<table border="1" cellpadding="5" cellspacing="0">
+<tr>
+	<td>mlock(); global pa</td>
+	<td>this line is needed to ensure persistence of the Hamiltonian function in the memory, global pa is needed to have access to all input variables</td>
+</tr>
+<tr>
+	<td>pa.V</td>
+	<td>the external potential (default=0)</td>
+</tr>
+<tr>
+	<td>pa.H_Diff</td>
+	<td>prefactor in front of the first derivative term of the Hamiltonian (default=0)</td>
+</tr>
+<tr>
+	<td>pa.H_Diff2</td>
+	<td>prefactor in front of the second derivative term of the Hamiltonian (default=-1/2)</td>
+</tr>
+<tr>
+	<td>pa.g</td>
+	<td>magnitude of contact interaction (default=0)</td>
+</tr>
+</table><br>
+Furthermore two variables can be defined from the command line of QiwiB by setting the <em>'-pot'</em> and <em>'-g'</em> options.
+<br><br>
+<table border="1" cellpadding="5" cellspacing="0">
+<tr>
+	<td>pa.V0</td>
+	<td>variable defined from command line option <em>'-pot'</em>, can be used to set the magnitude of the potential from the command line (default=1)</td>
+</tr>
+<tr>
+	<td>pa.g0</td>
+	<td>variable defined from command line option <em>'-g'</em>, can be used to set the magnitude of the interaction from the command line (default=1)</td>
+</tr>
+</table>
+<br><br><a href="#header">top</a>

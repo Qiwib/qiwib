@@ -1,0 +1,103 @@
+#! /home/efmunu/software/octave/bin/octave -Hq
+
+## Copyright (C) 2011 by Thomas Ernst
+## 
+## Permission is hereby granted, free of charge, to any person obtaining a copy
+## of this software and associated documentation files (the "Software"), to deal
+## in the Software without restriction, including without limitation the rights
+## to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+## copies of the Software, and to permit persons to whom the Software is
+## furnished to do so, subject to the following conditions:
+## 
+## The above copyright notice and this permission notice shall be included in
+## all copies or substantial portions of the Software.
+## 
+## THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+## IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+## FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+## AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+## LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+## OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+## THE SOFTWARE.
+
+crash_dumps_octave_core(0); clear -all
+
+%% add all qiwib direcories to octave PATH
+	dir_current = pwd;
+	dir_qiwib = program_invocation_name()(1:length(program_invocation_name())-length(program_name ())-4);
+	addpath(genpath(dir_qiwib));
+
+n_args = length(argv());
+basis_only = 0; basis_only_scr = 0;
+
+%% parameters
+i = 1;
+while i<=n_args || n_args==0
+
+	if i<n_args && strcmp(argv(){i},'-N') && i+1<= n_args && !strcmp(argv(){i+1}(1),'-')
+		N = str2num(argv(){i+1});
+		i = i+2;
+	elseif i<n_args && strcmp(argv(){i},'-M') && i+1<= n_args && !strcmp(argv(){i+1}(1),'-')
+		M = str2num(argv(){i+1});
+		i = i+2;
+	elseif i<n_args && strcmp(argv(){i},'-f') && i+1<= n_args && !strcmp(argv(){i+1}(1),'-')
+		hilbert_file = argv(){i+1};
+		i = i+2;
+	elseif i<=n_args && strcmp(argv(){i},'-b')
+		basis_only=1;
+		i = i+1;
+	elseif i<=n_args && strcmp(argv(){i},'-bs')
+		basis_only_scr=1;
+		i = i+1;					
+	else
+		printf("\nUsage of create_hilbert: [pathto]/create_hilbert N M [filename]\n\n"); 
+		printf("Options:\n");
+		printf("  -N N			:  Number of particles N\n");
+		printf("  -M M			:  number of single-particle functions M\n");
+		printf("  -f [filename]		:  matrices are being saved into [filename]\n\n");
+		printf("  Optional:\n");
+		printf("  -b			:  only creates Hilbert space, not the (time-consuming) additional helper matrix\n");
+		printf("			:  (then the file can not be used to run simulations, the file is not zipped)\n");
+		printf("  -bs			:  prints Hilbert space to screen\n");
+		return
+	end
+	if n_args<6
+		printf("\nUsage of create_hilbert: [pathto]/create_hilbert N M [filename]\n\n"); 
+		printf("Options:\n");
+		printf("  -N N			:  Number of particles N\n");
+		printf("  -M M			:  number of single-particle functions M\n");
+		printf("  -f [filename]		:  matrices are being saved into [filename]\n\n");
+		printf("  Optional:\n");
+		printf("  -b			:  only creates Hilbert space, not the (time-consuming) additional helper matrix\n");
+		printf("			:  (then the file can not be used to run simulations, the file is not zipped)\n");
+		printf("  -bs			:  prints Hilbert space to screen (first column is state number)\n");
+		return
+	end
+end
+
+%% create hilbert space and save matrices into file	
+	
+	if !strcmp(hilbert_file(1),'/'), hilbert_file = [dir_current,'/',hilbert_file]; end
+
+	cputime=time();
+	
+	printf("\nLength of hilbert space:	%15.14g\n", bincoeff(N+M-1,N) );	
+	printf("Saving Hilbert spaces to:  %s\n",hilbert_file); fflush(stdout);
+	printf("Create and save Hilbert space:  basis...\r"); fflush(stdout);
+	basis = calc_hilbert_C(N,M,bincoeff(N+M-1,N)); if N == 1, basis = eye(M); end
+	if N~=1 && M~=1, basis=sortrows(basis,[M:-1:1]); end
+	if basis_only == 0
+		printf("Create and save Hilbert space:  basis_diff...\r"); fflush(stdout);
+		[basis_diff,basis_diff_nz] = calc_hilbert_diff_C(basis,M,bincoeff(N+M-1,N));
+		printf("Create and save Hilbert space:  saving...             \r"); fflush(stdout);
+		save('-z',[hilbert_file],'basis','basis_diff','basis_diff_nz');
+	else
+		save([hilbert_file],'basis');
+	end
+	printf("Create and save Hilbert space:  done in %ds.                                      \n",time()-cputime);
+	
+	if basis_only_scr == 1
+		printf('\nDisplay basis (first column is state number):\n\n');
+		disp([[1:length(basis)]',basis]);
+	end
+

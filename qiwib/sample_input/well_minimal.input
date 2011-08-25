@@ -1,0 +1,26 @@
+%%% This example file illustrates a very minimal input file for
+%%% bosons in a harmonic trap.
+%%% It stops after 0.3 seconds as most of the dynamics happens there 
+
+	pa.relaxation = 0;
+	pa.N=20;
+	pa.M=3;
+	pa.Ng=101;
+	pa.L=8;
+	pa.xpos0=-4;
+
+
+%% the following lines are not necessary, but without them this example would be quite boring
+	
+	pa.endtime = 0.3;
+	pa.save_step = 0.01;
+	pa.save_options = [1,1,1,1,1];  % save everything
+
+	% define Hamiltonian (without it the defaults are g=0 and V=0)
+	function hamiltonian_t(t)
+		mlock(); global pa
+
+		pa.V = ([pa.xpos0:pa.L/(pa.Ng-1):pa.xpos0+pa.L]').^2;
+		pa.g = 1.0;
+
+	endfunction

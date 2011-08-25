@@ -1,0 +1,85 @@
+<a name="header"></div>
+<h2><div align="center"><u>Usage</u></h2>
+
+You can start the QiwiB scripts from the linux command line like any other native linux program. They can be found in the <em>bin/</em> directory of the QiwiB installation.<br>
+The programs have built-in help outputs that appear everytime only the script name is called or if the parameters are wrong.
+
+<h4><a name="scripts"></a>Scripts implemented so far:</h4>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr>
+	<td>qiwib</td>
+	<td>the main program to perform the simulations</td>
+</tr>
+<tr>
+	<td>create_hilbert</td>
+	<td>program for creating and saving matrices associated with the Hilbert space, loading matrices for large Hilbert spaces is much faster than creating them. The matrices are saved in a gzip compressed format and can be easily read with a selection of editors or just unzipped with the <i>gunzip</i> program.</td>
+</tr>
+<tr>
+	<td>plot_density</td>
+	<td>program for plotting and saving densities as ascii files, pictures of plots or movies.
+	    <br>(requires *_density.gz, see the output section of the manual)</td>
+</tr>
+<tr>
+	<td>plot_phi</td>
+	<td>program for plotting and saving the ith single-particle function phi_i(t) as ascii files, pictures or movies.
+	    <br>(requires *_phiC.gz, see the output section of the manual)</td>
+</tr>
+<tr>
+	<td>plot_phi_pop</td>
+	<td>program for plotting and saving the population of the ith single-particle function phi_i(t) &lt; Psi|n_i|Psi &gt; as an ascii file or a picture.
+	    <br>(requires *_phiC.gz, see the output section of the manual)</td>
+</tr>
+<tr>
+	<td>plot_NO</td>
+	<td>program for plotting and saving the ith natural orbitals |phi_NO_i(t)|^2 as ascii files, pictures or movies.
+	    <br>(requires *_phiNO.gz or both *_rho.gz and *phiC.gz, see the output section of the manual)</td>
+</tr>
+<tr>
+	<td>plot_fock</td>
+	<td>program for plotting and saving of |C(t)|^2, the population of Fock space spanned by single-particle functions as ascii file or picture. Can also save C(t) directly into octave's text format.
+	    <br>(requires *_phiC.gz, see the output section of the manual)</td>
+</tr>
+<tr>
+	<td>plot_fock_NO</td>
+	<td>program for plotting and saving of |C_NO(t)|^2, the population of Fock space spanned by natural orbitals as ascii file or picture. Can also save C_NO(t) directly into octave's text format.<br>
+		This only works so far for simulations with two single-particle funtions. Also for more than 90 particles the internal calculations are limited due to numerical errors and hence the output is very likely to be inaccurate.
+	    <br>(requires *_phiC.gz and *_rho.gz, see the output section of the manual)</td>
+</tr>
+<tr>
+	<td>plot_g1</td>
+	<td>program for plotting and saving g1=&lt; x|&rho;_1|y &gt; as ascii files, pictures of plots or movies.
+	    <br>(requires *_phiC.gz and *_rho.gz, see the output section of the manual)</td>
+</tr>
+<tr>
+	<td>plot_g2</td>
+	<td>program for plotting and saving diagonal density g2(x,y|x,y)=&lt; x,y|&rho;_1|x,y &gt; or pair density g2(x,x|y,y)=&lt; x,x|&rho;_2|y,y &gt; as ascii files, pictures of plots or movies.
+	    <br>(requires *_phiC.gz and *_rho.gz, see the output section of the manual)</td>
+</tr>
+</table>
+<br><br><a href="#header">top</a>
+
+
+<h2><a name="example"></a>Example Usage</h2>
+ In the terminal move to the 'sample_input/' directory of your QiwiB installation. It includes several example input files. One of them is called 'well.input'. Type into the command line
+<br><br>
+[path to qiwib binary]qiwib -i well.input -d Output -scr -ow
+<br><br>
+where <br>
+"-i well.input" provides the input file.<br>
+"-d Output" provides the output file.<br>
+-scr print results to screen.<br>
+-ow overwrites the output file if it already exists.<br>
+After a while stop the simulation by deleting the ".input" file in the "Output" directory (Ctrl-c also works but is not recommended because i does not perform a 'soft' kill)<br>
+<br><br>
+In the command line now type,
+<br><br>
+[path to plot_density binary]plot_density -i Output -ts 0 -te 4 -dt 0.1
+<br><br>
+"-i Output" is the file containing the output from the simulations.<br>
+"-ts 0" is the initial time.<br>
+"-te 4 " is the final time and is some number less than the last number of the right hand column of the numbers printed to screen.<br>
+"-dt 0.1" are the time steps defined in "well.input". This now shows a movie of how the density of two atoms in a harmonic oscillator relaxes into the ground state.<br>
+<br><br>
+If you set PATH in the .bashrc file as described in the Installation section of this documentation you can neglect [path to qiwib binary] and [path to plot_density binary].
+<br><br><a href="#header">top</a>

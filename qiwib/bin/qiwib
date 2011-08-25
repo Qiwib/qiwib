@@ -1,0 +1,98 @@
+#! /home/efmunu/software/octave/bin/octave -Hq
+
+## Copyright (C) 2011 by Thomas Ernst
+## 
+## Permission is hereby granted, free of charge, to any person obtaining a copy
+## of this software and associated documentation files (the "Software"), to deal
+## in the Software without restriction, including without limitation the rights
+## to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+## copies of the Software, and to permit persons to whom the Software is
+## furnished to do so, subject to the following conditions:
+## 
+## The above copyright notice and this permission notice shall be included in
+## all copies or substantial portions of the Software.
+## 
+## THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+## IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+## FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+## AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+## LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+## OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+## THE SOFTWARE.
+
+crash_dumps_octave_core(0); clear -all
+
+%% add qiwib direcories to octave PATH and change to working directory of qiwib
+dir_current = pwd;
+dir_qiwib = program_invocation_name()(1:length(program_invocation_name())-length(program_name ())-4);
+addpath(genpath(dir_qiwib));
+
+%% read version file
+version_file = fopen([dir_qiwib,'/lib/.version'], "r"); print_qiwib_version=fscanf(version_file,'%s'); fclose(version_file);
+
+%% initial parameters
+n_args = length(argv());
+command_args = '';
+for n = 1:n_args, command_args = [command_args,argv(){n},' ']; end
+infile = []; outdir = []; ow = []; V = 1; g = []; qiwib_output = 0; qiwib_verbose_output = 0;
+
+%% read input parameter and/or print help
+i = 1;
+while i<=n_args || n_args==0
+
+	if i<n_args && strcmp(argv(){i},'-i') && !strcmp(argv(){i+1}(1),'-')
+		infile = argv(){i+1};
+		if !strcmp(infile(1),'/')
+			infile = [dir_current,'/',infile];
+			addpath(dir_current);
+		else 
+			addpath(infile(1:[find(infile=='/')(end)]));
+		end
+		i = i+2;
+	elseif i<n_args && strcmp(argv(){i},'-d') && !strcmp(argv(){i+1}(1),'-')
+		outdir = argv(){i+1};
+		if !strcmp(outdir(1),'/'), outdir = [dir_current,"/",outdir]; end
+		i = i+2;
+	elseif i<=n_args && strcmp(argv(){i},'-ow')
+		ow = "ow";
+		i = i+1;
+	elseif i<=n_args && strcmp(argv(){i},'-scr')
+		qiwib_output = 1;
+		i = i+1;
+	elseif i<=n_args && strcmp(argv(){i},'-v')
+		qiwib_verbose_output = 1;
+		i = i+1;
+	elseif i<n_args && strcmp(argv(){i},'-pot') && !strcmp(argv(){i+1}(1),'-')
+		V = str2num(argv(){i+1});
+		i = i+2;
+	elseif i<n_args && strcmp(argv(){i},'-g') && !strcmp(argv(){i+1}(1),'-')
+		g = str2num(argv(){i+1});
+		i = i+2;
+	else
+		printf("\nUsage of QiwiB (%s): [pathto]/qiwib [option]\n\n",print_qiwib_version); 
+		printf("Options:\n");
+		printf("  -i FILE        :  filename for input-file\n");
+		printf("  -d DIR         :  directory for output data\n");
+		printf("  -ow		 :  overwrite data in output directory\n");
+		printf("  -pot V0        :  prefactor multiplied to the external potential\n");
+		printf("  -g interaction :  change interaction\n");
+		printf("  -scr		 :  print contents of log file on screen\n");
+		printf("  -v		 :  verbose output on screen\n");
+		return
+	end
+	if n_args < 4
+		printf("\nUsage of QiwiB (%s): [pathto]/qiwib [option]\n\n",print_qiwib_version); 
+		printf("Options:\n");
+		printf("  -i FILE        :  filename for input-file\n");
+		printf("  -d DIR         :  directory for output data\n");
+		printf("  -ow		 :  overwrite data in output directory\n");
+		printf("  -pot V0        :  prefactor multiplied to the external potential\n");
+		printf("  -g interaction :  change interaction\n");
+		printf("  -scr		 :  print contents of log file on screen\n");
+		return
+	end
+
+end
+
+%% start qiwib
+qiwib(infile,outdir,ow,V,g,print_qiwib_version,qiwib_output,qiwib_verbose_output,dir_current,command_args);

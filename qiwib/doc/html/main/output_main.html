@@ -1,0 +1,110 @@
+<a name="header"></div>
+<h2><div align="center"><u>Output files</u></h2>
+
+QiwiB creates a lot of output files. Some of them are located in the main output directory and others in its subdirectory <em>time_dep/</em>. They all can be read by any text editors (see the notes for gzipped files).
+
+<h2><a name="main"></a>Main output files</h2>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr>
+	<td>.continue</td>
+	<td>empty file which purpose it is to keep the simulation alive. Once deleted the simulation stops properly and safely after it finished its last time step</td>
+</tr>
+<tr>
+	<td>input</td>
+	<td>an exact copy of the input file with a few additional lines appended to the end that contain the command line parameters with which QiwiB has been started</td>
+</tr>
+<tr>
+	<td>log</td>
+	<td>logs certain properties in columns:
+	<ol>
+	<li>time</li>
+	<li>time step</li>
+	<li>energy</li>
+	<li>energy difference to previous time-step</li>
+	<li>energy difference to previous time-step extrapolated to one time unit</li>
+	<li>correlation between C(t) and C(t-dt)</li>
+	<li>correlation between phi(t) and phi(t-dt) (phi being the matrix of the single-particle basis)</li>
+	<li>normalisation of C</li>
+	<li>normalisation of the total wave function</li>
+	<li>[only for relaxation: error output (flags) of eigs function, see <em>'help eigs'</em> in octave terminal, if the size of Hilbert space <=10 it is always 0]</li>
+	</ol>
+	The numbers in the brackets in the first few lines of the file indicate the column numbers.
+	</td>
+</tr>
+<tr>
+	<td>phiC_restart.gz</td>
+	<td>the most resent phi and C, used automatically for pa.relaxation=-2
+	    <br>To save disk space this file is gzipped, i.e. use gunzip if you want to see its contents in a text editor or use an editor that supports gzipped text files (some linux editors do).</td>
+</tr>
+<tr>
+	<td>pop_nat</td>
+	<td>population of the natural orbitals as a percentage, first column is time</td>
+</tr>
+<tr>
+	<td>spatial_population</td>
+	<td>integral of the density over the 3 regions defined by pa.nl and pa.nr	
+	<ol>
+	<li>time</li>
+	<li>integral of density over all regions</li>
+	<li>integral of density over left region</li>
+	<li>integral of density over middle region</li>
+	<li>integral of density over right region</li>
+	</ol>	</td>
+</tr>
+<tr>
+	<td>steps</td>
+	<td>saves the real cpu_time in seconds for each constant mean field (CMF) time step	
+	<ol>
+	<li>counts the number of elapsed mean field steps</li>
+	<li>time step</li>
+	<li>time</li>
+	<li>real CPU times for
+	<ul>
+	<li>for last step</li>
+	<li>total time</li>
+	<li>calculation of W_ksql, h_kq and H_nonlinear (internal function) for last step</li>
+	<li>calculation of W_ksql, h_kq and H_nonlinear (internal function) - total time</li>
+	<li>calculation of rho_ksql, rho_kq and H_C for last step</li>
+	<li>calculation of rho_ksql, rho_kq and H_C - total time</li>
+	<li>calculation of phi propagation/relaxation for last step</li>
+	<li>calculation of phi propagation/relaxation - total time</li>
+	<li>calculation of C propagation/relaxation for last step</li>
+	<li>calculation of C propagation/relaxation  - total time</li>
+	</ul></li>
+	</ol>
+	The numbers in the brackets in the first few lines of the file indicate the column numbers.
+	</td>
+</tr>
+</table>
+
+
+
+
+<br><br><a href="#header">top</a>
+<h2><a name="time_dep"></a>Files in time_dep/ directory</h2>
+The files in this directory are saved after each pa.save_step. [time] will be replaced by the current time in the simulation when the variables are due to be saved. Which files are saved is specified in pa.save_options. Also, the information contained in those files can be read out by a text editor or the plotting programs.
+<br>To save disk space all files are gzipped, i.e. use gunzip if you want to see their contents in a text editor or use an editor that supports gzipped text files (some linux editors do).<br><br>
+<table border="1" cellpadding="5" cellspacing="0">
+<tr>
+	<td>[time]_density.gz</td>
+	<td>saves the density including the spatial grid, time and external potential</td>
+</tr>
+<tr>
+	<td>[time]_g1_0x.gz</td>
+	<td>saves a slice of the reduced density matrix g1(0,x) including the spatial grid and the time</td>
+</tr>
+<tr>
+	<td>[time]_phiC.gz</td>
+	<td>saves single-particle basis and the C vector including the spatial grid and the time</td>
+</tr>
+<tr>
+	<td>[time]_phiNO.gz</td>
+	<td>saves natural orbitals r including the spatial grid and the time</td>
+</tr>
+<tr>
+	<td>[time]_rho.gz</td>
+	<td>data necessary for plotting fock space of natural orbitals, g1 and g2</td>
+</tr>
+</table>
+<br><br><a href="#header">top</a>

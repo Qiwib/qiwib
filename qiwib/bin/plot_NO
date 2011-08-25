@@ -1,0 +1,299 @@
+#! /home/efmunu/software/octave/bin/octave -Hq
+
+## Copyright (C) 2011 by Thomas Ernst
+## 
+## Permission is hereby granted, free of charge, to any person obtaining a copy
+## of this software and associated documentation files (the "Software"), to deal
+## in the Software without restriction, including without limitation the rights
+## to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+## copies of the Software, and to permit persons to whom the Software is
+## furnished to do so, subject to the following conditions:
+## 
+## The above copyright notice and this permission notice shall be included in
+## all copies or substantial portions of the Software.
+## 
+## THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+## IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+## FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+## AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+## LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+## OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+## THE SOFTWARE.
+
+crash_dumps_octave_core(0); clear -all
+
+%% initialise input parameters
+
+n_args = length(argv());
+input_dir = ''; t_start=0; t_end=-1; dstep=1; t_single=-1; no_plot=0; no_carpet=0; manuell_plot = 0;
+movie_file=''; movie_file_name = []; movie_file_path = ''; carpet_file = ''; plot_file = ''; movie_factor = 1; movie_width=1200;
+x_lim=[]; y_lim=[]; degree_freedom = 1; rhoNO = 0; real_imag_NO = 'abs';
+
+%% read input parameter and/or print help
+i = 1;
+while i<=n_args || n_args==0
+
+	if i<n_args && strcmp(argv(){i},'-i') && i+1<= n_args && !strcmp(argv(){i+1}(1),'-')
+		input_dir = argv(){i+1};
+		if !strcmp(input_dir(end),'/'), input_dir = [input_dir,'/']; end
+		if !strcmp(input_dir(1),'/'), input_dir = [pwd,'/',input_dir]; end;
+		i = i+2;
+	elseif i<n_args && strcmp(argv(){i},'-ts') && i+1<= n_args && !strcmp(argv(){i+1}(1),'-')
+		t_start = str2num(argv(){i+1});
+		i = i+2;
+	elseif i<n_args && strcmp(argv(){i},'-te') && i+1<= n_args && !strcmp(argv(){i+1}(1),'-')
+		t_end = str2num(argv(){i+1});
+		i = i+2;
+	elseif i<n_args && strcmp(argv(){i},'-dt') && i+1<= n_args && !strcmp(argv(){i+1}(1),'-')
+		dstep = str2num(argv(){i+1});
+		i = i+2;	
+	elseif i<n_args && strcmp(argv(){i},'-t') && i+1<= n_args && !strcmp(argv(){i+1}(1),'-')
+		t_single = str2num(argv(){i+1});
+		i = i+2;
+	elseif i<n_args-1 && strcmp(argv(){i},'-M') && i+2<= n_args && !strcmp(argv(){i+2}(1),'-')
+		movie_file=argv(){i+1};
+		movie_file_name = argv(){i+2};
+		if length(find(movie_file_name=='/'))!=0
+			movie_file_path = movie_file_name(1:[find(movie_file_name=='/')(end)]);
+		end
+		if movie_file_path!='' && !strcmp(movie_file_path(1),'/')
+			movie_file_path = [pwd,'/',movie_file_path]; movie_file_name = [pwd,'/',movie_file_name];
+		end
+		i = i+3;
+	elseif i<n_args && strcmp(argv(){i},'-Mw') && i+1<= n_args && !strcmp(argv(){i+1}(1),'-')
+		movie_width=str2num(argv(){i+1});
+		i = i+2;	
+	elseif i<=n_args && strcmp(argv(){i},'-np')
+		no_plot=1;
+		i = i+1;
+	elseif i<=n_args && strcmp(argv(){i},'-nc')
+		no_carpet=1;
+		i = i+1;
+	elseif i<=n_args && strcmp(argv(){i},'-man')
+		manuell_plot=1;
+		i = i+1;	
+	elseif i<n_args && strcmp(argv(){i},'-nNO') && i+1<= n_args && !strcmp(argv(){i+1}(1),'-')
+		degree_freedom=str2num(argv(){i+1});
+		i = i+2;				
+	elseif i<n_args && strcmp(argv(){i},'-x') && i+1<= n_args && !strcmp(argv(){i+1}(1),'-')
+		movie_factor=str2num(argv(){i+1});
+		i = i+2;
+	elseif i<n_args && strcmp(argv(){i},'-xlim') && i+1<= n_args && !strcmp(argv(){i+1}(1),'-')
+		x_lim=str2num(argv(){i+1});
+		i = i+2;
+	elseif i<n_args && strcmp(argv(){i},'-ylim') && i+1<= n_args && !strcmp(argv(){i+1}(1),'-')
+		y_lim=str2num(argv(){i+1});
+		i = i+2;		
+	elseif i<n_args && strcmp(argv(){i},'-ri') && i+1<= n_args && !strcmp(argv(){i+1}(1),'-')
+		real_imag_NO = argv(){i+1};
+		if !strcmp(real_imag_NO,'real') && !strcmp(real_imag_NO,'imag'), n_args=1; end
+		i = i+2;
+	elseif i<n_args && strcmp(argv(){i},'-sc') && i+2<= n_args && !strcmp(argv(){i+1}(1),'-')
+		carpet_file_type = argv(){i+1};
+		carpet_file = argv(){i+2};
+		if !strcmp(carpet_file(1),'/'), carpet_file = [pwd,'/',carpet_file]; end
+		i = i+3;
+	elseif i<n_args && strcmp(argv(){i},'-sp') && i+2<= n_args && !strcmp(argv(){i+1}(1),'-')
+		plot_file_type = argv(){i+1};
+		plot_file = argv(){i+2};
+		if !strcmp(plot_file(1),'/'), plot_file = [pwd,'/',plot_file]; end
+		i = i+3;						
+	else
+		printf("\nUsage of plot_NO: [pathto]/plot_NO [option]\n\n"); 
+		printf("Options:\n");
+		printf("  -i PATH			:  PATH to simulation directory\n");
+		printf("  -nNO [number]			:  plot absolute squared of [number]th natural orbital\n\n");
+		printf("  Optional:\n");
+		printf("  -ri real/imag			:  plot real or imaginary part of NO\n");
+		printf("  -t t_one			:  plot natural orbital for t=t_one\n");
+		printf("  -np				:  do not plot natural orbitals\n");
+		printf("  -nc				:  do not create carpet plot\n");
+		printf("  -x factor			:  speed up factor for animation/movie\n");
+		printf("  -man				:  enable key press to go through animation\n");
+		printf("  -xlim [start,end]		:  upper and lower limits of x-axis\n");
+		printf("  -ylim [start,end]		:  upper and lower limits of y-axis\n");
+		printf("\n  For movie plots:\n");
+		printf("  -ts t_start			:  initial time t_start of movie\n");
+		printf("  -te t_end			:  final time t_end of movie\n");
+		printf("  -dt dt			:  time step dt (default=1)\n");
+		printf("  -M gif/avi [filename]		:  create movie file and save into [filename]\n");
+		printf("  -Mw [width]			:  width of movie (default=1200), aspect ratio is always 4:3\n");
+		printf("\n");
+		printf("  -sc ascii/image file		:  save carpet plot to file as ascii or image\n");
+		printf("  -sp ascii/image file		:  save last plot to file as ascii or image\n");
+		return
+	end
+	if n_args < 4
+		printf("\nUsage of plot_NO: [pathto]/plot_NO [option]\n\n"); 
+		printf("Options:\n");
+		printf("  -i PATH			:  PATH to simulation directory\n");
+		printf("  -nNO [number]			:  plot [number]th natural orbital\n\n");
+		printf("  Optional:\n");
+		printf("  -ri real/imag			:  plot real or imaginary part of NO\n");
+		printf("  -t t_one			:  plot density for t=t_one\n");
+		printf("  -np				:  do not plot densities\n");
+		printf("  -nc				:  do not create carpet plot\n");
+		printf("  -x factor			:  speed up factor for animation/movie\n");
+		printf("  -man				:  enable key press to go through animation\n");
+		printf("  -xlim [start,end]		:  upper and lower limits of x-axis\n");
+		printf("  -ylim [start,end]		:  upper and lower limits of y-axis\n");
+		printf("\n  For movie plots:\n");
+		printf("  -ts t_start			:  initial time t_start of movie\n");
+		printf("  -te t_end			:  final time t_end of movie\n");
+		printf("  -dt dt			:  time step dt (default=1)\n");
+		printf("  -M gif/avi [filename]		:  create movie file and save into [filename]\n");
+		printf("  -Mw [width]			:  width of movie (default=1200), aspect ratio is always 4:3\n");
+		printf("\n");
+		printf("  -sc ascii/image file		:  save carpet plot to file as ascii or image\n");
+		printf("  -sp ascii/image file		:  save last density plot to file as ascii or image\n");
+		return
+		return
+	end
+
+end
+
+%% The actual Program
+	
+	tim = []; g1t = [];
+	if t_single > -1, t_start = t_single; t_end = t_single;	end  %% make sure the while loop starts and ends at the right time
+	t_current = t_start;
+	
+	%%  see if the first input file exists
+	if exist([input_dir,"time_dep/",num2str(t_current),'_phiNO.gz']) != 2
+		rhoNO = 1;
+		if exist([input_dir,"time_dep/",num2str(t_current),'_rho.gz']) != 2 && exist([input_dir,"time_dep/",num2str(t_current),'_phiC.gz']) != 2
+			printf("\n%s or %s and %s not found!\n", [input_dir,"time_dep/",num2str(t_current),'_phiNO.gz'],[input_dir,"time_dep/",num2str(t_current),'_rho.gz'],[input_dir,"time_dep/",num2str(t_current),'_phiC.gz']);
+			return
+		end
+	end
+	%% define if graphical plotting is turned on/off
+	if no_plot==1 && (!strcmp(movie_file,'') || !strcmp(plot_file,'')), set(0, 'defaultfigurevisible', 'off'); no_plot=2; end	
+	
+	%% read the data and maybe plot it
+	counting = 0;
+	while(t_current-t_end<dstep || t_end==-1)
+
+		if rhoNO == 0
+			if exist([input_dir,"time_dep/",num2str(t_current),'_phiNO.gz']) != 2
+				if t_end>-1
+					printf("\nStopped after %f seconds.\n", t_current-dstep);
+					printf("\n%s not found!\n", [input_dir,"time_dep/",num2str(t_current),'_phiNO.gz']);
+					return
+				end
+				break
+			end
+			load([input_dir,"time_dep/",num2str(t_current),'_phiNO.gz']);
+		
+		elseif rhoNO == 1
+			if exist([input_dir,"time_dep/",num2str(t_current),'_phiC.gz']) != 2
+				if t_end>-1
+					printf("\nStopped after %f seconds.\n", t_current-dstep);
+					printf("\n%s not found!\n", [input_dir,"time_dep/",num2str(t_current),'_phiC.gz']);
+					return
+				end
+				break
+			end
+			load([input_dir,"time_dep/",num2str(t_current),'_phiC.gz'],'time','phi','xpos');
+			if exist([input_dir,"time_dep/",num2str(t_current),'_rho.gz']) != 2
+				if t_end>-1
+					printf("\nStopped after %f seconds.\n", t_current-dstep);
+					printf("\n%s not found!\n", [input_dir,"time_dep/",num2str(t_current),'_rho.gz']);
+					return
+				end
+				break
+			end
+			load([input_dir,"time_dep/",num2str(t_current),'_rho.gz'],'rho_kq');
+			
+			%% create g1 matrix
+			M = length(phi(1,:)); n_x = length(xpos);
+			g1 = zeros(n_x,n_x);
+			for k=1:M, for q=1:M
+				g1 = g1 + rho_kq(q+(k-1)*M) * conj(phi(:,k)) * phi(:,q).';
+			end, end
+
+			[A,B] = eigs(g1,M,'lm');
+			B=diag(B); [BB,B_index] = sort(abs(B)); B = B(B_index); A = A(:,B_index);
+			phiNO = A(:,end:-1:end-(M-1))/sqrt(xpos(2)-xpos(1));
+		
+		end
+
+		%% create matrix with absolute squared of natural orbital 
+		if strcmp(real_imag_NO,'abs'), NO = abs(phiNO).^2; label_y = '|phi_{NO}|^2';
+		elseif strcmp(real_imag_NO,'real'), NO = real(phiNO); label_y = 'Re(phi_{NO})'; 
+		elseif strcmp(real_imag_NO,'imag'), NO = imag(phiNO); label_y = 'Im(phi_{NO})'; end
+		
+		g1t = [g1t;NO(:,degree_freedom)'];
+		tim = [tim; time];
+		
+		%% plotting
+		if no_plot == 0 || no_plot==2
+			plot(xpos,NO(:,degree_freedom));
+			title(["t=",num2str(time)]);
+			if !isempty(x_lim), xlim(x_lim); end
+			if !isempty(y_lim), ylim(y_lim); end
+			xlabel('x');
+			ylabel(label_y);
+			drawnow;
+			if no_plot==0, pause(dstep/movie_factor); end
+		end
+		%% create images for avi/gif movie
+		if !strcmp(movie_file,'')
+			movie_png_filename=sprintf('figure%014d.png',counting);
+			print([movie_file_path,movie_png_filename])
+		end
+		
+		%% defines if key press is needed to see next picture
+		if manuell_plot==0
+			printf("time: %f           ",t_current); fflush(stdout); printf("\r");
+		else
+			printf("time: %f, Press any key to continue.               ",t_current); fflush(stdout); printf("\r");
+			pause
+		end	
+		t_current = t_current + dstep;
+		counting = counting + 1;
+	end
+	
+	%% saves last plot as picture/ascii	
+	if !strcmp(plot_file,'') && !strcmp(plot_file_type,'ascii')
+		print(plot_file);
+		printf("\nSaved to %s\n", plot_file);
+	elseif !strcmp(plot_file,'') && strcmp(plot_file_type,'ascii')
+		temp_g1 = [xpos,NO(:,degree_freedom)];
+		save('-ascii',plot_file,'-double','temp_g1');
+		printf("\nSaved to %s\n", plot_file);
+	end
+	
+	%% shows/saves carpet plot as picture/ascii	
+	if t_single==-1, printf("\nStopped at %f seconds.", t_current-dstep); end
+	if no_carpet==1 && !strcmp(carpet_file,''), set(0, 'defaultfigurevisible', 'off'); no_carpet=2; else, set(0, 'defaultfigurevisible', 'on'); end
+	if length(tim)>1 && (no_carpet==0 || no_carpet==2)
+		if isempty(x_lim), x_lim = [xpos(1),xpos(end)]; end
+		n_carpet_limits_x = find( [xpos>=x_lim(1)] & [xpos<=x_lim(2)]);
+		imagesc(xpos(n_carpet_limits_x),tim,g1t(:,n_carpet_limits_x)); xlabel('x'); ylabel('t'); colorbar;
+		if !strcmp(carpet_file,'') && !strcmp(carpet_file_type,'ascii')
+			print(carpet_file);
+			printf("\nSaved to %s\n", carpet_file);
+		elseif !strcmp(carpet_file,'') && strcmp(carpet_file_type,'ascii')
+			save('-ascii',carpet_file,'-double','g1t');
+			printf("\nSaved to %s\n", carpet_file);
+		end
+	end
+	
+	%% creates avi/gif movie
+	if strcmp(movie_file,'gif')
+		printf("\nCreating movie file...%s",movie_file_name);
+		system(["convert -resize ",num2str(movie_width),"x",num2str(movie_width*3/4)," -delay ",num2str(dstep*100/movie_factor)," -loop 0 ",movie_file_path,"*png ",movie_file_name]);
+		system(['rm -f ',movie_file_path,'*png']);
+		printf("done\n");
+	elseif strcmp(movie_file,'avi')
+		printf("\nCreating movie file...%s",movie_file_name);
+		system(["mencoder mf://",movie_file_path,"*.png -mf fps=",num2str(1/dstep*movie_factor),":type=png -ovc lavc -lavcopts vcodec=mpeg4:mbd=2:trell -oac copy -vf scale=",num2str(movie_width),":-3 -o ",movie_file_name]);
+		system(['rm -f ',movie_file_path,'*png']);
+		printf("\n...done\n");
+	end
+	
+	if no_plot==0 || no_carpet==0
+		printf("\nPress any key to quit.\n");
+		pause
+	end
+	

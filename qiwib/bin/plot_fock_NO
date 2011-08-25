@@ -1,0 +1,190 @@
+#! /home/efmunu/software/octave/bin/octave -Hq
+
+## Copyright (C) 2011 by Thomas Ernst
+## 
+## Permission is hereby granted, free of charge, to any person obtaining a copy
+## of this software and associated documentation files (the "Software"), to deal
+## in the Software without restriction, including without limitation the rights
+## to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+## copies of the Software, and to permit persons to whom the Software is
+## furnished to do so, subject to the following conditions:
+## 
+## The above copyright notice and this permission notice shall be included in
+## all copies or substantial portions of the Software.
+## 
+## THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+## IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+## FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+## AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+## LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+## OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+## THE SOFTWARE.
+
+crash_dumps_octave_core(0); clear -all
+
+%% add qiwib direcories to octave PATH
+dir_current = pwd;
+dir_qiwib = program_invocation_name()(1:length(program_invocation_name())-length(program_name ())-4);
+addpath(genpath(dir_qiwib));
+
+%% initialise input parameters
+n_args = length(argv());
+input_dir = ''; t_start=0; t_end=-1; dstep=1; no_carpet=0; carpet_file = ''; N=0; x_lim = [];
+Ct = []; Cfull = []; carpet_file = ''; carpet_file_type = '';
+%% read input parameter and/or print help
+i = 1;
+while i<=n_args || n_args==0
+
+	if i<n_args && strcmp(argv(){i},'-i') && i+1<= n_args && !strcmp(argv(){i+1}(1),'-')
+		input_dir = argv(){i+1};
+		if !strcmp(input_dir(end),'/'), input_dir = [input_dir,'/']; end
+		if !strcmp(input_dir(1),'/'), input_dir = [pwd,'/',input_dir]; end;
+		i = i+2;
+	elseif i<n_args && strcmp(argv(){i},'-ts') && i+1<= n_args && !strcmp(argv(){i+1}(1),'-')
+		t_start = str2num(argv(){i+1});
+		i = i+2;
+	elseif i<n_args && strcmp(argv(){i},'-te') && i+1<= n_args && !strcmp(argv(){i+1}(1),'-')
+		t_end = str2num(argv(){i+1});
+		i = i+2;
+	elseif i<n_args && strcmp(argv(){i},'-dt') && i+1<= n_args && !strcmp(argv(){i+1}(1),'-')
+		dstep = str2num(argv(){i+1});
+		i = i+2;
+	elseif i<n_args && strcmp(argv(){i},'-xlim') && i+1<= n_args && !strcmp(argv(){i+1}(1),'-')
+		x_lim=str2num(argv(){i+1});
+		i = i+2;
+	elseif i<=n_args && strcmp(argv(){i},'-nc')
+		no_carpet=1;
+		i = i+1;
+	elseif i<n_args && strcmp(argv(){i},'-f') && i+2<= n_args && !strcmp(argv(){i+1}(1),'-')
+		carpet_file_type = argv(){i+1};
+		carpet_file = argv(){i+2};
+		if !strcmp(carpet_file(1),'/'), carpet_file = [pwd,'/',carpet_file]; end
+		i = i+3;					
+	else
+		printf("\nUsage of plot_fock_NO: [pathto]/plot_fock_NO [option]\n"); 
+		printf("[only for simulations that used exactly 2 single-partcle functions.\nRecommended max. number of particles is 90.]\n\n"); 
+		printf("Options:\n");
+		printf("  -i PATH			:  PATH to simulation directory\n\n");
+		printf("  Optional:\n");
+		printf("  -nc				:  do not create carpet plot\n");
+		printf("  -ts t_start			:  initial time t_start\n");
+		printf("  -te t_end			:  final time t_end\n");
+		printf("  -xlim [start,end]		:  upper and lower limits of x-axis\n");
+		printf("  -dt dt			:  time step dt (default=1)\n");
+		printf("  -f ascii/image file		:  save carpet plot to file as ascii or image\n");
+		printf("  -f full file			:  save C_NO to file in octave's text format\n");
+		return
+	end
+	if n_args < 2
+		printf("\nUsage of plot_fock_NO: [pathto]/plot_fock_NO [option]\n"); 
+		printf("[only for simulations that used exactly 2 single-partcle functions.\nRecommended max. number of particles is 90.]\n\n"); 
+		printf("Options:\n");
+		printf("  -i PATH			:  PATH to simulation directory\n\n");
+		printf("  Optional:\n");
+		printf("  -nc				:  do not create carpet plot\n");
+		printf("  -ts t_start			:  initial time t_start\n");
+		printf("  -te t_end			:  final time t_end\n");
+		printf("  -xlim [start,end]		:  upper and lower limits of x-axis\n");
+		printf("  -dt dt			:  time step dt (default=1)\n");
+		printf("  -f ascii/image file		:  save carpet plot to file as ascii or image\n");
+		printf("  -f full file			:  save C_NO to file in octave's text format\n");
+		return
+		return
+	end
+
+end
+
+%% The actual Program
+		
+	tim = [];
+	t_current = t_start;  %% make sure the while loop starts and ends at the right time
+
+	%%  see if the first input files exists
+	if exist([input_dir,"time_dep/",num2str(t_current),'_rho.gz']) != 2
+		printf("\n%s not found!\n", [input_dir,"time_dep/",num2str(t_current),'_rho.gz']);
+		return
+	end		
+	if exist([input_dir,"time_dep/",num2str(t_current),'_phiC.gz']) != 2
+		printf("\n%s not found!\n", [input_dir,"time_dep/",num2str(t_current),'_phiC.gz']);
+		return
+	end
+	load([input_dir,"time_dep/",num2str(t_current),'_phiC.gz']);
+	
+	if length(phi(1,:))!=2
+		printf("\nThe number of single-particle functions used in the simulation does not equal 2!\n");
+		return
+	end
+	
+	%% create constant prefactors made out of binomial coefficients
+	N = length(C)-1;
+	bin_c = zeros(N+1,N+1);
+	for i=0:N, for j=0:i, bin_c(i+1,j+1) = bincoeff(i,j); end; end
+	
+	%% read the data and maybe plot it
+	while(t_current-t_end<dstep || t_end==-1)
+
+		if exist([input_dir,"time_dep/",num2str(t_current),'_phiC.gz']) != 2
+			if t_end>-1
+				printf("\nStopped after %f seconds.\n", t_current-dstep);
+				printf("\n%s not found!\n", [input_dir,"time_dep/",num2str(t_current),'_phiC.gz']);
+				return
+			end
+			break
+		end
+		load([input_dir,"time_dep/",num2str(t_current),'_phiC.gz']);
+		
+		if exist([input_dir,"time_dep/",num2str(t_current),'_rho.gz']) != 2
+			if t_end>-1
+				printf("\nStopped after %f seconds.\n", t_current-dstep);
+				printf("\n%s not found!\n", [input_dir,"time_dep/",num2str(t_current),'_rho.gz']);
+				return
+			end
+			break
+		end
+		load([input_dir,"time_dep/",num2str(t_current),'_rho.gz'],'rho_kq');
+		
+		%% create transformation matrix
+		[AA,BB] = eig(reshape(rho_kq,2,2));
+		dx = abs(xpos(2)-xpos(1));
+		
+		t_LL = AA(1,1);
+		t_RL = AA(2,1);
+		t_LR = AA(1,2);
+		t_RR = AA(2,2);
+
+		%% calculate C vector in NO basis		
+		C_NO = calc_fock_NO_C(N,C,t_LL,t_LR,t_RL,t_RR,bin_c);
+		
+		if strcmp(carpet_file_type,'full'), Cfull = [Cfull;C_NO.']; tim = [tim; time];
+		else, Ct = [Ct;abs(C_NO.').^2]; tim = [tim; time]; end
+		
+		printf("time: %f           ",t_current); fflush(stdout); printf("\r");	
+		t_current = t_current + dstep;
+		
+		if abs(C_NO'*C_NO-1.0)>1E-2, printf("\nWarning: the normalisation of C_NO is by more than 0.01 different to 1: |C_NO|^2=%f\n",abs(C_NO'*C_NO)); fflush(stdout); end
+	end
+	
+
+	printf("\nStopped at %f seconds.\n", t_current-dstep);
+	
+	%% plots carpet plot
+	if no_carpet==1 && !strcmp(carpet_file,''), set(0, 'defaultfigurevisible', 'off'); no_carpet=2; else, set(0, 'defaultfigurevisible', 'on'); end
+	if length(tim)>0 && (no_carpet==0 || no_carpet==2) && !strcmp(carpet_file_type,'full')
+		if isempty(x_lim), x_lim = [1:length(C_NO)]; else x_lim = [x_lim(1):x_lim(2)]; end;
+		imagesc(x_lim-1,tim,Ct(:,x_lim)); xlabel('|N-n,n>^{NO}'); ylabel('t'); colorbar;
+		if !strcmp(carpet_file,'') && !strcmp(carpet_file_type,'ascii')
+			print(carpet_file);
+			printf("\nSaved to %s\n", carpet_file);
+		elseif !strcmp(carpet_file,'') && strcmp(carpet_file_type,'ascii')
+			save('-ascii',carpet_file,'-double','Ct'); 
+			printf("\nSaved to %s\n", carpet_file);
+		end
+	end
+	if length(tim)>0 && strcmp(carpet_file_type,'full') && !strcmp(carpet_file,'')
+		save(carpet_file,'Cfull');
+	end
+
+	if no_carpet==0
+		printf("\nPress any key to quit.\n");
+		pause
+	end
