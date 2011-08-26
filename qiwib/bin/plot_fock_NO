@@ -145,7 +145,7 @@ end
 		
 		%% create transformation matrix		
 		[AA,BB] = eig(reshape(rho_kq,2,2));
-		if det(real(AA)) < 0, AA(:,1) = -AA(:,1); end
+		AA(:,1) = conj(det(AA)) * AA(:,1);
 		dx = abs(xpos(2)-xpos(1));
 		
 		t_LL = AA(1,1);
