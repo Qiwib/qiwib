@@ -143,9 +143,9 @@ end
 		end
 		load([input_dir,"time_dep/",num2str(t_current),'_rho.gz'],'rho_kq');
 		
-		%% create transformation matrix
-		rhokq=reshape(rho_kq,2,2); rhokq(1,2)+=I*eps*eps; rhokq(2,1)-=I*eps*eps;
-		[AA,BB] = eig(rhokq);
+		%% create transformation matrix		
+		[AA,BB] = eig(reshape(rho_kq,2,2));
+		if det(real(AA)) < 0, AA(:,1) = -AA(:,1); end
 		dx = abs(xpos(2)-xpos(1));
 		
 		t_LL = AA(1,1);
