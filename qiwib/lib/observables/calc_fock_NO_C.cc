@@ -51,10 +51,10 @@
 				{
 					temp_C = 0;
 					for (int k=0; k<=mu; k++)
-						for (int n=k; n<=N-mu+k; n++) temp_C += sqrt(bin_c(N,n)/bin_c(N,mu))*bin_c(n,k)*bin_c(N-n,mu-k) * pow(t_LL,n-k) * pow(t_RL,k) * pow(t_LR,N-n-mu+k) * pow(t_RR,mu-k) * C(n);
+						for (int n=k; n<=N-mu+k; n++) temp_C += sqrt(bin_c(N,n)/bin_c(N,mu))*bin_c(n,k)*bin_c(N-n,mu-k) * pow(t_LL,N-n-mu+k) * pow(t_RL,mu-k) * pow(t_LR,n-k) * pow(t_RR,k) * C(n);
 
 					C_NO(mu) = temp_C;
-				}
+				}				
            	 
 	           	retval(0) = C_NO;
            	}

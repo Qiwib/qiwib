@@ -132,7 +132,8 @@ end
 			break
 		end
 		load([input_dir,"time_dep/",num2str(t_current),'_phiC.gz']);
-		
+			load([input_dir,"time_dep/",num2str(t_current),'_phiNO.gz']);
+	
 		if exist([input_dir,"time_dep/",num2str(t_current),'_rho.gz']) != 2
 			if t_end>-1
 				printf("\nStopped after %f seconds.\n", t_current-dstep);
@@ -143,11 +144,12 @@ end
 		end
 		load([input_dir,"time_dep/",num2str(t_current),'_rho.gz'],'rho_kq');
 		
-		%% create transformation matrix		
-		[AA,BB] = eig(reshape(rho_kq,2,2));
-		if det(real(AA)) < 0, AA(:,1) = -AA(:,1); end
-		dx = abs(xpos(2)-xpos(1));
+		%% create transformation matrix
 		
+		[AA,BB] = eig(reshape(rho_kq,2,2));
+		[BB,nBB] = sort(diag(BB),'descend'); AA = AA(:,nBB);
+		AA = AA';
+
 		t_LL = AA(1,1);
 		t_RL = AA(2,1);
 		t_LR = AA(1,2);
@@ -189,3 +191,6 @@ end
 		printf("\nPress any key to quit.\n");
 		pause
 	end
+
+
+
