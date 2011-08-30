@@ -1,4 +1,4 @@
-v11.08.29
+v11.08.30
 	important bug fix: reverted some older changes on the propagation of the single-particle functions
 	fixed the bug in plotting the fock space for natural orbitals
 v11.08.25
