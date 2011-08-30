@@ -173,7 +173,7 @@ end
 	counting = 0;
 	while(t_current-t_end<dstep || t_end==-1)
 
-		if rhoNO == 0
+		if rhoNO == 1
 			if exist([input_dir,"time_dep/",num2str(t_current),'_phiNO.gz']) != 2
 				if t_end>-1
 					printf("\nStopped after %f seconds.\n", t_current-dstep);
@@ -184,7 +184,7 @@ end
 			end
 			load([input_dir,"time_dep/",num2str(t_current),'_phiNO.gz']);
 		
-		elseif rhoNO == 1
+		elseif rhoNO == 0
 			if exist([input_dir,"time_dep/",num2str(t_current),'_phiC.gz']) != 2
 				if t_end>-1
 					printf("\nStopped after %f seconds.\n", t_current-dstep);
@@ -194,6 +194,7 @@ end
 				break
 			end
 			load([input_dir,"time_dep/",num2str(t_current),'_phiC.gz'],'time','phi','xpos');
+
 			if exist([input_dir,"time_dep/",num2str(t_current),'_rho.gz']) != 2
 				if t_end>-1
 					printf("\nStopped after %f seconds.\n", t_current-dstep);
@@ -203,17 +204,14 @@ end
 				break
 			end
 			load([input_dir,"time_dep/",num2str(t_current),'_rho.gz'],'rho_kq');
-			
-			%% create g1 matrix
-			M = length(phi(1,:)); n_x = length(xpos);
-			g1 = zeros(n_x,n_x);
-			for k=1:M, for q=1:M
-				g1 = g1 + rho_kq(q+(k-1)*M) * conj(phi(:,k)) * phi(:,q).';
-			end, end
 
-			[A,B] = eigs(g1,M,'lm');
-			B=diag(B); [BB,B_index] = sort(abs(B)); B = B(B_index); A = A(:,B_index);
-			phiNO = A(:,end:-1:end-(M-1))/sqrt(xpos(2)-xpos(1));
+			M = length(phi(1,:)); Ng = length(phi(:,1));
+			[AA,BB] = eig(reshape(rho_kq,M,M));
+			[BB,nBB] = sort(diag(BB),'descend'); AA = AA(:,nBB); phiNO_n = diag(BB);
+			phiNO = zeros(Ng, M);
+			for i=1:M, for j=1:M
+				phiNO(:,i) += AA(j,i) * phi(:,j);
+			end, end
 		
 		end
 

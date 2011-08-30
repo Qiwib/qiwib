@@ -46,10 +46,17 @@
    	   Complex H_lin_diag[Ng];
    	   Complex ovrlp = 0;
    	   Complex temp = 0;
+	   double temp_rH = 0;
+	   double temp_iH = 0;
+	   double temp_rW = 0;
+	   double temp_iW = 0;	   
+	   double temp_r = 0;
+	   double temp_i = 0;
    	   Complex H_nlC[Ng*M];
    	   Complex phi[Ng*M];
    	   Complex phi_cc[Ng*M];
-   	   Complex H_nonlinC[M*M*M*M];
+   	   double H_nonlinC[2*M*M*M*M];
+	   double W_sl[2*Ng*M*M];
    	   Complex FC[Ng*M];
    	   Complex Ovrlp_phiC[M][M];
    	   Complex Ovrlp_phi_invC[M][M];
@@ -62,7 +69,6 @@
    	   Complex H_linCll = 0;
 	   Complex H_linCrr_periodic = 0;
    	   Complex H_linCll_periodic = 0;
-	   Complex W_sl[Ng*M*M];
 	   
            if (! error_state)
            	{
@@ -72,7 +78,10 @@
 		        for(int q=0; q<M; q++)
 				for(int s=0; s<M; s++)
 					for(int l=0; l<M; l++)
-						H_nonlinC[l+s*M+q*M*M+j*M*M*M]=H_nonlin(l+q*M+s*M*M+j*M*M*M);		
+					{
+					  H_nonlinC[0+l+s*M+2*q*M*M+2*j*M*M*M]=real(H_nonlin(l+q*M+s*M*M+j*M*M*M));
+					  H_nonlinC[M*M+l+s*M+2*q*M*M+2*j*M*M*M]=imag(H_nonlin(l+q*M+s*M*M+j*M*M*M));
+					}
 		
 					  
            	for(int n=0; n<Ng*M; n++)
@@ -93,17 +102,28 @@
 		H_linCll_periodic = H_sp(Ng+7);		
 		for(int n=0; n<Ng; n++)
 			for(int s=0; s<M; s++)
-				for(int l=0; l<M; l++)	
-					W_sl[l+s*M+n*M*M] = phi_cc[n+s*Ng] * phi[n+l*Ng];
+				for(int l=0; l<M; l++)
+				{
+				  W_sl[0+l+s*M+2*n*M*M] = real(phi_cc[n+s*Ng] * phi[n+l*Ng]);
+				  W_sl[M*M+l+s*M+2*n*M*M] = imag(phi_cc[n+s*Ng] * phi[n+l*Ng]);
+				}
 		
-		
-	        for(int j=0; j<M; j++)
-		        for(int q=0; q<M; q++)
-			        for(int n=0; n<Ng; n++)
+	        for(int j=0; j<M; ++j)
+		        for(int q=0; q<M; ++q)
+			        for(int n=0; n<Ng; ++n)
 			        {
-					temp = 0;
-					for(int ls=0; ls<M*M; ls++) temp += H_nonlinC[ls+q*M*M+j*M*M*M] * W_sl[ls+n*M*M]; 
-					H_nlC[n+j*Ng] += temp * phi[n+q*Ng];
+					temp_r = 0;
+					temp_i = 0;
+					for(int ls=0; ls<M*M; ++ls)
+					{
+					  temp_rH = H_nonlinC[ls+2*q*M*M+2*j*M*M*M];
+					  temp_iH = H_nonlinC[M*M+ls+2*q*M*M+2*j*M*M*M];
+					  temp_rW = W_sl[ls+2*n*M*M];
+					  temp_iW = W_sl[M*M+ls+2*n*M*M];
+					  temp_r += temp_rH * temp_rW - temp_iH * temp_iW;
+					  temp_i += temp_rH * temp_iW + temp_iH * temp_rW;
+					}
+					H_nlC[n+j*Ng] += Complex(temp_r,temp_i) * phi[n+q*Ng];
 				}	
 					
 		      	 	

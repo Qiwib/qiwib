@@ -73,10 +73,12 @@ mlock(); global pa
 				save("-z",[pa.save_dir_out,'time_dep/',num2str(pa.time),'_phiC.gz'],"-struct","pa","N","M","time","phi","xpos","C");
 			end
 			if pa.save_options(4) == 1
-				[AA,BB] = eig(reshape(pa.rho_kq,2,2));
+				[AA,BB] = eig(reshape(pa.rho_kq,pa.M,pa.M));
 				[BB,nBB] = sort(diag(BB),'descend'); AA = AA(:,nBB); pa.phiNO_n = diag(BB);
-				tt_LL = AA(1,1); tt_RL = AA(2,1); tt_LR = AA(1,2); tt_RR = AA(2,2);
-				pa.phiNO=[tt_LL*pa.phi(:,1)+tt_RL*pa.phi(:,2),tt_LR*pa.phi(:,1)+tt_RR*pa.phi(:,2)];
+				pa.phiNO = zeros(pa.Ng, pa.M);
+				for i=1:pa.M, for j=1:pa.M
+					pa.phiNO(:,i) += AA(j,i) * pa.phi(:,j);
+				end, end
 				save("-z",[pa.save_dir_out,'time_dep/',num2str(pa.time),'_phiNO.gz'],"-struct","pa","time","phiNO","xpos","phiNO_n");
 			end
 			if pa.save_options(5) == 1
