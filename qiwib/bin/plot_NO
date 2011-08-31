@@ -173,7 +173,7 @@ end
 	counting = 0;
 	while(t_current-t_end<dstep || t_end==-1)
 
-		if rhoNO == 1
+		if rhoNO == 0
 			if exist([input_dir,"time_dep/",num2str(t_current),'_phiNO.gz']) != 2
 				if t_end>-1
 					printf("\nStopped after %f seconds.\n", t_current-dstep);
@@ -184,7 +184,7 @@ end
 			end
 			load([input_dir,"time_dep/",num2str(t_current),'_phiNO.gz']);
 		
-		elseif rhoNO == 0
+		elseif rhoNO == 1
 			if exist([input_dir,"time_dep/",num2str(t_current),'_phiC.gz']) != 2
 				if t_end>-1
 					printf("\nStopped after %f seconds.\n", t_current-dstep);
