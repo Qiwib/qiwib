@@ -154,7 +154,7 @@ mlock(); global pa
 	inp_error = 0;
 	cputime=time();	
 		
-	np = length(pa.phi(1,:));
+	np = length(pa.phi(1,:)); if pa.load_phi_C == 1, np = pa.M; end
 	npl = length(phi(1,:));
 	
 	%% If the initial files have more single-particle functions than the current simulation then stop
@@ -177,7 +177,7 @@ mlock(); global pa
 			T(2,pa.Ng) = -al;
 			T(pa.Ng-1,1) = -al;			
 		end
-		[v,lambda]=eigs(t,nr_eigen,'sm'); [b_dummy,n_eigen] = sort( real(diag(lambda)) );
+		[v,lambda]=eigs(T,nr_eigen,'sm'); [b_dummy,n_eigen] = sort( real(diag(lambda)) );
 		phi_tmp = v(:,n_eigen);
 		for n=1:nr_eigen
 			phi_tmp(:,n) = phi_tmp(:,n)/sqrt( abs(phi_tmp(:,n))'*abs(phi_tmp(:,n))*pa.dx);

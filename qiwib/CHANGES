@@ -1,3 +1,5 @@
+v11.09.06
+	fixed bug when adding spfs to a manually defined initial state
 v11.08.31
 	speed improvements
 	calculation of natural orbitals for M>2 should work again
