@@ -229,8 +229,8 @@ end
 		if manuell_plot==0
 			printf("time: %f           ",t_current); fflush(stdout); printf("\r");
 		else
-			printf("time: %f, Press any key to continue.               ",t_current); fflush(stdout); printf("\r");
-			pause
+			printf("time: %f, Press ENTER to continue.               ",t_current); fflush(stdout); printf("\r");
+			input("");
 		end
 		t_current = t_current + dstep;
 		counting = counting + 1;
@@ -261,8 +261,7 @@ end
 	end
 	
 	if no_plot==0
-		printf("\nPress any key to quit.\n");
-		pause
+		printf("\nPress ENTER to quit."); input("");
 	end
 	
 

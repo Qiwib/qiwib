@@ -149,6 +149,5 @@ end
 	end
 
 	if no_plot==0
-		printf("\nPress any key to quit.\n");
-		pause
+		printf("\nPress ENTER to quit."); input("");
 	end
