@@ -1,3 +1,5 @@
+	fixes for adding spfs
+	bug fix: fltk plots with octave can now be changed 
 v11.09.06
 	fixed bug when adding spfs to a manually defined initial state
 v11.08.31

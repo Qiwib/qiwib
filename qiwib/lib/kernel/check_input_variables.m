@@ -90,6 +90,14 @@ end
 	    if length(pa.phi(1,:)) == pa.Ng, pa.phi = pa.phi.';
 	    else printf("ERROR: Definition of pa.phi in input file has wrong dimensions!\n" ); inp_error = 1; return;
 	    end
+	elseif length(pa.phi(1,:)) < pa.M && length(pa.phi(1,:)) ~= pa.Ng && pa.load_phi_C == 1
+	    if length(pa.phi(:,1)) == pa.Ng, pa.phi = pa.phi;
+	    else printf("ERROR: Definition of pa.phi in input file has wrong dimensions!\n" ); inp_error = 1; return;
+	    end
+	elseif length(pa.phi(:,1)) < pa.M && length(pa.phi(:,1)) ~= pa.Ng && pa.load_phi_C == 1
+	    if length(pa.phi(1,:)) == pa.Ng, pa.phi = pa.phi.';
+	    else printf("ERROR: Definition of pa.phi in input file has wrong dimensions!\n" ); inp_error = 1; return;
+	    end
 	elseif 
 	   printf("ERROR: Definition of pa.phi in input file has wrong dimensions!\n" ); inp_error = 1; return;
 	end
