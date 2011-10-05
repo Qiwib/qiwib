@@ -1,0 +1,88 @@
+#include <vector>
+#include <iterator>
+#include <algorithm>
+#include <assert.h>
+#include <inttypes.h>
+#include <math.h>
+
+#include "dealii.h"
+
+using namespace std;
+
+
+class RealFunction {
+public:
+  virtual real operator()(double real) const = 0;
+};
+
+class FEMInterval {
+public:
+  const real a, b;
+  vector<real> x;
+  vector<bool> refine_flags;
+  size_t next_length;
+
+  FEMInterval(real a, real b, const vector<real> x = vector<real>()) : a(a), b(b), x(x) 
+  {
+  }
+
+  void refine_cells()
+  {
+    vector<real> new_x(next_length);
+
+    for(size_t i=0, j=0;i < x.size();i++,j++){
+      new_x[j] = x[i];
+      if(i+1<x.size() && refine_flags[i]){
+	real cell_midpoint = (x[i]+x[i+1])/2.0;
+	new_x[++j] = cell_midpoint;
+      }
+    }
+    
+    x = new_x;
+    clear_refine_flags();
+  }
+
+  void refine_around_points(const vector<real>& xs, real distance, real spacing)
+  {
+    bool all_done = false;
+
+    while(not all_done){
+      all_done = true;
+      
+      for(size_t i =0;i<x.size()+1;i++)
+	for(size_t j=0;j<xs.size();j++)
+	  if(fabs(x[i]-xs[i]) < distance && x[i+1]-x[i] > 2.0*spacing){
+	    all_done = false;
+	    set_refine_flag(i);
+	  }
+
+      refine_cells();
+    }
+  }
+
+  void refine_to_function(const RealFunction& fun, real fun_max)
+  {
+    bool all_done = false;
+
+    while(not all_done){
+      all_done = true;
+
+      for(size_t i=0;i<x.size()-1;i++){
+	real cell_midpoint = (x[i]+x[i+1])/2.0;
+	
+	if(fun(cell_midpoint) > 2.0*fun_max){
+	  all_done = false;
+	  set_refine_flag(i);
+	}
+      }
+      refine_cells();
+    }
+  }
+  
+};
+
+int main()
+{
+  FEMInterval(0,1);
+  
+}
