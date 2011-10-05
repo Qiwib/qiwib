@@ -75,7 +75,7 @@ inp_error = 0;
 			T(2,pa.Ng) = -al;
 			T(pa.Ng-1,1) = -al;			
 		end
-		[v,lambda]=eigs(T,pa.M+2,'sm'); [B_dummy,n_eigen] = sort( real(diag(lambda)) );
+		[v,lambda]=eigs(T,pa.M+2,'sr'); [B_dummy,n_eigen] = sort( real(diag(lambda)) );
 		pa.phi = v(:,n_eigen(1:pa.M));
 		for n=1:pa.M, pa.phi(:,n) = pa.phi(:,n)/sqrt( abs(pa.phi(:,n))'*abs(pa.phi(:,n))*pa.dx); end
 
@@ -177,7 +177,7 @@ mlock(); global pa
 			T(2,pa.Ng) = -al;
 			T(pa.Ng-1,1) = -al;			
 		end
-		[v,lambda]=eigs(T,nr_eigen,'sm'); [b_dummy,n_eigen] = sort( real(diag(lambda)) );
+		[v,lambda]=eigs(T,nr_eigen,'sr'); [b_dummy,n_eigen] = sort( real(diag(lambda)) );
 		phi_tmp = v(:,n_eigen);
 		for n=1:nr_eigen
 			phi_tmp(:,n) = phi_tmp(:,n)/sqrt( abs(phi_tmp(:,n))'*abs(phi_tmp(:,n))*pa.dx);
