@@ -5,6 +5,7 @@
 #include <string>
 #include <stdio.h>
 
+
 template <typename Space>
 class gridfunction : public std::vector<typename Space::value_t> {
 public:
@@ -25,11 +26,11 @@ public:
   gridfunction operator * (const scalar_t& g) const;
 
   gridfunction(const Space& space) : std::vector<value_t>(space.Nx) {
-    //    fprintf(stderr,"gridfunction(space)\n");
+    fprintf(stderr,"gridfunction(space)\n");
   }
-  gridfunction(const std::vector<value_t>& values) : std::vector<value_t>(values.begin(),values.end()) { 
-    //    fprintf(stderr,"gridfunction(vectord) : size(%d)\n",values.size());
-  }
+  // gridfunction(const std::vector<value_t>& v) : std::vector<value_t>(v.begin(),v.end()) { 
+  //   fprintf(stderr,"gridfunction(vectord) : size(%d)\n",v.size());
+  // }
 
   const std::vector<value_t> get_data() const {
     return std::vector<value_t>(this->begin(), this->end());
