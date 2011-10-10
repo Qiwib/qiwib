@@ -15,6 +15,14 @@ pointwise_operator(-)
 pointwise_operator(*)
 scalar_operator(*)  
 
+gridfunction_member(gridfunction<space>) conj() const 
+{
+  gridfunction z(*this);
+
+  for(size_t i=0;i<this->size();i++) z[i] = space::conj(z[i]);
+
+  return z;
+}
 
 grid_member(value_t) integrate(const function_t& f) const 
 {
@@ -28,7 +36,7 @@ grid_member(value_t) integrate(const function_t& f) const
 grid_member(value_t) inner(const function_t& f, const function_t& g) const 
 {
   value_t sum(0);
-  for(unsigned int i=0;i<f.size();i++) sum += f[i]*g[i];
+  for(unsigned int i=0;i<f.size();i++) sum += conj(f[i])*g[i];
 
   return sum*dx;
 }
@@ -36,10 +44,14 @@ grid_member(value_t) inner(const function_t& f, const function_t& g) const
 grid_member(value_t) inner(const function_t& f, const function_t& g, const function_t& h) const 
 {
   value_t sum(0);
-  for(unsigned int i=0;i<f.size();i++) sum += f[i]*g[i]*h[i];
+  for(unsigned int i=0;i<f.size();i++) sum += conj(f[i])*g[i]*h[i];
 
   return sum*dx;
 }
+
+// Definition of conjugate depends on the scalar field.
+template<> double Grid1D<double>::conj(const double& v) { return v; }
+template<> complex<double> Grid1D< complex<double> >::conj(const complex<double>& v) { return complex<double>(v.real(),-v.imag()); }
 
 grid_member(double) h2_derivative1_stencil[3] = {-1/2.,0,1/2.};
 grid_member(double) h2_derivative2_stencil[3] = {1,-2,1};

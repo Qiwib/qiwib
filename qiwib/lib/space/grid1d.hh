@@ -22,6 +22,8 @@ public:
   gridfunction operator * (const gridfunction& g) const;
   gridfunction operator * (const scalar_t& g) const;
 
+  inline gridfunction conj () const;
+
   gridfunction(const Space& space) : std::vector<value_t>(space.Nx) {
     //    fprintf(stderr,"gridfunction(space)\n");
   }
@@ -55,6 +57,7 @@ public:
   value_t  integrate(const function_t& f) const;
   scalar_t inner(const function_t& f, const function_t& g) const;
   scalar_t inner(const function_t& f, const function_t& g, const function_t& h) const;
+  static inline value_t  conj(const value_t& v);
 
   function_t derivative       (const function_t& f, bool periodic = true) const;
   function_t second_derivative(const function_t& f, bool periodic = true) const;
@@ -62,6 +65,7 @@ public:
 
   function_t stencil_operator(const function_t& f, const double *stencil, size_t stencil_length, 
 			      double delta, bool periodic) const;
+
 
 private:
   static double h2_derivative1_stencil[3], h2_derivative2_stencil[3], h2_derivative3_stencil[5];
