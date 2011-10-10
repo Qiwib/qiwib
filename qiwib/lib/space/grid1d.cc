@@ -1,4 +1,6 @@
 #include "grid1d.hh"
+#include "pointwise_operator.hh"
+#include <stdlib.h>
 
 using namespace std;
 #include <stdio.h>
@@ -7,65 +9,16 @@ using namespace std;
 #define grid_member(T) template <typename value_t> T Grid1D<value_t>::
 #define gridfunction_t typename Grid1D<value_t>::function_t
 
-gridfunction_member(gridfunction<space>&) operator+=(const gridfunction<space>& g)
-{
-  const_iterator y(g.begin());
-  for(iterator x(this->begin()); x!=this->end();x++,y++) *x += *y;
-
-  return *this;
-}
-gridfunction_member(gridfunction<space>&) operator-=(const gridfunction& g)
-{
-  const_iterator y(g.begin());
-  for(iterator x(this->begin()); x!=this->end();x++,y++) *x -= *y;
-
-  return *this;
-}
-
-gridfunction_member(gridfunction<space>&) operator*=(const gridfunction& g)
-{
-  const_iterator y(g.begin());
-  for(iterator x(this->begin()); x!=this->end();x++,y++) *x *= *y;
-
-  return *this;
-}
-
-gridfunction_member(gridfunction<space>&) operator*=(const gridfunction::scalar_t& s)
-{
-  for(iterator x(this->begin()); x!=this->end();x++) *x *= s;
-
-  return *this;
-}
-
-gridfunction_member(gridfunction<space>) operator+(const gridfunction& g) const 
-{
-  gridfunction z(*this);
-  return (z += g);
-}
-
-gridfunction_member(gridfunction<space>) operator-(const gridfunction& g) const 
-{
-  gridfunction z(*this);
-  return (z -= g);
-}
-
-gridfunction_member(gridfunction<space>) operator*(const gridfunction& g) const 
-{
-  gridfunction z(*this);
-  return (z *= g);
-}
-
-gridfunction_member(gridfunction<space>) operator*(const scalar_t& s) const 
-{
-  gridfunction z(*this);
-  return (z *= s);
-}
+pointwise_operator(+)
+pointwise_operator(-)
+pointwise_operator(*)
+scalar_operator(*)  
 
 grid_member(value_t) integrate(const function_t& f) const 
 {
   value_t sum(0);
-  for(typename function_t::const_iterator x(f.begin()); x != f.end(); x++)
-    sum += *x;
+  for(unsigned int i=0;i<f.size();i++) sum += f[i];
+
   return sum*dx;
 }
 
@@ -73,30 +26,88 @@ grid_member(value_t) integrate(const function_t& f) const
 grid_member(value_t) inner(const function_t& f, const function_t& g) const 
 {
   value_t sum(0);
-  for(typename function_t::const_iterator x(f.begin()), y(g.begin()); x != f.end(); x++, y++)
-    sum += (*x) * (*y);
+  for(unsigned int i=0;i<f.size();i++) sum += f[i]*g[i];
+
   return sum*dx;
 }
 
 grid_member(value_t) inner(const function_t& f, const function_t& g, const function_t& h) const 
 {
   value_t sum(0);
-  for(typename function_t::const_iterator x(f.begin()), y(g.begin()), z(h.begin()); x != f.end(); x++, y++, z++)
-    sum += (*x) * (*y) * (*z);
+  for(unsigned int i=0;i<f.size();i++) sum += f[i]*g[i]*h[i];
 
   return sum*dx;
 }
 
-grid_member(gridfunction_t) derivative(const function_t& f) const
+grid_member(double) h2_derivative1_stencil[3] = {-1/2.,0,1/2.};
+grid_member(double) h2_derivative2_stencil[3] = {1,-2,1};
+grid_member(double) h2_derivative3_stencil[5] = {-1/2.,1,0,-1,1/2.};
+
+grid_member(double) h4_derivative1_stencil[5] = { 1/12.,-2/3.,  0,  2/3.,-1/12.};
+grid_member(double) h4_derivative2_stencil[5] = {-1/12., 4/3.,-5/2.,4/3.,-1/12.};
+grid_member(double) h4_derivative3_stencil[7] = {1/8.,-1,13/8.,0,-13/8.,1,-1/8.};
+
+
+grid_member(gridfunction_t) derivative(const function_t& f, bool periodic) const
+{
+#ifdef DERIVATIVE_FIVE_POINT
+  return stencil_operator(f,h4_derivative1_stencil,5,1.0/dx,periodic);
+#else
+  return stencil_operator(f,h2_derivative1_stencil,3,1.0/dx,periodic);
+#endif
+}
+
+grid_member(gridfunction_t) second_derivative(const function_t& f, bool periodic) const
+{
+#ifdef DERIVATIVE_FIVE_POINT
+  return stencil_operator(f,h4_derivative2_stencil,5,1.0/(dx*dx),periodic);
+#else
+  return stencil_operator(f,h2_derivative2_stencil,3,1.0/(dx*dx),periodic);
+#endif
+}
+
+grid_member(gridfunction_t) third_derivative(const function_t& f, bool periodic) const
+{
+#ifdef DERIVATIVE_FIVE_POINT
+  return stencil_operator(f,h4_derivative3_stencil,7,1.0/(dx*dx*dx),periodic);
+#else
+  return stencil_operator(f,h2_derivative3_stencil,5,1.0/(dx*dx*dx),periodic);
+#endif
+}
+
+// C/C++ modulus is defined wrongly for all negative integers. This small modification works
+// for -n < i < \infty.
+#define mod(i,n) (i+n)%n
+
+grid_member(gridfunction_t) stencil_operator(const function_t& f, const double *stencil, size_t stencil_length,
+					     double delta, bool periodic) const
 {
   function_t df(*this);
-  typename function_t::const_iterator fx(f.begin());
-  typename function_t::iterator dfx(df.begin());
-
-  *dfx++ = ((*(fx+1)) -  (*fx))/dx;
-  for(;dfx+1 != df.end();fx++,dfx++)
-    *dfx = ((*(fx+2)) - (*fx))/(2*dx);
-  *dfx = ((*(fx+1)) - (*fx))/dx;
+  unsigned int n = f.size();
+  int max = stencil_length/2;
+  
+  if(periodic){
+    n = n-1;			// Assume that end point is copy of start point
+    for(size_t i=0;i<n;i++){
+      value_t sum(0);
+      for(size_t j=0;j<stencil_length;j++)
+	sum += stencil[j]*f[mod(i+j-max,n)];
+      df[i] = sum*delta;
+    }
+    df[n] = df[0];
+  } else {
+    for(size_t i=max;i<n-max;i++){
+      value_t sum(0);
+      for(size_t j=0;j<stencil_length;j++){
+	sum += stencil[j]*f[i+j-max];
+      }
+      df[i] = sum*delta;
+      for(size_t i=0;i<max;i++){
+	df[i]     = df[max];
+	df[n-i-1] = df[n-max-1];
+      }
+    }
+  }
 
   return df;
 }
