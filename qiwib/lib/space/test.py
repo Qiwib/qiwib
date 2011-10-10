@@ -32,16 +32,16 @@ adj = subplots_adjust(hspace=0.4,wspace=0.4);
 subplot(2,2,1);
 p1 = plot (xs,cosx.get_data());
 p2 = plot (xs,space.derivative(sinx));
-legend([p1,p2], ["cos(x)","d/dx sin(x)"]);
+legend([p1,p2], ["cos(x)","$d/dx\ \\sin(x)$"]);
 
 subplot(2,2,2);
 p1 = plot (xs,cosx.get_data());
 p2 = plot (xs,-array(space.third_derivative(sinx).get_data()));
-legend([p1,p2],["cos(x)","-d^3/dx^3 sin(x)"]);
+legend([p1,p2],["cos(x)","$-d^3/dx^3\ \\sin(x)$"]);
 
 subplot(2,2,3);
 p1 = plot (xs,err.get_data());
 p2 = plot (xs,err2.get_data());
 p3 = plot (xs,err3.get_data());
-legend([p1,p2,p3],["cos(x) - d/dx sin(x)","sin(x) + d^2/dx^2 sin(x)","cos(x) + d^3/dx^3 sin(x)"]);
+legend([p1,p2,p3],["$\\cos(x) - d/dx\ \\sin(x)$","$\\sin(x) + d^2/dx^2\ \\sin(x)$","$\\cos(x) + d^3/dx^3\ \\sin(x)$"]);
 show();
