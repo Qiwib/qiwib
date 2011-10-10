@@ -1,32 +1,40 @@
-%include "space.i"
+#pragma SWIG nowarn=509,124
+%include <typemaps.i>
+%include <std_complex.i>
+%include <stl.i>
 
-%{
-#include <octave/config.h>
-#include <octave/ov.h>
-#include <octave/octave.h>
-#include <octave/oct-types.h>
-#include <octave/oct-obj.h>
-#include <octave/variables.h>
-#include <octave/Array.h>
-%}
+%template(vectord) std::vector<double>;
 
-%typemap(typecheck,precedence=SWIG_TYPECHECK_POINTER) (Array)
+%typemap(in) (const double *v, unsigned int n) 
 {
-  const octave_value v = $input;
-  $1 = (v.is_matrix_type() && v.oct_type_check() && v.rows()==1) ? 1:0;
+    const octave_value mat_feat=$input;
+    if (!mat_feat.is_matrix_type() || !mat_feat.is_double_type() || mat_feat.rows()!=1)
+      SWIG_fail;
+
+    const Array<double>& m(mat_feat.vector_value());
+    $1 = (double*)m.fortran_vec();
+    $2 = mat_feat.columns();
 }
 
-%typemap(in) (const Array&)
+%typemap(typecheck, precedence=SWIG_TYPECHECK_POINTER)
+  (const double *v, unsigned int n)
 {
-  fprintf(stderr,"double* input conversion.\n");
-  const octave_value v = $input;
+  const octave_value& m($input);
 
-  /* if(!v.is_real_matrix()) {  */
-  /*   fprintf(stderr,"Input error in passing vector from Octave to SWIG.\n"); */
-  /*   SWIG_fail; */
-  /* } else { */
-  /*   fprintf(stderr,"Input is a row vector.\n"); */
-  /* } */
+  $1 = (m.is_matrix_type() && m.is_double_type() && m.rows()==1) ? 1 : 0;
+}
 
-  $1 = new Array<double>(v.vector_value());
-};
+
+%typemap(out) std::vector<double> 
+{
+  unsigned int n = $1.size();
+  Matrix mat(dim_vector(1, n));
+  
+  for (unsigned int i=0; i<n; i++)
+    mat(i) = $1[i];
+
+  $result=mat;
+}
+
+%include "space.i"
+
