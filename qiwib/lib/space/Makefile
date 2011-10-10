@@ -1,7 +1,7 @@
-SWIG=swig2 -w365,366,367,124
+SWIG=swig -w365,366,367,124
 # -debug-tmsearch
 # -debug-top 1,2,3,4
-CXX=llvm-clang -x c++ -O3 
+# CXX=llvm-clang -x c++ -O3 
 CXXLINK=g++ ${CXXFLAGS} 
 CXXFLAGS=-Wall -fPIC -DDERIVATIVE_FIVE_POINT
 #CXX=c++ -O3 
@@ -16,7 +16,7 @@ cctest: test.o instances.o grid1d.hh grid1d.cc
 	${CXXLINK} -o test test.o instances.o -lm
 
 pymodule:  space-python_wrap.cxx
-	${CXXLINK} -o _space.so -shared space-python_wrap.cxx instances.o -I /usr/include/python2.6
+	${CXXLINK} -o _space.so -shared space-python_wrap.cxx instances.o -I /usr/include/python
 
 octmodule: space-octave_wrap.cc
 	mkoctfile -o space.oct space-octave_wrap.cc instances.o
