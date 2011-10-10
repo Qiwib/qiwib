@@ -1,9 +1,15 @@
-%include "space.i"
+%include <typemaps.i>
+%include <std_complex.i>
+%include <stl.i>
 
 %{
-#include <Python.h>
-#include <numpy/arrayobject.h>
+#include <complex>
 %}
+
+%template(vectord) std::vector<double>;
+%template(vectorc) std::vector< std::complex<double> >;
+
+%include "space.i"
 
 
 

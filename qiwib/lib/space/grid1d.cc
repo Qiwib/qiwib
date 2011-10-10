@@ -9,10 +9,12 @@ using namespace std;
 #define grid_member(T) template <typename value_t> T Grid1D<value_t>::
 #define gridfunction_t typename Grid1D<value_t>::function_t
 
+// Define point-wise binary operations using the macros in pointwise_operator.hh.
 pointwise_operator(+)
 pointwise_operator(-)
 pointwise_operator(*)
 scalar_operator(*)  
+
 
 grid_member(value_t) integrate(const function_t& f) const 
 {

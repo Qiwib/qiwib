@@ -1,15 +1,22 @@
-SWIG=swig2
-#CXX=llvm-clang -x c++ -O3 
+SWIG=swig2 -w365,366,367,124
+# -debug-tmsearch
+# -debug-top 1,2,3,4
+CXX=llvm-clang -x c++ -O3 
 CXXLINK=g++ ${CXXFLAGS} 
-CXXFLAGS=-Wall -fPIC
-CXX=c++ -O3 
+CXXFLAGS=-Wall -fPIC -DDERIVATIVE_FIVE_POINT
+#CXX=c++ -O3 
 #CXX=icpc
 
-cctest: test.o instances.o grid1d/grid1d.hh grid1d/grid1d.cc
+swigtest: test.hh test.i
+	${SWIG} -c++ -octave test.i
+	mv test_wrap.cxx test_wrap.cc
+	mkoctfile -o test.oct test_wrap.cc
+
+cctest: test.o instances.o grid1d.hh grid1d.cc
 	${CXXLINK} -o test test.o instances.o -lm
 
-pymodule:  space_wrap.cxx
-	${CXXLINK} -o _space.so -shared space_wrap.cxx instances.o -I /usr/include/python2.6
+pymodule:  space-python_wrap.cxx
+	${CXXLINK} -o _space.so -shared space-python_wrap.cxx instances.o -I /usr/include/python2.6
 
 octmodule: space-octave_wrap.cc
 	mkoctfile -o space.oct space-octave_wrap.cc instances.o
@@ -19,14 +26,14 @@ test: pymodule octmodule
 	./test.m
 
 clean:
-	rm -f *~ \#*\# *.o
+	rm -f *~ \#*\# *.o *.oct _*.so test *_wrap.cc *_wrap.cxx octave-core space.py *.pyc
 
 
 # Intermediate targets
-instances.o: grid1d/grid1d.hh grid1d/grid1d.cc instances.cc space.h
+instances.o: grid1d.hh grid1d.cc instances.cc space.h
 
-space_wrap.cxx: space.i instances.o
-	${SWIG} -python -c++ space.i
+space-python_wrap.cxx: space-python.i instances.o
+	${SWIG} -python -c++ space-python.i
 
 space-octave_wrap.cc: space.i space-octave.i instances.o 
 	${SWIG} -octave -c++ space-octave.i

@@ -3,7 +3,7 @@
 #include <complex>
 #include "space.h"
 
-#include "grid1d/grid1d.cc"
+#include "grid1d.cc"
 
 template class Grid1D<double>;
 template class Grid1D< std::complex<double> >;
