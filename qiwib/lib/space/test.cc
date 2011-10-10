@@ -21,7 +21,7 @@ int main()
     g[i] = std::exp(complex<double>(0,2*i*M_PI/((double)Nx)));
   }
 
-  gridfunction<RealGrid1D> df(Rline.derivative(f));
+  gridfunction<RealGrid1D> df(Rline.derivative(f,true));
   gridfunction<ComplexGrid1D> dg(Cline.derivative(g));
 
   complex<double> int_g  = Cline.integrate(g);
