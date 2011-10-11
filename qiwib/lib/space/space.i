@@ -14,4 +14,10 @@
 %template(realfunction)    gridfunction< Grid1D<double> >;
 // %template(complexfunction) gridfunction< Grid1D<std::complex<double> > >;
 
+%{
+#include "basisset.hh"
+%}
 
+#include "basisset.hh"
+
+%template(realbasis) basisset< gridfunction< Grid1D<double> > >;
