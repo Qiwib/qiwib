@@ -1,3 +1,4 @@
+	minor bug fix in creation of basis function
 v11.10.03
 	fixes for adding spfs
 	bug fix: fltk plots with octave can now be changed 

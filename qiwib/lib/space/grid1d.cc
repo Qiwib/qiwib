@@ -98,7 +98,7 @@ grid_member(gridfunction_t) stencil_operator(const function_t& f, const double *
 {
   function_t df(*this);
   unsigned int n = f.size();
-  int max = stencil_length/2;
+  unsigned int max = stencil_length/2;
   
   if(periodic){
     n = n-1;			// Assume that end point is copy of start point
