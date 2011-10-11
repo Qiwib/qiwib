@@ -9,6 +9,7 @@
 template <typename Space>
 class gridfunction : public std::vector<typename Space::value_t> {
 public:
+  typedef Space space_t;
   typedef typename Space::value_t  value_t;
   typedef typename Space::scalar_t scalar_t;
 
