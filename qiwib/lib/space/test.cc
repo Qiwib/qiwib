@@ -34,7 +34,5 @@ int main()
   printf("int(g(x))    = % .1g + % .1g * i\n",int_g.real(), int_g.imag());
   printf("int(g'(x))   = % .1g + % .1g * i\n",int_dg.real(), int_dg.imag());
 
-  basisset<gridfunction<RealGrid1D> > basisset(Rline,10);
-  
   return 0;
 }
