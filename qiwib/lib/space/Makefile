@@ -1,11 +1,17 @@
-SWIG=swig -w365,366,367,124
+SWIG=swig2 -w365,366,367,124 
+# -debug-template
 # -debug-tmsearch
 # -debug-top 1,2,3,4
-# CXX=llvm-clang -x c++ -O3 
-CXXLINK=g++ ${CXXFLAGS} 
-CXXFLAGS=-Wall -fPIC -DDERIVATIVE_FIVE_POINT
+
+# Python include directory is OS dependent
+PYTHONINCLUDE= /usr/include/python2.6
+
+CXX=llvm-clang -x c++ -O3 
 #CXX=c++ -O3 
 #CXX=icpc
+
+CXXLINK=g++ ${CXXFLAGS} 
+CXXFLAGS=-Wall -fPIC -DDERIVATIVE_FIVE_POINT
 
 swigtest: test.hh test.i
 	${SWIG} -c++ -octave test.i
@@ -16,7 +22,7 @@ cctest: test.o instances.o grid1d.hh grid1d.cc
 	${CXXLINK} -o test test.o instances.o -lm
 
 pymodule:  space-python_wrap.cxx
-	${CXXLINK} -o _space.so -shared space-python_wrap.cxx instances.o -I /usr/include/python
+	${CXXLINK} -o _space.so -shared space-python_wrap.cxx instances.o -I${PYTHONINCLUDE}
 
 octmodule: space-octave_wrap.cc
 	mkoctfile -o space.oct space-octave_wrap.cc instances.o
