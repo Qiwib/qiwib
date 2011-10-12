@@ -4,7 +4,7 @@ SWIG=swig -w365,366,367,124
 # CXX=llvm-clang -x c++ -O3 
 CXXLINK=g++ ${CXXFLAGS} 
 CXXFLAGS=-Wall -fPIC -DDERIVATIVE_FIVE_POINT
-#CXX=c++ -O3 
+CXX=c++ -O3 
 #CXX=icpc
 
 swigtest: test.hh test.i
