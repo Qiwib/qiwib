@@ -19,13 +19,24 @@ public:
   const Space&     space;
   //  hermitian_matrix overlap;
 
-  basisset(const Space& space, std::vector<Function> basis) : space(space), 
-							       std::vector<Function>(basis.begin(),basis.end())
+  basisset(const Space& space, std::vector<Function> basis) : std::vector<Function>(basis.begin(),basis.end()), 
+							      space(space)
   {  }
 
-  basisset(const Space& space, size_t n) : space(space),std::vector<Function>(n,space) {  }
+  basisset(const Space& space, size_t n) : std::vector<Function>(n,space), space(space) {  }
 
-  basisset(const basisset& basis) : space(basis.space), std::vector<Function>(basis.begin(),basis.end()) { }
+  basisset(const basisset& basis) : std::vector<Function>(basis.begin(),basis.end()), space(basis.space) {  }
+
+  // TODO: Make proper set of operations
+  basisset operator *(const scalar_t& s){ 
+    const basisset& phi(*this);
+    basisset newbasis(space,phi.size());
+
+    for(size_t i=0;i<phi.size();i++) 
+      newbasis[i] = phi[i]*s;
+
+    return newbasis;
+  }
 
   basisset operator *(const Array2D<scalar_t>& C) const
   {
@@ -43,6 +54,21 @@ public:
     }
     
     return newbasis;
+  }
+
+  basisset derivative() const {
+    const basisset& phi(*this);
+
+    basisset derivative_basis(space, phi.size());
+    
+    for(size_t i=0;i<phi.size();i++)
+      derivative_basis[i] = space.derivative(phi[i]);
+
+    return derivative_basis;
+  }
+
+  Array2D<scalar_t> laplacian_matrix() const {
+    return derivative().overlap_matrix();
   }
 
   Array2D<scalar_t> overlap_matrix() const
