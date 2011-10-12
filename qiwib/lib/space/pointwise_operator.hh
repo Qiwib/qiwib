@@ -17,11 +17,6 @@ gridfunction_member(gridfunction<space>&) operator op##=(const gridfunction::sca
 gridfunction_member(gridfunction<space>) operator op (const scalar_t& s) const \
 { gridfunction z(*this); return (z op##= s); }
 
-#define scalar_const_operator(op) \
-	gridfunction_member(gridfunction<space>) operator op (const gridfunction::& s) const \
-{ gridfunction z(*this); return (z op##= s); }
-
-
 #define pointwise_operator(op)\
   inplace_operator(op) \
   const_operator(op)
