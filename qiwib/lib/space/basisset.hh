@@ -2,6 +2,7 @@
 # define BASISSET_HH
 
 #include <vector>
+#include <iostream>
 #include <assert.h>
 #include "array.hh"
 
