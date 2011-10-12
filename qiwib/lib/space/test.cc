@@ -2,6 +2,7 @@
 #include <complex> 
 
 #include "space.h"
+#include "basisset.hh"
 
 using namespace std;
 
@@ -32,6 +33,6 @@ int main()
   printf("int(f'(x)^2) = % .7g\n",Rline.integrate(df*df));
   printf("int(g(x))    = % .1g + % .1g * i\n",int_g.real(), int_g.imag());
   printf("int(g'(x))   = % .1g + % .1g * i\n",int_dg.real(), int_dg.imag());
-  
+
   return 0;
 }
