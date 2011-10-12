@@ -101,14 +101,13 @@ grid_member(gridfunction_t) stencil_operator(const function_t& f, const double *
   unsigned int max = stencil_length/2;
   
   if(periodic){
-    n = n-1;			// Assume that end point is copy of start point
     for(size_t i=0;i<n;i++){
       value_t sum(0);
       for(size_t j=0;j<stencil_length;j++)
 	sum += stencil[j]*f[mod(i+j-max,n)];
       df[i] = sum*delta;
     }
-    df[n] = df[0];
+    df[n-1] = df[0];		// Assume that end point is not included in interval
   } else {
     for(size_t i=max;i<n-max;i++){
       value_t sum(0);

@@ -5,7 +5,7 @@ from matplotlib.pyplot import *;
 
 Nx = 10000;
 space = realgrid(-pi,pi,Nx);
-xs = linspace(-pi,pi,Nx);
+xs = space.get_xs();
 
 sinx = realfunction(sin(xs));
 cosx = realfunction(cos(xs));

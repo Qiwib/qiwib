@@ -4,8 +4,8 @@ space -global;
 tic
 
 Nx = 10000;
-space = realgrid(-pi,pi,Nx);
-xs = [-pi:space.dx:pi];
+space = realgrid(-pi,pi,Nx);	# [-pi;pi[
+xs = space.get_xs();
 
 sinx = realfunction(sin(xs));
 cosx = realfunction(cos(xs));
