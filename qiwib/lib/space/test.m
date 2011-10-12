@@ -9,10 +9,12 @@ xs = space.get_xs();
 
 sinx = realfunction(sin(xs));
 cosx = realfunction(cos(xs));
-
+sinx = 2*sinx
 err  = cosx - space.derivative(sinx,true);
 err2 = sinx + space.second_derivative(sinx,true);
 err3 = cosx + space.third_derivative(sinx,true);
+
+
 
 int_sinx2   = space.integrate(sinx*sinx);
 inner_sinx2 = space.inner(sinx,sinx);
