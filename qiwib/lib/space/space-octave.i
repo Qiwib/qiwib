@@ -38,31 +38,8 @@
 }
 
 
-%typemap(in) (const Array2D<double>&) 
-{
-    const octave_value mat_feat=$input;
-    if (!mat_feat.is_matrix_type() || !mat_feat.is_double_type())
-      SWIG_fail;
 
-    const Matrix& m(mat_feat.matrix_value());
-    const double *ptr = m.fortran_vec();
-    $1 = new Array2D<double>(mat_feat.rows(),mat_feat.columns(),ptr);
-}
-
-
-%typemap(in) (const double *v, unsigned int m, unsigned int n) 
-{
-    const octave_value mat_feat=$input;
-    if (!mat_feat.is_matrix_type() || !mat_feat.is_double_type())
-      SWIG_fail;
-
-    const Matrix& m(mat_feat.matrix_value());
-    $1 = (double*)m.fortran_vec();
-    $2 = mat_feat.rows();
-    $3 = mat_feat.columns();
-}
-
-%typemap(in) (const double *v, unsigned int m, unsigned int n) 
+%typemap(in) (unsigned int m, unsigned int n, const double *v) 
 {
     const octave_value mat_feat=$input;
     if (!mat_feat.is_matrix_type() || !mat_feat.is_double_type())
@@ -76,12 +53,25 @@
 
 
 %typemap(typecheck, precedence=SWIG_TYPECHECK_POINTER)
-  (const double *v, unsigned int m, unsigned int n)
+  (const Array2D<double>&)
 {
   const octave_value& m($input);
 
   $1 = (m.is_matrix_type() && m.is_double_type()) ? 1 : 0;
 }
+
+
+%typemap(in) (const Array2D<double>&) 
+{
+    const octave_value mat_feat=$input;
+    if (!mat_feat.is_matrix_type() || !mat_feat.is_double_type())
+      SWIG_fail;
+
+    const Matrix& m(mat_feat.matrix_value());
+    const double *ptr = m.fortran_vec();
+    $1 = new Array2D<double>(mat_feat.rows(),mat_feat.columns(),ptr);
+}
+
 
 
 %typemap(out) Array2D<double> 
