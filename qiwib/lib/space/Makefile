@@ -1,9 +1,9 @@
-SWIG=swig2 -w365,366,367,124 -debug-template
+SWIG=swig -w365,366,367,124 -debug-template
 # -debug-tmsearch
 # -debug-top 1,2,3,4
 
 # Python include directory is OS dependent
-PYTHONINCLUDE= /usr/include/python2.6
+PYTHONINCLUDE= /usr/include/python
 
 CXX=llvm-clang -x c++ -O3 
 #CXX=c++ -O3 
@@ -27,8 +27,8 @@ octmodule: space-octave_wrap.cc
 	mkoctfile -o space.oct space-octave_wrap.cc instances.o
 
 test: pymodule octmodule
-	./test.py
-	./test.m
+	./test-python.py
+	./test-octave.m
 
 clean:
 	rm -f *~ \#*\# *.o *.oct _*.so test *_wrap.cc *_wrap.cxx octave-core space.py *.pyc

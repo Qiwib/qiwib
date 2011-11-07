@@ -16,11 +16,13 @@ public:
   gridfunction& operator += (const gridfunction& g);
   gridfunction& operator -= (const gridfunction& g);
   gridfunction& operator *= (const gridfunction& g);
+  gridfunction& operator /= (const scalar_t& g);
   gridfunction& operator *= (const scalar_t& g);
 
   gridfunction operator + (const gridfunction& g) const;
   gridfunction operator - (const gridfunction& g) const;
   gridfunction operator * (const gridfunction& g) const;
+  gridfunction operator / (const scalar_t& g) const;
   gridfunction operator * (const scalar_t& g) const;
 
   gridfunction conj () const;

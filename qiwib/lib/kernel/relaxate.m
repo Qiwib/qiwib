@@ -19,7 +19,7 @@
 ## THE SOFTWARE.
 	
 function relaxate()
-mlock(); global pa
+mlock(); global pa basis_diff space realgrid realfunction realbasis phiCpp
 	printf("\nStart Relaxation for state %d: Initialise...\r",pa.relaxation); fflush(stdout);			
 %%initial energy and other variables and display it%%
 

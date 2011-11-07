@@ -20,7 +20,7 @@
 
 
 function inp_error = check_input_variables()
-mlock(); global pa
+mlock(); global pa basis_diff space realgrid realfunction realbasis phiCpp
 
 inp_error = 0;
 inp_warning = 0;

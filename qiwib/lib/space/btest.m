@@ -1,12 +1,12 @@
 #!/usr/bin/env octave
 space -global
 
-space = realgrid(-pi,pi,1000);
+space = realgrid(-pi,pi,2001);
 xs    = space.get_xs();
 
-phi   = realbasis(space,10);
+phi   = realbasis(space,4);
 
-for i = [1:10]
+for i = [1:4]
   phi(i-1) = realfunction(sin(i*xs)/sqrt(pi));
 end
 

@@ -20,15 +20,12 @@
 
 
 function Normalise()
-mlock(); global pa
+mlock(); global pa basis_diff space realgrid realfunction realbasis phiCpp
 
 
 	pa.C = pa.C / sqrt(abs(pa.C'*pa.C));
 	
-	for n1 = 1:pa.M
-		for n2 = 1:n1-1
-			xx = ( pa.phi(:,n2)'*pa.phi(:,n1) )/sqrt(abs(pa.phi(:,n1)'*pa.phi(:,n1)))/sqrt(abs(pa.phi(:,n2)'*pa.phi(:,n2)));
-			pa.phi(:,n1) = pa.phi(:,n1) - xx * pa.phi(:,n2);
-		end
-		pa.phi(:,n1) = pa.phi(:,n1) /  sqrt( abs(pa.phi(:,n1)'*pa.phi(:,n1)*pa.dx) );
-	end
+	S = phiCpp.overlap_matrix();                                                                                                                                    
+	C = S**(-1/2);                                                                                                                                                 
+                                                                                                                                                                 
+	phiCpp = phiCpp*C;           # Is actually left multiplication :-/ 

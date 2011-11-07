@@ -20,10 +20,9 @@
 
 	
 function delta = Calc_error(phi1,phi,C1,C)
-mlock(); global pa
+mlock(); global pa basis_diff space realgrid realfunction realbasis phiCpp
 
-	for j=1:pa.M, phi_err(:,j) = (phi1(:,j) - phi(:,j)) / sqrt( sum( abs(phi(:,j)).^2 ) ); end
-	for j=1:pa.M, for l=1:pa.M, H_O(j,l) = phi_err(:,j)'*phi_err(:,l); end, end
+	H_0 = phi1.calc_error(phi);
 	d_phi = abs( trace(H_O * reshape(pa.rho_kq,pa.M,pa.M).') );
 
 	d_C = (C1 - C) / sqrt( sum(abs(C).^2) );

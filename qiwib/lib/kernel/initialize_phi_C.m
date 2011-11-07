@@ -19,7 +19,7 @@
 ## THE SOFTWARE.
 
 function inp_error = initialize_phi_C();
-mlock(); global pa
+mlock(); global pa basis_diff space realgrid realfunction realbasis phiCpp
 inp_error = 0;
 
 %%%%%%%%%%%%%%%%% variables I need %%%%%%%%%%%%%%%%%%%%%%%
@@ -37,13 +37,9 @@ inp_error = 0;
 	pa.rho_ksql = zeros(pa.M*pa.M*pa.M*pa.M,1);
 	pa.H_C = sparse(pa.nmax);
 	
-	if strcmp(pa.boundary,'periodic')
-		pa.dx=pa.L/pa.Ng;
-		pa.xpos = [pa.xpos0:pa.dx:pa.xpos0+pa.L-pa.dx]';
-	elseif strcmp(pa.boundary,'box')
-		pa.dx=pa.L/(pa.Ng-1);
-		pa.xpos = [pa.xpos0:pa.dx:pa.xpos0+pa.L]';
-	end
+	space = realgrid(pa.xpos0,pa.xpos0+pa.L,pa.Ng);                                                                                                                                    
+	pa.xpos = space.get_xs(); pa.dx = space.dx;
+	phiCpp = realbasis(space,pa.M);
 	
 	if isempty(pa.nl), pa.nl=pa.xpos0+pa.L/2; end
 	if isempty(pa.nr), pa.nr=pa.xpos0+pa.L/2; end
@@ -75,7 +71,7 @@ inp_error = 0;
 			T(2,pa.Ng) = -al;
 			T(pa.Ng-1,1) = -al;			
 		end
-		[v,lambda]=eigs(T,pa.M+2,'sr'); [B_dummy,n_eigen] = sort( real(diag(lambda)) );
+		[v,lambda]=eigs(T,pa.M+2,'sa'); [B_dummy,n_eigen] = sort( real(diag(lambda)) );
 		pa.phi = v(:,n_eigen(1:pa.M));
 		for n=1:pa.M, pa.phi(:,n) = pa.phi(:,n)/sqrt( abs(pa.phi(:,n))'*abs(pa.phi(:,n))*pa.dx); end
 
@@ -108,7 +104,6 @@ inp_error = 0;
 		[phi,C,inp_error] = AddModes(phi,C); if inp_error>0, return; end
 		pa.phi = phi;
 		pa.C = C;
-		Normalise();
 		
 	elseif pa.relaxation==-1 && pa.load_phi_C != 1 && pa.load_phi_C != 0
 	
@@ -116,7 +111,6 @@ inp_error = 0;
 		[phi,C,inp_error] = AddModes(phi,C); if inp_error>0, return; end
 		pa.phi = phi .* pa.phi;
 		pa.C = C;
-		Normalise();	
 	
 	elseif pa.relaxation==-2 && pa.load_phi_C != 1 && pa.load_phi_C != 0
 	
@@ -125,16 +119,17 @@ inp_error = 0;
 		pa.phi = phi;
 		pa.t_initial = time;
 		pa.C = C;	
-		Normalise();
 		
 	elseif pa.load_phi_C == 1
 	
 		[phi,C,inp_error] = AddModes(pa.phi,pa.C); if inp_error>0, return; end
 		pa.phi = phi;
 		pa.C = C;	
-		Normalise();	
 		
 	end
+
+	for i=1:pa.M, phiCpp(i-1) = realfunction(pa.phi(:,i).'); end 
+	Normalise();
 	
 	if pa.load_phi_C != 0, calc_fields(); calc_rho(); end
 	if pa.relaxation<0
@@ -177,7 +172,7 @@ mlock(); global pa
 			T(2,pa.Ng) = -al;
 			T(pa.Ng-1,1) = -al;			
 		end
-		[v,lambda]=eigs(T,nr_eigen,'sr'); [b_dummy,n_eigen] = sort( real(diag(lambda)) );
+		[v,lambda]=eigs(T,nr_eigen,'sa'); [b_dummy,n_eigen] = sort( real(diag(lambda)) );
 		phi_tmp = v(:,n_eigen);
 		for n=1:nr_eigen
 			phi_tmp(:,n) = phi_tmp(:,n)/sqrt( abs(phi_tmp(:,n))'*abs(phi_tmp(:,n))*pa.dx);

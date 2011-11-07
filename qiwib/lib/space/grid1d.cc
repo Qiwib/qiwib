@@ -13,6 +13,7 @@ using namespace std;
 pointwise_operator(+)
 pointwise_operator(-)
 pointwise_operator(*)
+scalar_operator(/)
 scalar_operator(*)  
 
 gridfunction_member(gridfunction<space>) conj() const 
