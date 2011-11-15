@@ -49,7 +49,8 @@ mlock(); global pa basis_diff space realgrid realfunction realbasis phiCpp
 	
 while(pa.time<pa.endtime || pa.endtime<0)
 
-		phi0 = pa.phi; C0 = pa.C; E0 = E; h_kq0 = pa.h_kq; w_ksql0 = pa.w_ksql; H_phi_nl0 = pa.H_phi_nl; H_C0 = pa.H_C;
+		for i=1:pa.M, pa.phi(:,i) = (phiCcc(i-1).get_data()).';
+		C0 = pa.C; E0 = E; h_kq0 = pa.h_kq; w_ksql0 = pa.w_ksql; H_phi_nl0 = pa.H_phi_nl; H_C0 = pa.H_C;
 		rho_kq0 = pa.rho_kq; rho_ksql0 = pa.rho_ksql; rho_kq_inv0 = pa.rho_kq_inv;
 
 		%%Calculating C

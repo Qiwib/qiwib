@@ -64,6 +64,7 @@ public:
   value_t  integrate(const function_t& f) const;
   scalar_t inner(const function_t& f, const function_t& g) const;
   scalar_t inner(const function_t& f, const function_t& g, const function_t& h) const;
+  scalar_t inner(const function_t& f, const function_t& g, const function_t& h, const function_t& m) const;
   static value_t  conj(const value_t& v);
 
   function_t derivative       (const function_t& f, bool periodic = true) const;

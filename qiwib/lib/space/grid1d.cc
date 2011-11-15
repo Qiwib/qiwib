@@ -50,6 +50,14 @@ grid_member(value_t) inner(const function_t& f, const function_t& g, const funct
   return sum*dx;
 }
 
+grid_member(value_t) inner(const function_t& f, const function_t& g, const function_t& h, const function_t& m) const 
+{
+  value_t sum(0);
+  for(unsigned int i=0;i<f.size();i++) sum += conj(f[i])*conj(g[i])*h[i]*m[i];
+
+  return sum*dx;
+}
+
 // Definition of conjugate depends on the scalar field.
 template<> double Grid1D<double>::conj(const double& v) { return v; }
 template<> complex<double> Grid1D< complex<double> >::conj(const complex<double>& v) { return complex<double>(v.real(),-v.imag()); }

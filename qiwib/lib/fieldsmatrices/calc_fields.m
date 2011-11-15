@@ -21,39 +21,41 @@
 function calc_fields()
 mlock(); global pa
 
-	al = pa.H_Diff/12/pa.dx;
-	al2 = pa.H_Diff2/12/pa.dx/pa.dx;
+%  	al = pa.H_Diff/12/pa.dx;
+%  	al2 = pa.H_Diff2/12/pa.dx/pa.dx;
+%  	
+%  	%% create h_kq
+%  	if strcmp(pa.boundary,'periodic')
+%  
+%  		psid = [pa.phi(pa.Ng,:);pa.phi(1:pa.Ng-1,:)];
+%  		psiu = [pa.phi(2:pa.Ng,:);pa.phi(1,:)];
+%  		psidd = [ pa.phi(pa.Ng-1:pa.Ng,:) ; pa.phi(1:pa.Ng-2,:) ];
+%  		psiuu = [ pa.phi(3:pa.Ng,:) ; pa.phi(1:2,:) ];		
+%  
+%  	elseif strcmp(pa.boundary,'box')
+%  				
+%  		psid = [zeros(1,pa.M);pa.phi(1:pa.Ng-1,:)];
+%  		psiu = [pa.phi(2:pa.Ng,:);zeros(1,pa.M)];
+%  		psidd = [ zeros(2,pa.M) ; pa.phi(1:pa.Ng-2,:) ];
+%  		psiuu = [ pa.phi(3:pa.Ng,:) ; zeros(2,pa.M) ];
+%  			
+%  	end
+%  	for k=1:pa.M, for q=1:pa.M
+%  			
+%  		psi20 = pa.phi(:,k)' * pa.phi(:,q);
+%  		psi2d = pa.phi(:,k)'*psid(:,q);
+%  		psi2u = pa.phi(:,k)'*psiu(:,q);
+%  		psi2dd = pa.phi(:,k)'*psidd(:,q);
+%  		psi2uu = pa.phi(:,k)'*psiuu(:,q);
+%  		pa.h_kq(q+(k-1)*pa.M) =  -30.0 * al2 * psi20 + (16*al2+8*al) * psi2u + (16*al2-8*al) * psi2d + (-al2-al) * psi2uu + (-al2+al) * psi2dd;
+%  		pa.h_kq(q+(k-1)*pa.M) = pa.h_kq(q+(k-1)*pa.M) + pa.phi(:,k)'*(pa.V .* pa.phi(:,q));
+%  		
+%  	end, end
 	
-	%% create h_kq
-	if strcmp(pa.boundary,'periodic')
+%  	pa.h_kq = pa.h_kq * pa.dx;
 
-		psid = [pa.phi(pa.Ng,:);pa.phi(1:pa.Ng-1,:)];
-		psiu = [pa.phi(2:pa.Ng,:);pa.phi(1,:)];
-		psidd = [ pa.phi(pa.Ng-1:pa.Ng,:) ; pa.phi(1:pa.Ng-2,:) ];
-		psiuu = [ pa.phi(3:pa.Ng,:) ; pa.phi(1:2,:) ];		
-
-	elseif strcmp(pa.boundary,'box')
-				
-		psid = [zeros(1,pa.M);pa.phi(1:pa.Ng-1,:)];
-		psiu = [pa.phi(2:pa.Ng,:);zeros(1,pa.M)];
-		psidd = [ zeros(2,pa.M) ; pa.phi(1:pa.Ng-2,:) ];
-		psiuu = [ pa.phi(3:pa.Ng,:) ; zeros(2,pa.M) ];
-			
-	end
-	for k=1:pa.M, for q=1:pa.M
-			
-		psi20 = pa.phi(:,k)' * pa.phi(:,q);
-		psi2d = pa.phi(:,k)'*psid(:,q);
-		psi2u = pa.phi(:,k)'*psiu(:,q);
-		psi2dd = pa.phi(:,k)'*psidd(:,q);
-		psi2uu = pa.phi(:,k)'*psiuu(:,q);
-		pa.h_kq(q+(k-1)*pa.M) =  -30.0 * al2 * psi20 + (16*al2+8*al) * psi2u + (16*al2-8*al) * psi2d + (-al2-al) * psi2uu + (-al2+al) * psi2dd;
-		pa.h_kq(q+(k-1)*pa.M) = pa.h_kq(q+(k-1)*pa.M) + pa.phi(:,k)'*(pa.V .* pa.phi(:,q));
-		
-	end, end
-	
-	pa.h_kq = pa.h_kq * pa.dx;
+	pa.h_kq = phiCpp.hkq(pa.H_Diff, pa.H_Diff2, pa.V,1);
 
 	%% create rho_ksql
-	pa.w_ksql = calc_fields_C(pa.Ng,pa.M,pa.phi);
-	pa.w_ksql = pa.g * pa.dx * pa.w_ksql;
+	pa.w_ksql = phiCpp.Wksql(); %calc_fields_C(pa.Ng,pa.M,pa.phi);
+	pa.w_ksql = pa.g * pa.w_ksql; %pa.g * pa.dx * pa.w_ksql;
