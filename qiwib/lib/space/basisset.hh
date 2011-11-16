@@ -184,6 +184,32 @@ public:
 	}
     return hkq;
   }
+
+  std::vector<scalar_t> get_data_vector() const
+  {
+    std::vector<scalar_t> vect(this->size()*(*this)[0].size());
+    unsigned int i=0;
+
+    for(unsigned int k=0; k<this->size();k++)
+      for(unsigned int s=0; s<(*this)[0].size();s++){
+	vect[i] = (*this)[k][s];
+	i++;
+	}
+    return vect;
+  }
+
+  basisset set_data_vector(const Array2D<scalar_t>& vect) const
+  {
+    basisset phi(space,this->size());
+    unsigned int i=0;
+
+    for(unsigned int k=0; k<this->size();k++)
+      for(unsigned int s=0; s<(*this)[0].size();s++){
+	phi[k][s] = vect[i];
+	i++;
+	}
+    return phi;
+  }
   
 };
 
