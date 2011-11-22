@@ -3,6 +3,7 @@ space -global
 
 space = realgrid(-pi,pi,2001);
 xs    = space.get_xs();
+xmin = space.xmin
 
 phi   = realbasis(space,4);
 

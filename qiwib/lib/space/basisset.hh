@@ -56,24 +56,33 @@ public:
     return newbasis;
   }
 
-  basisset derivative(bool periodic = true) const {
+  basisset operator +(const basisset& A) const
+  {
+    basisset newbasis(space,this->size());
+
+    for(unsigned int i=0;i<this->size();i++) newbasis[i] = (*this)[i]*A[i];  
+    
+    return newbasis;
+  }
+  
+  basisset derivative() const {
     const basisset& phi(*this);
 
     basisset derivative_basis(space, phi.size());
     
     for(size_t i=0;i<phi.size();i++)
-      derivative_basis[i] = space.derivative(phi[i], periodic);
+      derivative_basis[i] = space.derivative(phi[i], space.periodic);
 
     return derivative_basis;
   }
   
-  basisset second_derivative(bool periodic = true) const {
+  basisset second_derivative() const {
     const basisset& phi(*this);
 
     basisset derivative_basis(space, phi.size());
     
     for(size_t i=0;i<phi.size();i++)
-      derivative_basis[i] = space.second_derivative(phi[i], periodic);
+      derivative_basis[i] = space.second_derivative(phi[i], space.periodic);
 
     return derivative_basis;
   }
@@ -136,7 +145,6 @@ public:
 
   Array2D<scalar_t> calc_error(basisset& phi1) const
   {
-    Array2D<scalar_t> overlap(this->size(),this->size());
     basisset phi(space,this->size());
     const basisset& phi0(*this);
     std::vector<scalar_t> norm0(this->size());
@@ -153,7 +161,7 @@ public:
 
   std::vector<scalar_t> Wksql() const
   {
-    std::vector<scalar_t> Wksql(this->size());
+    std::vector<scalar_t> Wksql(this->size()*this->size()*this->size()*this->size());
     unsigned int i=0;
 
     for(unsigned int k=0; k<this->size();k++)
@@ -167,12 +175,12 @@ public:
     return Wksql;
   }
 
-  std::vector<scalar_t> hkq(const scalar_t& D, scalar_t& D2, std::vector<scalar_t>& V, bool periodic = true) const
+  std::vector<scalar_t> hkq(const scalar_t& D, scalar_t& D2, std::vector<scalar_t>& V) const
   {
-    std::vector<scalar_t> hkq(this->size());
+    std::vector<scalar_t> hkq(this->size()*this->size());
     unsigned int i=0;
-    const basisset& d1phi(this->derivative(periodic));
-    const basisset& d2phi(this->second_derivative(periodic));
+    const basisset& d1phi(this->derivative());
+    const basisset& d2phi(this->second_derivative());
     
     for(unsigned int k=0; k<this->size();k++)
 	for(unsigned int q=0; q<this->size();q++){
@@ -210,6 +218,64 @@ public:
 	}
     return phi;
   }
+
+  basisset propagate(const scalar_t& direction, const scalar_t& beta, const scalar_t& alpha, const scalar_t& g, const basisset& V, const std::vector<scalar_t>& H_nonlin)
+  {
+    basisset F(space,this->size());
+    const basisset& d1phi(this->derivative());
+    const basisset& d2phi(this->second_derivative());
+    const basisset& Hnl(this->nonlin(H_nonlin));
+    
+    for (unsigned int i=0;i<this->size(); i++){
+      F[i]= d1phi[i]*alpha + d2phi[i]*beta + V[i] + Hnl[i]*g;
+      F[i]=F[i]*direction;
+    }
+      
+    return F.orthonormalise_advanced();
+  }  
+  
+  Array2D<scalar_t> Wsl()
+  {
+    Array2D<scalar_t> Wsl((*this)[0].size(),this->size()*this->size());
+    unsigned int M(this->size());    
+		
+    for(unsigned int s=0; s<M; s++)
+      for(unsigned int l=0; l<M; l++)
+	for(unsigned int n=0; n<space.Nx; n++){
+	    Wsl(n,l+s*M) = space.conj((*this)[s][n]) * (*this)[l][n];
+	    }
+    
+    return Wsl;
+  }  
+  
+  basisset nonlin(const std::vector<scalar_t>& H_nonlin)
+  {
+    Array2D<scalar_t> Wsl((*this)[0].size(),this->size()*this->size());
+    basisset H_nl(space,this->size());
+    scalar_t temp = 0;
+    
+    Wsl = this->Wsl();
+    unsigned int M(this->size());    
+		
+    for(unsigned int j=0; j<M; j++)
+      for(unsigned int q=0; q<M; q++)
+	for(unsigned int n=0; n<space.Nx; n++){
+	  temp = 0;
+	  for(unsigned int sl=0; sl<M*M; sl++){
+	    temp = Wsl(n,sl) * H_nonlin[sl+2*q*M*M+2*j*M*M*M];
+	    }
+	  H_nl[j][n] += temp * (*this)[q][n];
+	  }
+    
+    return H_nl;
+  }    
+
+  basisset orthonormalise_advanced()
+  {
+    basisset F(space,this->size());
+    
+    return F;
+  } 
   
 };
 
