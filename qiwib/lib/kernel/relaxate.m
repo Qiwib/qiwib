@@ -19,7 +19,7 @@
 ## THE SOFTWARE.
 	
 function relaxate()
-mlock(); global pa basis_diff space realgrid realfunction realbasis phiCpp
+mlock(); global pa basis_diff space realgrid realfunction realbasis phiCpp VCpp
 	printf("\nStart Relaxation for state %d: Initialise...\r",pa.relaxation); fflush(stdout);			
 %%initial energy and other variables and display it%%
 
@@ -46,10 +46,10 @@ mlock(); global pa basis_diff space realgrid realfunction realbasis phiCpp
 	save_time_dep(0,save_time,E,dE,C_corr,phi_corr,0,steps_count,cpu_time1,cpu_time0,cpu_time00);
 
 %%the propagation%%
-	
+
 while(pa.time<pa.endtime || pa.endtime<0)
 
-		for i=1:pa.M, pa.phi(:,i) = (phiCcc(i-1).get_data()).';
+		phi0 = phiCpp;
 		C0 = pa.C; E0 = E; h_kq0 = pa.h_kq; w_ksql0 = pa.w_ksql; H_phi_nl0 = pa.H_phi_nl; H_C0 = pa.H_C;
 		rho_kq0 = pa.rho_kq; rho_ksql0 = pa.rho_ksql; rho_kq_inv0 = pa.rho_kq_inv;
 
@@ -130,7 +130,7 @@ while(pa.time<pa.endtime || pa.endtime<0)
 		%%Calculating phi
 		if pa.no_prop_phi == 0
 			cpu_time_temp = time(); 
-			pa.phi = Integrator_phi(pa.dt,pa.time,phi0);
+			phiCpp = Integrator_phi(pa.dt,pa.time,phi0);
 			cpu_time_phi_prop = cpu_time_phi_prop+time()-cpu_time_temp;
 
 			cpu_time_temp = time(); calc_rho(); cpu_time_C = cpu_time_C+time()-cpu_time_temp;
@@ -141,14 +141,14 @@ while(pa.time<pa.endtime || pa.endtime<0)
 			cpu_time_phi_prop = cpu_time_phi_prop+time()-cpu_time_temp;
 		else
 			cpu_time_temp = time(); calc_rho(); cpu_time_C = cpu_time_C+time()-cpu_time_temp;
-			phi1 = pa.phi;
+			phi1 = phiCpp;
 		end
 
 	%%Calculate observables and output or reset time-step%%	
 
-		delta = Calc_error(phi1,pa.phi,1,1);
+		delta = Calc_error(phi1,phiCpp,1,1);
 		Normalise();
-		phi_corr = min(abs( (sum(conj(phi0) .* pa.phi) * pa.dx).^2));
+		phi_corr = min(min( abs( (phi0.overlap_matrix(phiCpp)).^2) ));
 		C_corr = abs(pa.C'*C0)^2;
 		if pa.qiwib_verbose_output==1, disp([pa.dt,delta]); end
 		
@@ -189,7 +189,7 @@ while(pa.time<pa.endtime || pa.endtime<0)
 
 		else
 			cpu_time_phi_tot = cpu_time_phi_tot + cpu_time_phi; cpu_time_C_tot = cpu_time_C_tot + cpu_time_C;
-			pa.phi = phi0; pa.C = C0; E = E0;
+			phiCpp = phi0; pa.C = C0; E = E0;
 			pa.h_kq = h_kq0; pa.w_ksql = w_ksql0;
 			pa.rho_kq = rho_kq0; pa.rho_ksql = rho_ksql0; pa.rho_kq_inv = rho_kq_inv0;
 			pa.dt = 0.5*pa.dt; %pa.dt = pa.dt * (pa.CMF_error/delta)^(1/3);

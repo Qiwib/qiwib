@@ -36,9 +36,11 @@ mlock(); global pa
 			phix = reshape(v(end,:).',pa.Ng,pa.M);		
 			
 		case {'RK78'}
-		
-			[tarray,v] = ode78( @Calc_F_phi,[t t+dt],phi(:),pa.ode_phi_opts);
-			phix = reshape(v(end,:).',pa.Ng,pa.M);
+			
+			psi = phi.get_data_vector();
+			[tarray,v] = ode78( @Calc_F_phi,[t t+dt],psi(:),pa.ode_phi_opts);
+			psi = v(end,:).';
+			phix = phi.set_data_vector(psi);
 
 		case {'adams' 'bdf'}
 			lsode_options("absolute tolerance", pa.ode_phi_opts(1));

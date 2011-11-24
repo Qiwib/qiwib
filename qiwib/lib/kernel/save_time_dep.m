@@ -37,7 +37,7 @@ mlock(); global pa basis_diff space realgrid realfunction realbasis phiCpp
 
 	if pa.relaxation!=-2 || pa.t_initial!=pa.time
     
-		for i=1:pa.M, pa.phi(:,i) = (phiCcc(i-1).get_data()).';
+		for i=1:pa.M, pa.phi(:,i) = (phiCpp(i-1).get_data()).'; end
 
 		save("-z",[pa.save_dir_out,'phiC_restart.gz'],'-struct','pa','N','M','time','phi','xpos','C');
 		

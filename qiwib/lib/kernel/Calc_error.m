@@ -22,7 +22,7 @@
 function delta = Calc_error(phi1,phi,C1,C)
 mlock(); global pa basis_diff space realgrid realfunction realbasis phiCpp
 
-	H_0 = phi1.calc_error(phi);
+	H_O = phi1.calc_error(phi);
 	d_phi = abs( trace(H_O * reshape(pa.rho_kq,pa.M,pa.M).') );
 
 	d_C = (C1 - C) / sqrt( sum(abs(C).^2) );

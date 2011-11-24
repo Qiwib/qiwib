@@ -6,6 +6,8 @@ xs    = space.get_xs();
 xmin = space.xmin
 
 phi   = realbasis(space,4);
+phi2 = phi;
+
 
 for i = [1:4]
   phi(i-1) = realfunction(sin(i*xs)/sqrt(pi));
