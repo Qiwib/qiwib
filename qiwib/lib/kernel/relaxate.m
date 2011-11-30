@@ -148,7 +148,8 @@ while(pa.time<pa.endtime || pa.endtime<0)
 
 		delta = Calc_error(phi1,phiCpp,1,1);
 		Normalise();
-		phi_corr = min(min( abs( (phi0.overlap_matrix(phiCpp)).^2) ));
+
+		phi_corr = min(diag( abs( (phi0.overlap_matrix(phiCpp)).^2) ));
 		C_corr = abs(pa.C'*C0)^2;
 		if pa.qiwib_verbose_output==1, disp([pa.dt,delta]); end
 		

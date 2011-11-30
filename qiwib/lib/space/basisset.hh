@@ -109,10 +109,11 @@ public:
 
   Array2D<scalar_t> overlap_matrix(const basisset& phi1) const
   {
-    Array2D<scalar_t> overlap(this->size(),this->size());
+    Array2D<scalar_t> overlap(this->size(),phi1.size());
     unsigned int i = 0, j =0;
 
     for(const_iterator f(this->begin()); f!=this->end();f++,i++){
+      j=0;
       for(const_iterator g(phi1.begin()); g != phi1.end(); g++,j++){
 	const scalar_t& ol(space.inner(*f,*g));
 	overlap(i,j) = ol;
@@ -230,8 +231,8 @@ public:
       F[i] = d1phi[i]*alpha + d2phi[i]*beta + V[i] + Hnl[i]*g;
       F[i] = F[i]*direction;
     }
-  return F;
-   // return F.orthonormalise_advanced(overlap_matrix,*this);
+  //return F;
+    return F.orthonormalise_advanced(overlap_matrix,*this);
   }  
   
   Array2D<scalar_t> Wsl()
@@ -260,7 +261,7 @@ public:
 	for(unsigned int n=0; n<space.Nx; n++){
 	  temp = 0;
 	  for(unsigned int sl=0; sl<M*M; sl++){
-	    temp += Wsl(n,sl) * H_nonlin[sl+2*q*M*M+2*j*M*M*M];
+	    temp += Wsl(n,sl) * H_nonlin[sl+q*M*M+j*M*M*M];
 	    }
 	  H_nl[j][n] += temp * (*this)[q][n];
 	  }
