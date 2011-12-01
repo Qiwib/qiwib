@@ -33,9 +33,9 @@ function F_tmp = F_function_phi(t,psi)
 mlock(); global pa space realgrid realfunction realbasis phiCpp VCpp
 
 	%F_tmp = Calc_F_phi_C(psi,pa.H_phi_lin,pa.H_phi_nl,pa.H_phi_direction,pa.Ng,pa.M,pa.g,pa.dx);
-	phiCpp = phiCpp.set_data_vector(psi);
+%	phiCpp = phiCpp.set_data_vector(psi);
 
 %	FCpp = phiCpp.propagate(pa.H_phi_direction, pa.H_Diff, pa.H_Diff2, pa.g, VCpp, pa.H_phi_nl, eye(pa.M));
-	FCpp = phiCpp.propagate(pa.H_phi_direction, pa.H_Diff, pa.H_Diff2, pa.g, VCpp, pa.H_phi_nl, inv(phiCpp.overlap_matrix()));
+	FCpp = (phiCpp.set_data_vector(psi)).propagate(pa.H_phi_direction, pa.H_Diff, pa.H_Diff2, pa.g, VCpp, pa.H_phi_nl, inv(phiCpp.overlap_matrix()));
 	F_tmp = FCpp.get_data_vector();
 	

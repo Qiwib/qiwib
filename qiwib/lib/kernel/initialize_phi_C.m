@@ -76,7 +76,7 @@ inp_error = 0;
 		[v,lambda]=eigs(T,pa.M+2,'sa'); [B_dummy,n_eigen] = sort( real(diag(lambda)) );
 		pa.phi = v(:,n_eigen(1:pa.M));
 		for n=1:pa.M, pa.phi(:,n) = pa.phi(:,n)/sqrt( abs(pa.phi(:,n))'*abs(pa.phi(:,n))*pa.dx); end
-
+		
 		%%Create initial C
 		phiCpp = phiCpp.set_data_vector(pa.phi(:));
 		calc_fields(); calc_H_C();

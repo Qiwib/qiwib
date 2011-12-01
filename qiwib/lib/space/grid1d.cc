@@ -102,8 +102,7 @@ grid_member(gridfunction_t) third_derivative(const function_t& f, bool periodic)
 // for -n < i < \infty.
 #define mod(i,n) (i+n)%n
 
-grid_member(gridfunction_t) stencil_operator(const function_t& f, const double *stencil, size_t stencil_length,
-					     double delta, bool periodic) const
+grid_member(gridfunction_t) stencil_operator(const function_t& f, const double *stencil, size_t stencil_length, double delta, bool periodic) const
 {
   function_t df(*this);
   unsigned int n = f.size();
@@ -117,16 +116,12 @@ grid_member(gridfunction_t) stencil_operator(const function_t& f, const double *
       df[i] = sum*delta;
     }
   } else {
-    for(size_t i=max;i<n-max;i++){
+    for(size_t i=0;i<n;i++){	// Assume that end point is included in interval
       value_t sum(0);
-      for(size_t j=0;j<stencil_length;j++){
-	sum += stencil[j]*f[i+j-max];
-      }
+      for(size_t j=0;j<stencil_length;j++)
+	if(i+j-max>=0 && i+j-max<n)
+	  sum += stencil[j]*f[mod(i+j-max,n)];
       df[i] = sum*delta;
-      for(size_t i=0;i<max;i++){
-	df[i]     = df[max];
-	df[n-i-1] = df[n-max-1];
-      }
     }
   }
 

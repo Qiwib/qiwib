@@ -58,9 +58,7 @@ public:
   unsigned int Nx;
   bool periodic;
   
-  Grid1D(double xmin=0,double xmax=1, unsigned int Nx=1, bool periodic = true) : xmin(xmin), xmax(xmax),  
-							   dx((xmax-xmin)/static_cast<double>(Nx)),
-							   Nx(Nx), periodic(periodic) {}
+  Grid1D(double xmin=0,double xmax=1, unsigned int Nx=1, bool periodic = true) : xmin(xmin), xmax(xmax), dx((xmax-xmin)/static_cast<double>(Nx+periodic-1)), Nx(Nx), periodic(periodic) {}
   
   value_t  integrate(const function_t& f) const;
   scalar_t inner(const function_t& f, const function_t& g) const;
