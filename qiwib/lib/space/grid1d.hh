@@ -64,7 +64,8 @@ public:
 
   void set_boundary(const boundary_t boundary){ 
     boundary_condition = boundary; 
-    if(boundary == PERIODIC) dx = (xmax-xmin)/static_cast<double>(Nx+(boundary_condition==PERIODIC)-1);
+
+    dx = (xmax-xmin)/static_cast<double>(Nx+(boundary_condition==PERIODIC)-1);
   }
   void set_boundary(const std::string& boundary){
     set_boundary(boundary == "open"? OPEN : (boundary == "box"? BOX : PERIODIC) );
