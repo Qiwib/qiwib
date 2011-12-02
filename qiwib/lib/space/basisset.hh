@@ -71,7 +71,7 @@ public:
     basisset derivative_basis(space, phi.size());
     
     for(size_t i=0;i<phi.size();i++)
-      derivative_basis[i] = space.derivative(phi[i], space.periodic);
+      derivative_basis[i] = space.derivative(phi[i]);
 
     return derivative_basis;
   }
@@ -82,7 +82,7 @@ public:
     basisset derivative_basis(space, phi.size());
     
     for(size_t i=0;i<phi.size();i++)
-      derivative_basis[i] = space.second_derivative(phi[i], space.periodic);
+      derivative_basis[i] = space.second_derivative(phi[i]);
 
     return derivative_basis;
   }

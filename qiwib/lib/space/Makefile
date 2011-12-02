@@ -1,11 +1,12 @@
-SWIG=swig -w365,366,367,124 -debug-template
+SWIG=swig -w365,366,367,368,124 
+# -debug-template
 # -debug-tmsearch
 # -debug-top 1,2,3,4
 
 # Python include directory is OS dependent
 PYTHONINCLUDE= /usr/include/python
 
-CXX=llvm-clang -x c++ -O3 
+CXX=clang -x c++ -O3 
 #CXX=c++ -O3 
 #CXX=icpc
 

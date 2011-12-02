@@ -47,31 +47,41 @@ public:
   }
 };
 
+
 template <typename Value = double> class Grid1D {
 public:
   typedef Value scalar_t;
   typedef Value value_t;
   typedef gridfunction<Grid1D> function_t;
   typedef Grid1D<Value> self_t;
-
+  typedef enum { OPEN, BOX, PERIODIC }  boundary_t;
+  
   double xmin, xmax, dx;
   unsigned int Nx;
-  bool periodic;
+  boundary_t boundary_condition;
   
-  Grid1D(double xmin=0,double xmax=1, unsigned int Nx=1, bool periodic = true) : xmin(xmin), xmax(xmax), dx((xmax-xmin)/static_cast<double>(Nx+periodic-1)), Nx(Nx), periodic(periodic) {}
-  
+  Grid1D(double xmin=0,double xmax=1, unsigned int Nx=1, boundary_t boundary = PERIODIC) : xmin(xmin), xmax(xmax), dx((xmax-xmin)/static_cast<double>(Nx+(boundary==PERIODIC)-1)), Nx(Nx), boundary_condition(boundary) {}  
+
+  void set_boundary(const boundary_t boundary){ 
+    boundary_condition = boundary; 
+    if(boundary == PERIODIC) dx = (xmax-xmin)/static_cast<double>(Nx+(boundary_condition==PERIODIC)-1);
+  }
+  void set_boundary(const std::string& boundary){
+    set_boundary(boundary == "open"? OPEN : (boundary == "box"? BOX : PERIODIC) );
+  }
+
   value_t  integrate(const function_t& f) const;
   scalar_t inner(const function_t& f, const function_t& g) const;
   scalar_t inner(const function_t& f, const function_t& g, const function_t& h) const;
   scalar_t inner(const function_t& f, const function_t& g, const function_t& h, const function_t& m) const;
   static value_t  conj(const value_t& v);
 
-  function_t derivative       (const function_t& f, bool periodic = true) const;
-  function_t second_derivative(const function_t& f, bool periodic = true) const;
-  function_t third_derivative (const function_t& f, bool periodic = true) const;
+  function_t derivative       (const function_t& f) const;
+  function_t second_derivative(const function_t& f) const;
+  function_t third_derivative (const function_t& f) const;
 
   function_t stencil_operator(const function_t& f, const double *stencil, size_t stencil_length, 
-			      double delta, bool periodic) const;
+			      double delta) const;
 
 
   std::vector<double> get_xs() const {

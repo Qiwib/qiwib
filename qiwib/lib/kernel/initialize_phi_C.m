@@ -36,9 +36,10 @@ inp_error = 0;
 	pa.w_ksql = zeros(pa.M*pa.M*pa.M*pa.M,1);
 	pa.rho_ksql = zeros(pa.M*pa.M*pa.M*pa.M,1);
 	pa.H_C = sparse(pa.nmax);
-	
-	if strcmp(pa.boundary,'periodic'), space = realgrid(pa.xpos0,pa.xpos0+pa.L,pa.Ng,1==1);
-	else, space = realgrid(pa.xpos0,pa.xpos0+pa.L,pa.Ng,1==0); end
+
+	space = realgrid(pa.xpos0,pa.xpos0+pa.L,pa.Ng);
+	space.set_boundary(pa.boundary);
+
 	pa.xpos = space.get_xs(); pa.dx = space.dx;
 	phiCpp = realbasis(space,pa.M);
 	VCpp = realbasis(space,pa.M);

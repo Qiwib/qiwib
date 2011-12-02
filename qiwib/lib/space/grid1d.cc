@@ -14,7 +14,7 @@ pointwise_operator(+)
 pointwise_operator(-)
 pointwise_operator(*)
 scalar_operator(/)
-scalar_operator(*)  
+scalar_operator(*)
 
 gridfunction_member(gridfunction<space>) conj() const 
 {
@@ -71,30 +71,30 @@ grid_member(double) h4_derivative2_stencil[5] = {-1/12., 4/3.,-5/2.,4/3.,-1/12.}
 grid_member(double) h4_derivative3_stencil[7] = {1/8.,-1,13/8.,0,-13/8.,1,-1/8.};
 
 
-grid_member(gridfunction_t) derivative(const function_t& f, bool periodic) const
+grid_member(gridfunction_t) derivative(const function_t& f) const
 {
 #ifdef DERIVATIVE_FIVE_POINT
-  return stencil_operator(f,h4_derivative1_stencil,5,1.0/dx,periodic);
+  return stencil_operator(f,h4_derivative1_stencil,5,1.0/dx);
 #else
-  return stencil_operator(f,h2_derivative1_stencil,3,1.0/dx,periodic);
+  return stencil_operator(f,h2_derivative1_stencil,3,1.0/dx);
 #endif
 }
 
-grid_member(gridfunction_t) second_derivative(const function_t& f, bool periodic) const
+grid_member(gridfunction_t) second_derivative(const function_t& f) const
 {
 #ifdef DERIVATIVE_FIVE_POINT
-  return stencil_operator(f,h4_derivative2_stencil,5,1.0/(dx*dx),periodic);
+  return stencil_operator(f,h4_derivative2_stencil,5,1.0/(dx*dx));
 #else
-  return stencil_operator(f,h2_derivative2_stencil,3,1.0/(dx*dx),periodic);
+  return stencil_operator(f,h2_derivative2_stencil,3,1.0/(dx*dx));
 #endif
 }
 
-grid_member(gridfunction_t) third_derivative(const function_t& f, bool periodic) const
+grid_member(gridfunction_t) third_derivative(const function_t& f) const
 {
 #ifdef DERIVATIVE_FIVE_POINT
-  return stencil_operator(f,h4_derivative3_stencil,7,1.0/(dx*dx*dx),periodic);
+  return stencil_operator(f,h4_derivative3_stencil,7,1.0/(dx*dx*dx));
 #else
-  return stencil_operator(f,h2_derivative3_stencil,5,1.0/(dx*dx*dx),periodic);
+  return stencil_operator(f,h2_derivative3_stencil,5,1.0/(dx*dx*dx));
 #endif
 }
 
@@ -102,27 +102,49 @@ grid_member(gridfunction_t) third_derivative(const function_t& f, bool periodic)
 // for -n < i < \infty.
 #define mod(i,n) (i+n)%n
 
-grid_member(gridfunction_t) stencil_operator(const function_t& f, const double *stencil, size_t stencil_length, double delta, bool periodic) const
+grid_member(gridfunction_t) stencil_operator(const function_t& f, const double *stencil, size_t stencil_length, double delta) const
 {
   function_t df(*this);
   unsigned int n = f.size();
   unsigned int max = stencil_length/2;
-  
-  if(periodic){
-    for(size_t i=0;i<n;i++){	// Assume that end point is not included in interval
+
+  switch(boundary_condition){	
+  case OPEN:                            // Open boundary condition 
+                                        // (assume function continues outside [a;b]; C1-continuous on boundary)
+    for(size_t i=max;i<n-max;i++){	// For this boundary type, numerical derivative is only
+      value_t sum(0);			// defined on inner points
+      for(size_t j=0;j<stencil_length;j++)
+	sum += stencil[j]*f[i+j-max];	
+
+      df[i] = sum*delta;	
+    }
+    for(size_t i=0;i<max;i++){        // Boundary point derivatives are set to same as last inner point
+      df[i]     = df[max];	      // (TODO: C2-continuity instead of C1)
+      df[n-i-1] = df[n-max-1];		
+    }
+    break;
+
+  case BOX:		        // Homogeneous Dirichlet boundary condition (f(x) = 0 outside [a;b])
+    for(size_t i=0;i<n;i++){	// End point is included in interval [a;b]
+      value_t sum(0);
+      for(size_t j=0;j<stencil_length;j++)
+	if(i+j-max>=0 && i+j-max<n)
+	  sum += stencil[j]*f[i+j-max,n];
+      df[i] = sum*delta;
+    }
+    break;
+  case PERIODIC:	        
+    for(size_t i=0;i<n;i++){	// End point is not included in interval [a;b[
       value_t sum(0);
       for(size_t j=0;j<stencil_length;j++)
 	sum += stencil[j]*f[mod(i+j-max,n)];
       df[i] = sum*delta;
     }
-  } else {
-    for(size_t i=0;i<n;i++){	// Assume that end point is included in interval
-      value_t sum(0);
-      for(size_t j=0;j<stencil_length;j++)
-	if(i+j-max>=0 && i+j-max<n)
-	  sum += stencil[j]*f[mod(i+j-max,n)];
-      df[i] = sum*delta;
-    }
+    break;
+
+  default:
+    fprintf(stderr,"Invalid input: boundary type %d\n",boundary_condition);
+    abort();
   }
 
   return df;
