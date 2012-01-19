@@ -1,4 +1,4 @@
-## Copyright (C) 2011 by Thomas Ernst
+## Copyright (C) 2012 by Thomas Ernst
 ## 
 ## Permission is hereby granted, free of charge, to any person obtaining a copy
 ## of this software and associated documentation files (the "Software"), to deal
