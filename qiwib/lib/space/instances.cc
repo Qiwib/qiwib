@@ -11,8 +11,8 @@ template class Grid1D<double>;
 template class Grid1D< std::complex<double> >;
 template class gridfunction< Grid1D<double> >;
 template class gridfunction< Grid1D< complex<double> > >;
-typedef gridfunction< Grid1D<double> > realfunction;
-typedef gridfunction< Grid1D< complex<double> > > complexfunction;
+//typedef gridfunction< Grid1D<double> > realfunction;
+//typedef gridfunction< Grid1D< complex<double> > > complexfunction;
 
 template class basisset<realfunction>;
 template class basisset<complexfunction>;

@@ -34,10 +34,6 @@ public:
     //    fprintf(stderr,"gridfunction(vectord) : size(%d)\n",this->size());
   }
 
-  gridfunction(const double *v, unsigned int n) : std::vector<value_t>(v,v+n) { 
-    //    fprintf(stderr,"gridfunction(pointer) : size(%d)\n",this->size());
-  }
-
   gridfunction() {
     // fprintf(stderr,"default constructor gridfunction()\n");
   }
@@ -46,7 +42,6 @@ public:
     return std::vector<value_t>(this->begin(),this->end());
   }
 };
-
 
 template <typename Value = double> class Grid1D {
 public:
@@ -96,6 +91,5 @@ private:
   static double h2_derivative1_stencil[3], h2_derivative2_stencil[3], h2_derivative3_stencil[5];
   static double h4_derivative1_stencil[5], h4_derivative2_stencil[5], h4_derivative3_stencil[7];
 };
-
 
 #endif

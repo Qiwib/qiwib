@@ -28,7 +28,7 @@ public:
   basisset(const basisset& basis) : std::vector<Function>(basis.begin(),basis.end()), space(basis.space) {  }
 
   // TODO: Make proper set of operations
-  basisset operator *(const scalar_t& s){ 
+  basisset operator *(const scalar_t& s) const { 
     const basisset& phi(*this);
     basisset newbasis(space,phi.size());
 
@@ -37,16 +37,32 @@ public:
 
     return newbasis;
   }
+  friend basisset operator *(const scalar_t& s, const basisset& b) { return b*s; }
 
   basisset operator *(const Array2D<scalar_t>& C) const
   {
     assert(C.rows() == this->size());
 
     const basisset& phi(*this);
-    basisset newbasis(space,this->size());
+    basisset newbasis(space,phi.size());
 
     for(size_t i=0;i<C.rows();i++){
       Function sum(space);
+      for(size_t j=0;j<C.columns();j++)
+	sum += phi[j]*C(j,i);
+
+      newbasis[i] = sum;
+    }
+    
+    return newbasis;
+  }
+  friend basisset operator *(const Array2D<scalar_t>& C, const basisset& phi) {
+    assert(C.rows() == phi.size());
+
+    basisset newbasis(phi.space,phi.size());
+
+    for(size_t i=0;i<C.rows();i++){
+      Function sum(phi.space);
       for(size_t j=0;j<C.columns();j++)
 	sum += phi[j]*C(i,j);
 
@@ -242,9 +258,9 @@ public:
 		
     for(unsigned int s=0; s<M; s++)
       for(unsigned int l=0; l<M; l++)
-	for(unsigned int n=0; n<space.Nx; n++){
+	for(unsigned int n=0; n<space.Nx; n++)
 	    Wsl(n,l+s*M) = space.conj((*this)[s][n]) * (*this)[l][n];
-	    }
+
     
     return Wsl;
   }  
@@ -262,9 +278,9 @@ public:
 	  temp = 0;
 	  for(unsigned int sl=0; sl<M*M; sl++){
 	    temp += Wsl(n,sl) * H_nonlin[sl+q*M*M+j*M*M*M];
-	    }
-	  H_nl[j][n] += temp * (*this)[q][n];
 	  }
+	  H_nl[j][n] += temp * (*this)[q][n];
+	}
     
     return H_nl;
   }    
@@ -277,14 +293,14 @@ public:
     scalar_t ovrlp = 0;
     
     for(unsigned int j=0; j<M; j++)
-	    for(unsigned int q=0; q<M; q++)
-	    {     	
-		    ovrlp = 0;
-		    for(unsigned int n=0; n<Nx; n++) ovrlp += space.conj(phi[q][n]) * F[j][n];
-		    ovrlp = ovrlp*space.dx;
-		    for(unsigned int k=0; k<M; k++)
-			    for(unsigned int n=0; n<Nx; n++) F[j][n] -= phi[q][n] * ovrlp * overlap_matrix(k,q);
-	      }
+      for(unsigned int q=0; q<M; q++)
+	{     	
+	  ovrlp = 0;
+	  for(unsigned int n=0; n<Nx; n++) ovrlp += space.conj(phi[q][n]) * F[j][n];
+	  ovrlp = ovrlp*space.dx;
+	  for(unsigned int k=0; k<M; k++)
+	    for(unsigned int n=0; n<Nx; n++) F[j][n] -= phi[q][n] * ovrlp * overlap_matrix(k,q);
+	}
     
     return F;
   } 
