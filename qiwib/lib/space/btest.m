@@ -1,7 +1,7 @@
 #!/usr/bin/env octave
 space -global
 
-space = realgrid(-pi,pi,2001);
+space = realgrid(-pi,pi,2000);
 xs    = space.get_xs();
 xmin = space.xmin 
 
