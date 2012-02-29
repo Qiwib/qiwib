@@ -251,9 +251,9 @@ public:
     return F.orthonormalise_advanced(overlap_matrix,*this);
   }  
   
-  Array2D<scalar_t> Wsl()
+  Array2D<value_t> Wsl()
   {
-    Array2D<scalar_t> Wsl((*this)[0].size(),this->size()*this->size());
+    Array2D<value_t> Wsl((*this)[0].size(),this->size()*this->size());
     unsigned int M(this->size());    
 		
     for(unsigned int s=0; s<M; s++)
@@ -267,9 +267,9 @@ public:
   
   basisset nonlin(const Array2D<scalar_t>& H_nonlin)
   {
-    Array2D<scalar_t> Wsl(this->Wsl());
+    Array2D<value_t> Wsl(this->Wsl());
     basisset H_nl(space,this->size());
-    scalar_t temp = 0;
+    value_t temp = 0;
     unsigned int M(this->size());
       
     for(unsigned int j=0; j<M; j++)
@@ -285,7 +285,7 @@ public:
     return H_nl;
   }    
 
-  basisset orthonormalise_advanced(const Array2D<scalar_t>& overlap_matrix, basisset& phi)
+  basisset orthonormalise_advanced(const Array2D<scalar_t>& overlap_matrix_inv, basisset& phi)
   {
     basisset& F(*this);
     unsigned int M = this->size();
@@ -295,15 +295,13 @@ public:
     for(unsigned int j=0; j<M; j++)
       for(unsigned int q=0; q<M; q++)
 	{     	
-	  ovrlp = 0;
-	  for(unsigned int n=0; n<Nx; n++) ovrlp += space.conj(phi[q][n]) * F[j][n];
-	  ovrlp = ovrlp*space.dx;
+	  ovrlp = space.inner(phi[q], F[j]);
 	  for(unsigned int k=0; k<M; k++)
-	    for(unsigned int n=0; n<Nx; n++) F[j][n] -= phi[q][n] * ovrlp * overlap_matrix(k,q);
+	    F[j] -= phi[k] * ovrlp * overlap_matrix_inv(k,q);
 	}
     
     return F;
-  } 
+  }
   
 };
 

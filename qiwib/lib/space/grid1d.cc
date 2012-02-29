@@ -33,7 +33,6 @@ grid_member(value_t) integrate(const function_t& f) const
   return sum*dx;
 }
 
-
 grid_member(value_t) inner(const function_t& f, const function_t& g) const 
 {
   value_t sum(0);

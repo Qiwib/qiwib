@@ -54,7 +54,7 @@ mlock(); global pa phiCpp
 	
 %  	pa.h_kq = pa.h_kq * pa.dx;
 
-	pa.h_kq = (phiCpp.hkq(pa.H_Diff, pa.H_Diff2, pa.V)).';
+	pa.h_kq = ( phiCpp.hkq(pa.H_Diff, pa.H_Diff2, complex(pa.V)) ).';
 
 	%% create rho_ksql
 	pa.w_ksql = (phiCpp.Wksql()).'; %calc_fields_C(pa.Ng,pa.M,pa.phi);

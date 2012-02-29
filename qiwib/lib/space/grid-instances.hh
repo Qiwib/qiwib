@@ -35,7 +35,11 @@ public:
   complexfunction(const baseclass& b) : baseclass(b) {}
   complexfunction(const Space& space) : baseclass(space.Nx) { }
   complexfunction(const std::complex<double> *v, unsigned int n) : baseclass(std::vector< std::complex<double> >(v,v+n)) { 
-    fprintf(stderr,"complexfunction(pointer) : size(%d)\n",int(this->size()));
+   // fprintf(stderr,"complexfunction(pointer) : size(%d)\n",int(this->size()));
+  }
+  complexfunction(const double *v, unsigned int n) : baseclass(std::vector< std::complex<double> >(n)) { 
+  //  fprintf(stderr,"complexfunction(real pointer) : size(%d)\n",int(this->size()));
+    for(unsigned int i=0;i<n;i++) (*this)[i] = v[i];
   }
   complexfunction& operator=(const complexfunction& b){ 
     resize(b.size());

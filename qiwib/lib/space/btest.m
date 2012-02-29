@@ -6,7 +6,8 @@ xs    = space.get_xs();
 xmin = space.xmin 
 
 phi   = realbasis(space,4);
-phi2 = phi;
+phi   = phi.set_data_vector(ones(4*2000,1));
+phi2 = phi*rand(4);
 
 
 for i = [1:4]

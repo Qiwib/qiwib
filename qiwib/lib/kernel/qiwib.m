@@ -24,7 +24,7 @@ function qiwib(input_file, out_arg, ow=[], vv=1, gg=1, print_qiwib_version='unkn
 %qiwib('inputvariables_relax.m','results/test_relax_15p4mtest/','ow')
  
 %global structure, to save memory basis_diff is seperate
-mlock(); space -global; global pa basis_diff space realgrid realfunction realbasis
+mlock(); space -global; global pa basis_diff space realgrid realfunction realbasis complexgrid complexfunction complexbasis
 
 %thats my global structure
 pa.basis = 0;

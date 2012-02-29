@@ -19,7 +19,7 @@
 ## THE SOFTWARE.
 
 function inp_error = initialize_phi_C();
-mlock(); global pa basis_diff space realgrid realfunction realbasis phiCpp VCpp
+mlock(); global pa basis_diff space realgrid realfunction realbasis complexgrid complexfunction complexbasis phiCpp VCpp
 inp_error = 0;
 
 %%%%%%%%%%%%%%%%% variables I need %%%%%%%%%%%%%%%%%%%%%%%
@@ -37,12 +37,12 @@ inp_error = 0;
 	pa.rho_ksql = zeros(pa.M*pa.M*pa.M*pa.M,1);
 	pa.H_C = sparse(pa.nmax);
 
-	space = realgrid(pa.xpos0,pa.xpos0+pa.L,pa.Ng);
+	space = complexgrid(pa.xpos0,pa.xpos0+pa.L,pa.Ng);
 	space.set_boundary(pa.boundary);
 
 	pa.xpos = space.get_xs(); pa.dx = space.dx;
-	phiCpp = realbasis(space,pa.M);
-	VCpp = realbasis(space,pa.M);
+	phiCpp = complexbasis(space,pa.M);
+	VCpp = complexbasis(space,pa.M);
 	
 	if isempty(pa.nl), pa.nl=pa.xpos0+pa.L/2; end
 	if isempty(pa.nr), pa.nr=pa.xpos0+pa.L/2; end
@@ -77,9 +77,9 @@ inp_error = 0;
 		[v,lambda]=eigs(T,pa.M+2,'sa'); [B_dummy,n_eigen] = sort( real(diag(lambda)) );
 		pa.phi = v(:,n_eigen(1:pa.M));
 		for n=1:pa.M, pa.phi(:,n) = pa.phi(:,n)/sqrt( abs(pa.phi(:,n))'*abs(pa.phi(:,n))*pa.dx); end
-		
+		pa.phi
 		%%Create initial C
-		phiCpp = phiCpp.set_data_vector(pa.phi(:));
+		phiCpp = phiCpp.set_data_vector(complex(pa.phi(:)));		
 		calc_fields(); calc_H_C();
 		
 		n=pa.nmax-4; n=max(n,pa.relaxation+1);
@@ -131,9 +131,9 @@ inp_error = 0;
 		pa.C = C;	
 		
 	end
-
-	for i=1:pa.M, phiCpp(i-1) = realfunction(pa.phi(:,i).'); end
-	for i=1:pa.M, VCpp(i-1) = realfunction(pa.V.'); end
+	
+	for i=1:pa.M, phiCpp(i-1) = complexfunction(pa.phi(:,i).'); end
+	for i=1:pa.M, VCpp(i-1) = complexfunction(pa.V.'); end
 	Normalise();
 	
 	if pa.load_phi_C != 0, calc_fields(); calc_rho(); end

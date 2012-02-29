@@ -20,7 +20,7 @@
 
 	
 function delta = Calc_error(phi1,phi,C1,C)
-mlock(); global pa basis_diff space realgrid realfunction realbasis phiCpp
+mlock(); global pa basis_diff space realgrid realfunction realbasis complexgrid complexfunction complexbasis phiCpp
 
 	H_O = phi1.calc_error(phi);
 	d_phi = abs( trace(H_O * reshape(pa.rho_kq,pa.M,pa.M).') );
