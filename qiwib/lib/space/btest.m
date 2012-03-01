@@ -11,7 +11,7 @@ phi2 = phi*rand(4);
 
 
 for i = [1:4]
-  phi(i-1) = realfunction(sin(i*xs)/sqrt(pi));
+  phi(i-1) = realfunction(sin(I*xs)/sqrt(pi));
 end
 
 

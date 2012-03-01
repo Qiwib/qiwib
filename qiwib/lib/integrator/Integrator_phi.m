@@ -40,7 +40,7 @@ mlock(); global pa
 			psi = phi.get_data_vector();
 			[tarray,v] = ode78( @Calc_F_phi,[t t+dt],psi(:),pa.ode_phi_opts);
 			psi = v(end,:).';
-			phix = phi.set_data_vector(psi);
+			phix = phi.set_data_vector(complex(psi));
 
 		case {'adams' 'bdf'}
 			lsode_options("absolute tolerance", pa.ode_phi_opts(1));
@@ -48,7 +48,7 @@ mlock(); global pa
 			lsode_options("maximum order", pa.ode_phi_opts(3));
 			lsode_options("integration method", pa.ode_phi);
 			v = lsode( @Calc_F_phi,[real(phi(:));imag(phi(:))],[t t+dt]);
-			phix = reshape( (v(end,1:pa.M*pa.Ng)+i*v(end,pa.M*pa.Ng+1:2*pa.M*pa.Ng)).',pa.Ng,pa.M);
+			phix = reshape( (v(end,1:pa.M*pa.Ng)+I*v(end,pa.M*pa.Ng+1:2*pa.M*pa.Ng)).',pa.Ng,pa.M);
 										
 		otherwise
 			disp('integrator for phi does not exist!!!');

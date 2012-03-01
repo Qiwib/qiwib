@@ -23,7 +23,7 @@ function F = Calc_F_phi(one,two)
 mlock(); global pa space realgrid realfunction realbasis complexgrid complexfunction complexbasis phiCpp VCpp
 
 	if strcmp(pa.ode_phi, 'adams') || strcmp(pa.ode_phi, 'bdf') || strcmp(pa.ode_phi, 'stiff') || strcmp(pa.ode_phi, 'non-stiff')
-		Fb = F_function_phi(two,one(1:pa.M*pa.Ng)+i*one(pa.M*pa.Ng+1:2*pa.M*pa.Ng));
+		Fb = F_function_phi(two,one(1:pa.M*pa.Ng)+I*one(pa.M*pa.Ng+1:2*pa.M*pa.Ng));
 		F = [real(Fb);imag(Fb)];	
 	else
 		F = F_function_phi(one,two);
@@ -36,6 +36,7 @@ mlock(); global pa space realgrid realfunction realbasis complexgrid complexfunc
 %	phiCpp = phiCpp.set_data_vector(psi);
 
 %	FCpp = phiCpp.propagate(pa.H_phi_direction, pa.H_Diff, pa.H_Diff2, pa.g, VCpp, pa.H_phi_nl, eye(pa.M));
-	FCpp = (phiCpp.set_data_vector(complex(psi))).propagate(pa.H_phi_direction, pa.H_Diff, pa.H_Diff2, pa.g, VCpp, complex(pa.H_phi_nl), complex(inv(phiCpp.overlap_matrix())));
+
+	phiCpp_temp = phiCpp.set_data_vector(complex(psi));
+	FCpp = phiCpp_temp.propagate(complex(pa.H_phi_direction), complex(pa.H_Diff), complex(pa.H_Diff2), complex(pa.g), VCpp, complex(pa.H_phi_nl), complex(inv(phiCpp_temp.overlap_matrix())) );
 	F_tmp = FCpp.get_data_vector();
-	

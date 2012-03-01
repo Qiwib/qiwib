@@ -27,7 +27,7 @@
 	pa.nl = -0; pa.nr = 0;			%% boundaries for 3 regions where to calc. particle numbers
 	%% initial phi and C if needed
 	%% for propagation and pa.relaxation=-1 and if phi and C are loaded from file this defines the initial phase
-	%pa.phi = exp( -i*0.3*repmat([pa.xpos0:pa.L/(pa.Ng-1):pa.xpos0+pa.L]',1,pa.M) ); pa.C=0;
+	%pa.phi = exp( -I*0.3*repmat([pa.xpos0:pa.L/(pa.Ng-1):pa.xpos0+pa.L]',1,pa.M) ); pa.C=0;
 	
 			
 

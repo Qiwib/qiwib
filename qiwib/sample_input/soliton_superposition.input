@@ -20,7 +20,7 @@
 	pa.xpos0=-7;
 
 	pa.nl = 0; pa.nr = 0;
-	pa.phi = 1.0 * exp( i*0.5*repmat([pa.xpos0+2.5:pa.L/(pa.Ng-1):pa.xpos0+2.5+pa.L]',1,pa.M) );
+	pa.phi = 1.0 * exp( I*0.5*repmat([pa.xpos0+2.5:pa.L/(pa.Ng-1):pa.xpos0+2.5+pa.L]',1,pa.M) );
 
 %% Propagation details for mean fields and saving
 	pa.endtime = 20;

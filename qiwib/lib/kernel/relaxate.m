@@ -42,7 +42,6 @@ mlock(); global pa basis_diff space realgrid realfunction realbasis complexgrid 
 	cpu_time_temp = time(); pa.H_phi_nl = Calc_H_phi_nl(); cpu_time_phi = cpu_time_phi+time()-cpu_time_temp;
 	cpu_time_temp = time(); calc_fields(); cpu_time_phi = cpu_time_phi+time()-cpu_time_temp;
 	cpu_time_temp = time(); calc_H_C(); cpu_time_C = cpu_time_C+time()-cpu_time_temp;
-	
 	save_time_dep(0,save_time,E,dE,C_corr,phi_corr,0,steps_count,cpu_time1,cpu_time0,cpu_time00);
 
 %%the propagation%%
@@ -170,10 +169,6 @@ while(pa.time<pa.endtime || pa.endtime<0)
 			if (abs(H_update_time-pa.time)<=1E-12) && pa.H_update_step>0
 				H_update_time = H_update_time + pa.H_update_step;
 				hamiltonian_t(pa.time);
-				if (length(pa.V(:,1)) == 1 || length(pa.V(:,1)) == pa.Ng ) && length(pa.V(1,:)) == 1, pa.V = pa.V .* ones(pa.Ng,1);
-				elseif length(pa.V(:,1)) == 1 && length(pa.V(1,:)) == pa.Ng, pa.V = pa.V.';
-				else printf("\n\nERROR: wrong dimensions for pa.V!\n"); inp_error = 1; return;
-				end
 				Calc_H_phi_lin();
 			end
 			if pa.H_update_step == 0, hamiltonian_t(pa.time); Calc_H_phi_lin(); end

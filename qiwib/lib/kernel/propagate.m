@@ -52,7 +52,7 @@ while(pa.time<pa.endtime || pa.endtime<0)
 		rho_kq0 = pa.rho_kq; rho_ksql0 = pa.rho_ksql; rho_kq_inv0 = pa.rho_kq_inv;
 
 	%%the next few lines is the propagation
-		
+
 		if pa.no_prop_phi == 0,		
 			cpu_time_temp = time(); 
 			C12 = Integrator_C(pa.dt/2,pa.time,C0);
@@ -77,7 +77,7 @@ while(pa.time<pa.endtime || pa.endtime<0)
 			cpu_time_temp = time(); 
 			pa.C = Integrator_C(pa.dt/2,pa.time+pa.dt/2,C12);
 			pa.H_C_direction = i; C0b = Integrator_C(pa.dt/2,pa.time+pa.dt/2,C12); pa.H_C_direction = -i;
-			cpu_time_C_prop = cpu_time_C_prop+time()-cpu_time_temp;		
+			cpu_time_C_prop = cpu_time_C_prop+time()-cpu_time_temp;
 		else
 			cpu_time_temp = time(); calc_fields(); cpu_time_phi = cpu_time_phi+time()-cpu_time_temp;
 			phi12 = phiCpp; phi12b = phi12;			
@@ -89,12 +89,11 @@ while(pa.time<pa.endtime || pa.endtime<0)
 
 
 
-
 	%%Calculate observables and output or reset time-step%%
 		
 		delta = Calc_error(phi12,phi12b,C0,C0b);
 		%phi_corr = min(abs( (sum(conj(phi0) .* pa.phi) * pa.dx).^2));
-		phi_corr = min(abs( sum(phi0.overlap_matrix(phiCpp)).^2));
+		phi_corr = min(abs( diag(phi0.overlap_matrix(phiCpp)).^2));
 		C_corr = abs(pa.C'*C0)^2;
 		if pa.qiwib_verbose_output==1, disp([pa.dt,delta]); end		
 	
@@ -116,10 +115,6 @@ while(pa.time<pa.endtime || pa.endtime<0)
 			if (abs(H_update_time-pa.time)<=1E-12) && pa.H_update_step>0
 				H_update_time = H_update_time + pa.H_update_step;
 				hamiltonian_t(pa.time);
-				if (length(pa.V(:,1)) == 1 || length(pa.V(:,1)) == pa.Ng ) && length(pa.V(1,:)) == 1, pa.V = pa.V .* ones(pa.Ng,1);
-				elseif length(pa.V(:,1)) == 1 && length(pa.V(1,:)) == pa.Ng, pa.V = pa.V.';
-				else printf("\n\nERROR: wrong dimensions for pa.V!\n"); inp_error = 1; return;
-				end
 				Calc_H_phi_lin();
 			end
 			if pa.H_update_step == 0, hamiltonian_t(pa.time); Calc_H_phi_lin(); end		
@@ -135,7 +130,7 @@ while(pa.time<pa.endtime || pa.endtime<0)
 			
 		else
 		
-			pa.phi = phi0; pa.C = C0; E = E0; pa.h_kq = h_kq0; pa.w_ksql = w_ksql0; pa.H_phi_nl = pa.H_phi_nl0; pa.H_C = H_C0;
+			phiCpp = phi0; pa.C = C0; E = E0; pa.h_kq = h_kq0; pa.w_ksql = w_ksql0; pa.H_phi_nl = pa.H_phi_nl0; pa.H_C = H_C0;
 			pa.rho_kq = rho_kq0; pa.rho_ksql = rho_ksql0; pa.rho_kq_inv = rho_kq_inv0;
 			pa.dt = 0.5 * pa.dt * (pa.CMF_error/delta)^(1/4);
 			if pa.dt>pa.max_CMF_step, pa.dt=pa.max_CMF_step; end

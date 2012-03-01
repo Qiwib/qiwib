@@ -114,7 +114,6 @@ grid_member(gridfunction_t) stencil_operator(const function_t& f, const double *
       value_t sum(0);			// defined on inner points
       for(size_t j=0;j<stencil_length;j++)
 	sum += stencil[j]*f[i+j-max];	
-
       df[i] = sum*delta;	
     }
     for(size_t i=0;i<max;i++){        // Boundary point derivatives are set to same as last inner point
@@ -128,10 +127,11 @@ grid_member(gridfunction_t) stencil_operator(const function_t& f, const double *
       value_t sum(0);
       for(size_t j=0;j<stencil_length;j++)
 	if(i+j-max>=0 && i+j-max<n)
-	  sum += stencil[j]*f[i+j-max,n];
+	  sum += stencil[j]*f[i+j-max];
       df[i] = sum*delta;
     }
     break;
+    
   case PERIODIC:	        
     for(size_t i=0;i<n;i++){	// End point is not included in interval [a;b[
       value_t sum(0);

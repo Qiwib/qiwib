@@ -56,6 +56,7 @@ inp_error = 0;
 	else printf("\n\nERROR: wrong dimensions for pa.V!\n"); inp_error = 1; return;
 	end
 	Calc_H_phi_lin();
+	for i=1:pa.M, VCpp(i-1) = complexfunction(pa.V.'); end
 
 	
 %%%%%%%%%%%%%%%%% create initial state %%%%%%%%%%%%%%%%%%%%%%%
@@ -77,9 +78,9 @@ inp_error = 0;
 		[v,lambda]=eigs(T,pa.M+2,'sa'); [B_dummy,n_eigen] = sort( real(diag(lambda)) );
 		pa.phi = v(:,n_eigen(1:pa.M));
 		for n=1:pa.M, pa.phi(:,n) = pa.phi(:,n)/sqrt( abs(pa.phi(:,n))'*abs(pa.phi(:,n))*pa.dx); end
-		pa.phi
+		
 		%%Create initial C
-		phiCpp = phiCpp.set_data_vector(complex(pa.phi(:)));		
+		phiCpp = phiCpp.set_data_vector(complex(pa.phi(:)));
 		calc_fields(); calc_H_C();
 		
 		n=pa.nmax-4; n=max(n,pa.relaxation+1);
@@ -133,20 +134,18 @@ inp_error = 0;
 	end
 	
 	for i=1:pa.M, phiCpp(i-1) = complexfunction(pa.phi(:,i).'); end
-	for i=1:pa.M, VCpp(i-1) = complexfunction(pa.V.'); end
 	Normalise();
 	
 	if pa.load_phi_C != 0, calc_fields(); calc_rho(); end
+
 	if pa.relaxation<0
-		pa.H_phi_direction = -i; pa.H_C_direction = -i;   %% -i for propagation
+		pa.H_phi_direction = -I; pa.H_C_direction = -I;   %% -i for propagation
 	else
-		pa.H_phi_direction = -1; pa.H_C_direction = -1;    %% -1 for relaxation
+		pa.H_phi_direction = -1; pa.H_C_direction = -1;   %% -1 for relaxation
 	end
 	pa.time = pa.t_initial;
-		
-	printf("Creating initial environment: done     \n"); fflush(stdout);					
+	printf("Creating initial environment: done     \n"); fflush(stdout);
 	fflush(stdout);
-
 
 function [phi,C,inp_error] = AddModes(phi,C)
 mlock(); global pa

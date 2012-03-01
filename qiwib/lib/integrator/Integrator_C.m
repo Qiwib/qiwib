@@ -46,7 +46,7 @@ mlock(); global pa
 			lsode_options("maximum order", pa.ode_C_opts(3));
 			lsode_options("integration method", pa.ode_C);
 			v = lsode( @Calc_F_C,[real(C);imag(C)],[t t+dt]);
-			Cx = (v(end,1:pa.nmax)+i*v(end,pa.nmax+1:2*pa.nmax)).';
+			Cx = (v(end,1:pa.nmax)+I*v(end,pa.nmax+1:2*pa.nmax)).';
 			
 		case {'arnoldi'}
 

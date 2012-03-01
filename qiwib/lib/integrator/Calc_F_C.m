@@ -23,7 +23,7 @@ function F = Calc_F_C(one,two)
 mlock(); global pa
 
 	if strcmp(pa.ode_C, 'adams')		
-		Fb = F_function_C(two,one(1:pa.nmax)+i*one(pa.nmax+1:2*pa.nmax));
+		Fb = F_function_C(two,one(1:pa.nmax)+I*one(pa.nmax+1:2*pa.nmax));
 		F = [real(Fb);imag(Fb)];
 	else
 		F = F_function_C(one,two);
