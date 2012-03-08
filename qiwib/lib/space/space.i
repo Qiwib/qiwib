@@ -16,12 +16,11 @@
 
 %include "grid-instances.hh"
 
-%template(vectorrf) std::vector< gridfunction< Grid1D<double> > >;
-%template(vectorcf) std::vector< gridfunction< Grid1D<std::complex<double> > > >;
+%template(vectorrf) std::vector< gridfunction< Grid1D<double,double> > >;
+%template(vectorcf) std::vector< gridfunction< Grid1D<std::complex<double>, std::complex<double> > > >;
 
 %include "basisset.hh"
 
 %template(realbasis) basisset< gridfunction< Grid1D<double,double> > >;
 %template(complexbasis) basisset< gridfunction< Grid1D<std::complex<double>, std::complex<double> > > >;
-
 

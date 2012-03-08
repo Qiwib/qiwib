@@ -25,7 +25,8 @@
     if (!mat_feat.is_matrix_type() || !mat_feat.is_complex_type() 
 	|| mat_feat.rows()!=1)
       SWIG_fail;
-    
+
+    fprintf(stderr,"complex matrix in (v,n)\n");
     const Array<std::complex<double> >& m(mat_feat.complex_vector_value());
     $1 = (std::complex<double>*)m.fortran_vec();
     $2 = mat_feat.columns();

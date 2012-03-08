@@ -175,32 +175,34 @@ public:
 
   std::vector<scalar_t> Wksql() const
   {
-    std::vector<scalar_t> Wksql(this->size()*this->size()*this->size()*this->size());
+    const basisset& phi(*this);
+    std::vector<scalar_t> Wksql(phi.size()*phi.size()*phi.size()*phi.size());
     unsigned int i=0;
 
-    for(unsigned int k=0; k<this->size();k++)
-      for(unsigned int s=0; s<this->size();s++)
-	for(unsigned int q=0; q<this->size();q++)
-	  for(unsigned int l=0; l<this->size();l++){
-	    const scalar_t& ol(space.inner((*this)[k],(*this)[s],(*this)[q],(*this)[l]));
+    for(unsigned int k=0; k<phi.size();k++)
+      for(unsigned int s=0; s<phi.size();s++)
+	for(unsigned int q=0; q<phi.size();q++)
+	  for(unsigned int l=0; l<phi.size();l++){
+	    const scalar_t& ol(space.inner(phi[k],phi[s],phi[q],phi[l]));
 	    Wksql[i] = ol;
 	    i++;
 	  }
     return Wksql;
   }
 
-  std::vector<scalar_t> hkq(const scalar_t& D, const scalar_t& D2, const basisset& V) const
+  std::vector<scalar_t> hkq(const scalar_t& D, const scalar_t& D2, const Function& V) const
   {
-    std::vector<scalar_t> hkq(this->size()*this->size());
     unsigned int i=0;
-    const basisset& d1phi(this->derivative());
-    const basisset& d2phi(this->second_derivative());
+    const basisset& phi(*this);
+    const basisset& d1phi(phi.derivative());
+    const basisset& d2phi(phi.second_derivative());
+    std::vector<scalar_t> hkq(phi.size()*phi.size());
     
-    for(unsigned int k=0; k<this->size();k++)
-	for(unsigned int q=0; q<this->size();q++){
-	    const scalar_t& ol1(space.inner((*this)[k],d1phi[q]));
-	    const scalar_t& ol2(space.inner((*this)[k],d2phi[q]));
-	    const scalar_t& olV(space.inner((*this)[k],V[q],(*this)[q]));
+    for(unsigned int k=0; k<phi.size();k++)
+	for(unsigned int q=0; q<phi.size();q++){
+	    const scalar_t& ol1(space.inner(phi[k],d1phi[q]));
+	    const scalar_t& ol2(space.inner(phi[k],d2phi[q]));
+	    const scalar_t& olV(space.inner(phi[k],V,phi[q]));
 	    hkq[i] = D*ol1+D2*ol2+olV;
 	    i++;
 	}
@@ -233,21 +235,23 @@ public:
     return phi;
   }
 
-  basisset propagate(const scalar_t& direction, const scalar_t& alpha, const scalar_t& beta, const scalar_t& g, const basisset& V, const Array2D<scalar_t>& H_nonlin, const Array2D<scalar_t>& overlap_matrix_inv)
+  basisset propagate(const scalar_t& direction, const scalar_t& alpha, const scalar_t& beta, const scalar_t& g, const Function& V, const Array2D<scalar_t>& H_nonlin, const Array2D<scalar_t>& overlap_matrix_inv) const
   {
-    basisset F(space,this->size());
-    const basisset& d1phi(this->derivative());
-    const basisset& d2phi(this->second_derivative());
-    const basisset& Hnl(this->nonlin(H_nonlin));
+    const basisset& phi(*this);
+
+    basisset F(space,phi.size());
+    const basisset& d1phi(phi.derivative());
+    const basisset& d2phi(phi.second_derivative());
+    const basisset& Hnl(phi.nonlin(H_nonlin));
     
-    for (unsigned int i=0;i<this->size(); i++){
-      F[i] = d1phi[i]*alpha + d2phi[i]*beta + V[i] + Hnl[i]*g;
+    for (unsigned int i=0;i<phi.size(); i++){
+      F[i] = d1phi[i]*alpha + d2phi[i]*beta + phi[i]*V + Hnl[i]*g;
       F[i] = F[i]*direction;
     }
-    return F.orthonormalise_advanced(overlap_matrix_inv,*this);
+    return F.orthonormalise_advanced(overlap_matrix_inv,phi);
   }  
   
-  Array2D<value_t> Wsl()
+  Array2D<value_t> Wsl() const
   {
     const basisset& phi(*this);
     Array2D<value_t> Wsl(space.Nx,phi.size()*phi.size());
@@ -261,7 +265,7 @@ public:
     return Wsl;
   }  
   
-  basisset nonlin(const Array2D<scalar_t>& H_nonlin)
+  basisset nonlin(const Array2D<scalar_t>& H_nonlin) const
   {
     const basisset& phi(*this);
     Array2D<value_t> Wsl(this->Wsl());
@@ -287,9 +291,9 @@ public:
     return H_nl;
   }    
 
-  basisset orthonormalise_advanced(const Array2D<scalar_t>& overlap_matrix_inv, basisset& phi)
+  basisset orthonormalise_advanced(const Array2D<scalar_t>& overlap_matrix_inv, const basisset& phi) const
   {
-    basisset& F(*this);
+    basisset F(*this);
     unsigned int M = this->size();
     scalar_t ovrlp = 0;
     
