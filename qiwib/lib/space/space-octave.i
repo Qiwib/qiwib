@@ -13,6 +13,8 @@
 	|| mat_feat.rows()!=1)
       SWIG_fail;
 
+    fprintf(stderr,"typemap(in) (const double *v, unsigned int n)\n");
+
     const Array<double>& m(mat_feat.vector_value());
     $1 = (double*)m.fortran_vec();
     $2 = mat_feat.columns();
@@ -26,6 +28,8 @@
 	|| mat_feat.rows()!=1)
       SWIG_fail;
 
+    fprintf(stderr,"typemap(in) (const std::complex<double> *v, unsigned int n)\n");
+
     fprintf(stderr,"complex matrix in (v,n)\n");
     const Array<std::complex<double> >& m(mat_feat.complex_vector_value());
     $1 = (std::complex<double>*)m.fortran_vec();
@@ -38,6 +42,7 @@
   const octave_value& m($input);
 
   $1 = (m.is_matrix_type() && m.is_double_type() && m.rows()==1) ? 1 : 0;
+  fprintf(stderr,"typemap(typecheck, precedence=SWIG_TYPECHECK_POINTER)(const double *v, unsigned int n) ~> %d\n",$1);
 }
 
 %typemap(typecheck, precedence=SWIG_TYPECHECK_POINTER)
@@ -46,6 +51,7 @@
   const octave_value& m($input);
 
   $1 = (m.is_matrix_type() && m.is_complex_type() && m.rows()==1) ? 1 : 0;
+  fprintf(stderr,"typemap(typecheck, precedence=SWIG_TYPECHECK_POINTER)(const std::complex<double> *v, unsigned int n) ~> %d\n",$1);
 }
 
 
@@ -79,6 +85,7 @@
     if (!mat_feat.is_matrix_type() || !mat_feat.is_double_type())
       SWIG_fail;
 
+    fprintf(stderr,"typemap(in) (const double *v, unsigned int m, unsigned int n)\n");
     const Matrix<double>& m(mat_feat.matrix_value());
     $1 = (double*)m.fortran_vec();
     $2 = mat_feat.rows();
@@ -91,7 +98,8 @@
     if (!mat_feat.is_matrix_type() || !mat_feat.is_complex_type())
       SWIG_fail;
 
-    const Matrix<std::complex<double> >& m(mat_feat.matrix_value());
+    fprintf(stderr,"typemap(in) (const std::complex<double> *v, unsigned int m, unsigned int n)\n");
+    const Matrix<std::complex<double> >& m(mat_feat.complex_matrix_value());
     $1 = (std::complex<double>*)m.fortran_vec();
     $2 = mat_feat.rows();
     $3 = mat_feat.columns();
@@ -109,6 +117,7 @@
 %typemap(typecheck, precedence=SWIG_TYPECHECK_POINTER)
   (const Array2D<std::complex<double> >&)
 {
+  fprintf(stderr,"typemap(typecheck, precedence=SWIG_TYPECHECK_POINTER)(const Array2D<std::complex<double> >&)\n");
   const octave_value& m($input);
 
   $1 = (m.is_matrix_type() && m.is_complex_type()) ? 1 : 0;
@@ -120,6 +129,8 @@
     const octave_value mat_feat=$input;
     if (!mat_feat.is_matrix_type() || !mat_feat.is_double_type())
       SWIG_fail;
+
+    fprintf(stderr,"typemap(in) (const Array2D<double>&)\n");
     const Matrix& m(mat_feat.matrix_value());
     const double *ptr = m.fortran_vec();
     $1 = new Array2D<double>(mat_feat.rows(),mat_feat.columns(),ptr);
@@ -131,6 +142,7 @@
     if (!mat_feat.is_matrix_type() || !mat_feat.is_complex_type())
       SWIG_fail;
 
+    fprintf(stderr,"typemap(in) (const Array2D<std::complex<double> >&)\n");
     const ComplexMatrix& m(mat_feat.complex_matrix_value());
     const std::complex<double> *ptr = m.fortran_vec();
     $1 = new Array2D< std::complex<double> >(mat_feat.rows(),mat_feat.columns(),ptr);
