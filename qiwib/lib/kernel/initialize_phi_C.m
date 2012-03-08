@@ -42,7 +42,7 @@ inp_error = 0;
 
 	pa.xpos = space.get_xs(); pa.dx = space.dx;
 	phiCpp = complexbasis(space,pa.M);
-	VCpp = complexbasis(space,pa.M);
+        	
 	
 	if isempty(pa.nl), pa.nl=pa.xpos0+pa.L/2; end
 	if isempty(pa.nr), pa.nr=pa.xpos0+pa.L/2; end
@@ -56,7 +56,7 @@ inp_error = 0;
 	else printf("\n\nERROR: wrong dimensions for pa.V!\n"); inp_error = 1; return;
 	end
 	Calc_H_phi_lin();
-	for i=1:pa.M, VCpp(i-1) = complexfunction(pa.V.'); end
+        VCpp = complexfunction(pa.V.'); % TODO: Possibility for different spin-components in V
 
 	
 %%%%%%%%%%%%%%%%% create initial state %%%%%%%%%%%%%%%%%%%%%%%
