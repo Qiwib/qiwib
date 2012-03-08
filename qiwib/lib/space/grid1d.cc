@@ -6,8 +6,8 @@ using namespace std;
 #include <stdio.h>
 
 #define gridfunction_member(T) template <class space> T gridfunction<space>::
-#define grid_member(T) template <typename value_t> T Grid1D<value_t>::
-#define gridfunction_t typename Grid1D<value_t>::function_t
+#define grid_member(T) template <typename scalar_t,typename value_t> T Grid1D<scalar_t,value_t>::
+#define gridfunction_t typename Grid1D<scalar_t,value_t>::function_t
 
 // Define point-wise binary operations using the macros in pointwise_operator.hh.
 pointwise_operator(+)
@@ -20,7 +20,7 @@ gridfunction_member(gridfunction<space>) conj() const
 {
   gridfunction z(*this);
 
-  for(size_t i=0;i<this->size();i++) z[i] = space::conj(z[i]);
+  for(size_t i=0;i<this->size();i++) z[i] = Traits::conj(z[i]);
 
   return z;
 }
@@ -29,37 +29,29 @@ grid_member(value_t) integrate(const function_t& f) const
 {
   value_t sum(0);
   for(unsigned int i=0;i<f.size();i++) sum += f[i];
-
+  if(boundary_condition != PERIODIC_BOUNDARY) sum -= 0.5*(f[0]+f[f.size()-1]);
   return sum*dx;
 }
 
-grid_member(value_t) inner(const function_t& f, const function_t& g) const 
+grid_member(scalar_t) inner(const function_t& f, const function_t& g) const 
 {
-  value_t sum(0);
-  for(unsigned int i=0;i<f.size();i++) sum += conj(f[i])*g[i];
-
-  return sum*dx;
+  return contract(integrate(f.conj()*g));
 }
 
-grid_member(value_t) inner(const function_t& f, const function_t& g, const function_t& h) const 
+grid_member(scalar_t) inner(const function_t& f, const function_t& g, const function_t& h) const 
 {
-  value_t sum(0);
-  for(unsigned int i=0;i<f.size();i++) sum += conj(f[i])*g[i]*h[i];
-
-  return sum*dx;
+  return contract(integrate(f.conj()*g*h));
 }
 
-grid_member(value_t) inner(const function_t& f, const function_t& g, const function_t& h, const function_t& m) const 
+grid_member(scalar_t) inner(const function_t& f, const function_t& g, const function_t& h, const function_t& m) const 
 {
-  value_t sum(0);
-  for(unsigned int i=0;i<f.size();i++) sum += conj(f[i])*conj(g[i])*h[i]*m[i];
-
-  return sum*dx;
+  return contract(integrate(f.conj()*g.conj()*h*m));
 }
 
-// Definition of conjugate depends on the scalar field.
-template<> double Grid1D<double>::conj(const double& v) { return v; }
-template<> complex<double> Grid1D< complex<double> >::conj(const complex<double>& v) { return complex<double>(v.real(),-v.imag()); }
+grid_member(double) norm(const function_t& f) const 
+{
+  return std::sqrt(Traits::abs(integrate(f.conj()*f)));
+}
 
 grid_member(double) h2_derivative1_stencil[3] = {-1/2.,0,1/2.};
 grid_member(double) h2_derivative2_stencil[3] = {1,-2,1};
@@ -108,10 +100,10 @@ grid_member(gridfunction_t) stencil_operator(const function_t& f, const double *
   unsigned int max = stencil_length/2;
 
   switch(boundary_condition){	
-  case OPEN:                            // Open boundary condition 
+  case OPEN_BOUNDARY:                   // Open boundary condition 
                                         // (assume function continues outside [a;b]; C1-continuous on boundary)
     for(size_t i=max;i<n-max;i++){	// For this boundary type, numerical derivative is only
-      value_t sum(0);			// defined on inner points
+      value_t sum(0);			// defined on inner points. End point is included in interval.
       for(size_t j=0;j<stencil_length;j++)
 	sum += stencil[j]*f[i+j-max];	
       df[i] = sum*delta;	
@@ -122,7 +114,7 @@ grid_member(gridfunction_t) stencil_operator(const function_t& f, const double *
     }
     break;
 
-  case BOX:		        // Homogeneous Dirichlet boundary condition (f(x) = 0 outside [a;b])
+  case BOX_BOUNDARY:            // Homogeneous Dirichlet boundary condition (f(x) = 0 outside [a;b])
     for(size_t i=0;i<n;i++){	// End point is included in interval [a;b]
       value_t sum(0);
       for(size_t j=0;j<stencil_length;j++)
@@ -132,7 +124,7 @@ grid_member(gridfunction_t) stencil_operator(const function_t& f, const double *
     }
     break;
     
-  case PERIODIC:	        
+  case PERIODIC_BOUNDARY:	        
     for(size_t i=0;i<n;i++){	// End point is not included in interval [a;b[
       value_t sum(0);
       for(size_t j=0;j<stencil_length;j++)

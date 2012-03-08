@@ -5,6 +5,30 @@
 #include <list>
 #include <string>
 #include <stdio.h>
+#include <complex>
+
+typedef enum { OPEN_BOUNDARY, BOX_BOUNDARY, PERIODIC_BOUNDARY }  boundary_t;
+typedef std::complex<double> complex_t; // TODO: organize
+
+template <typename scalar_t, typename value_t = scalar_t> struct FieldTraits {
+  static scalar_t contract(const value_t& x){ return x.contract(); }
+  static value_t  conj(const value_t& x)    { return x.conj(); }
+  static double   abs(const value_t& x)     { return x.abs(); }
+};
+
+template <> struct FieldTraits<double,double> {
+  static double contract(const double& x){ return x; }
+  static double conj(const double& x){ return x; }
+  static double abs(const double& x) { return fabs(x); }
+};
+
+template <> struct FieldTraits<complex_t,complex_t> {
+  static complex_t contract(const complex_t& x){ return x; }
+  static complex_t conj(const complex_t& x){ return complex_t(x.real(),-x.imag()); }
+  static double    abs(const complex_t& x) { return std::abs(x); }
+};
+
+
 
 template <typename Space>
 class gridfunction : public std::vector<typename Space::value_t> {
@@ -12,6 +36,8 @@ public:
   typedef Space space_t;
   typedef typename Space::value_t  value_t;
   typedef typename Space::scalar_t scalar_t;
+  typedef std::vector<value_t> basetype;
+  typedef FieldTraits<scalar_t,value_t> Traits;
 
   gridfunction& operator += (const gridfunction& g);
   gridfunction& operator -= (const gridfunction& g);
@@ -27,6 +53,10 @@ public:
 
   gridfunction conj () const;
 
+  gridfunction(const unsigned int Nx=0) : basetype(Nx) {
+    //    fprintf(stderr,"default constructor gridfunction()\n");
+  }
+
   gridfunction(const Space& space) : std::vector<value_t>(space.Nx) {
     //    fprintf(stderr,"gridfunction(space)\n");
   }
@@ -34,43 +64,50 @@ public:
     //    fprintf(stderr,"gridfunction(vectord) : size(%d)\n",this->size());
   }
 
-  gridfunction() {
-    // fprintf(stderr,"default constructor gridfunction()\n");
-  }
-
   std::vector<value_t> get_data() const {
     return std::vector<value_t>(this->begin(),this->end());
   }
+
+  friend std::ostream& operator<<(std::ostream& s, const gridfunction& f) {
+    s << "[";
+    for(unsigned int i=0;i<f.size();i++) s << f[i] << (i+1<f.size()?", ":"]");
+    return s;
+  }
+  
 };
 
-template <typename Value = double> class Grid1D {
+template <typename Scalar = double, typename Value = Scalar> class Grid1D {
 public:
-  typedef Value scalar_t;
+  typedef Scalar scalar_t;
   typedef Value value_t;
   typedef gridfunction<Grid1D> function_t;
   typedef Grid1D<Value> self_t;
-  typedef enum { OPEN, BOX, PERIODIC }  boundary_t;
+  typedef FieldTraits<scalar_t,value_t> Traits;
   
   double xmin, xmax, dx;
   unsigned int Nx;
   boundary_t boundary_condition;
   
-  Grid1D(double xmin=0,double xmax=1, unsigned int Nx=1, boundary_t boundary = PERIODIC) : xmin(xmin), xmax(xmax), dx((xmax-xmin)/static_cast<double>(Nx+(boundary==PERIODIC)-1)), Nx(Nx), boundary_condition(boundary) {}  
+  Grid1D(double xmin=0,double xmax=1, unsigned int Nx=1, boundary_t boundary = PERIODIC_BOUNDARY) : xmin(xmin), xmax(xmax), dx((xmax-xmin)/static_cast<double>(Nx+(boundary==PERIODIC_BOUNDARY)-1)), Nx(Nx), boundary_condition(boundary) {}  
 
   void set_boundary(const boundary_t boundary){ 
     boundary_condition = boundary; 
 
-    dx = (xmax-xmin)/static_cast<double>(Nx+(boundary_condition==PERIODIC)-1);
+    dx = (xmax-xmin)/static_cast<double>(Nx+(boundary_condition==PERIODIC_BOUNDARY)-1);
   }
   void set_boundary(const std::string& boundary){
-    set_boundary(boundary == "open"? OPEN : (boundary == "box"? BOX : PERIODIC) );
+  set_boundary(boundary == "open"? OPEN_BOUNDARY : (boundary == "box"? BOX_BOUNDARY : PERIODIC_BOUNDARY) );
   }
 
   value_t  integrate(const function_t& f) const;
   scalar_t inner(const function_t& f, const function_t& g) const;
   scalar_t inner(const function_t& f, const function_t& g, const function_t& h) const;
   scalar_t inner(const function_t& f, const function_t& g, const function_t& h, const function_t& m) const;
-  static value_t  conj(const value_t& v);
+
+  double norm(const function_t& f) const;
+
+  static inline scalar_t contract(const value_t& x){ return Traits::contract(x); }
+  static inline value_t  conj(const value_t& x){ return Traits::conj(x); }
 
   function_t derivative       (const function_t& f) const;
   function_t second_derivative(const function_t& f) const;

@@ -14,10 +14,7 @@ public:
   typedef typename std::vector<Function>::const_iterator const_iterator;
   typedef typename std::vector<Function>::iterator iterator; 
   
-  //  typedef ublas::hermitian_matrix<scalar_t,ublas::upper> hermitian_matrix;
-
   const Space&     space;
-  //  hermitian_matrix overlap;
 
   basisset(const Space& space, std::vector<Function> basis) : std::vector<Function>(basis.begin(),basis.end()), 
 							      space(space)
@@ -28,7 +25,7 @@ public:
   basisset(const basisset& basis) : std::vector<Function>(basis.begin(),basis.end()), space(basis.space) {  }
 
   // TODO: Make proper set of operations
-  basisset operator *(const scalar_t& s) const { 
+  basisset operator *(const scalar_t& s){ 
     const basisset& phi(*this);
     basisset newbasis(space,phi.size());
 
@@ -117,7 +114,7 @@ public:
       for(const_iterator g(f); g != this->end(); g++,j++){
 	const scalar_t& ol(space.inner(*f,*g));
 	overlap(i,j) = ol;
-	overlap(j,i) = Space::conj(ol);
+	overlap(j,i) = FieldTraits<scalar_t>::conj(ol);
       }
     }
     return overlap;
@@ -210,29 +207,29 @@ public:
     return hkq;
   }
 
-  std::vector<scalar_t> get_data_vector() const
+  std::vector<value_t> get_data_vector() const
   {
-    std::vector<scalar_t> vect(this->size()*(*this)[0].size());
+    std::vector<value_t> vect(this->size()*(*this)[0].size());
     unsigned int i=0;
 
     for(unsigned int k=0; k<this->size();k++)
-      for(unsigned int s=0; s<(*this)[0].size();s++){
+      for(unsigned int s=0; s<space.Nx;s++){
 	vect[i] = (*this)[k][s];
 	i++;
 	}
     return vect;
   }
 
-  basisset set_data_vector(const Array2D<scalar_t>& vect) const
+  basisset set_data_vector(const Array2D<value_t>& vect) const
   {
     basisset phi(space,this->size());
     unsigned int i=0;
 
     for(unsigned int k=0; k<this->size();k++)
-      for(unsigned int s=0; s<(*this)[0].size();s++){
+      for(unsigned int s=0; s<space.Nx;s++){
 	phi[k][s] = vect[i];
 	i++;
-	}
+      }
     return phi;
   }
 
@@ -247,67 +244,64 @@ public:
       F[i] = d1phi[i]*alpha + d2phi[i]*beta + V[i] + Hnl[i]*g;
       F[i] = F[i]*direction;
     }
-  //return F;
     return F.orthonormalise_advanced(overlap_matrix_inv,*this);
   }  
   
   Array2D<value_t> Wsl()
   {
-    Array2D<value_t> Wsl((*this)[0].size(),this->size()*this->size());
-    unsigned int M(this->size());    
+    const basisset& phi(*this);
+    Array2D<value_t> Wsl(space.Nx,phi.size()*phi.size());
+    unsigned int M(phi.size());    
 		
     for(unsigned int s=0; s<M; s++)
       for(unsigned int l=0; l<M; l++)
-	for(unsigned int n=0; n<space.Nx; n++)
-	    Wsl(n,l+s*M) = space.conj((*this)[s][n]) * (*this)[l][n];
-
+	for(unsigned int x=0; x<space.Nx; x++)
+	    Wsl(x,l+s*M) = space.conj(phi[s][x]) * phi[l][x];
     
     return Wsl;
   }  
   
   basisset nonlin(const Array2D<scalar_t>& H_nonlin)
   {
+    const basisset& phi(*this);
     Array2D<value_t> Wsl(this->Wsl());
-    basisset H_nl(space,this->size());
-    value_t temp = 0;
-    unsigned int M(this->size());
-    
-    for(unsigned int j=0; j<M; j++)
-	for(unsigned int n=0; n<space.Nx; n++)
-	  H_nl[j][n] = 0.0;
+    basisset H_nl(space,phi.size());
+    unsigned int M(phi.size());
+
+    // Default constructor should initialize to "0". 
+    // for(unsigned int j=0; j<M; j++)
+    // 	for(unsigned int x=0; x<space.Nx; x++)
+    // 	  H_nl[j][x] = 0.0;
 	  
     for(unsigned int j=0; j<M; j++)
       for(unsigned int q=0; q<M; q++)
-	for(unsigned int n=0; n<space.Nx; n++){
-	  temp = 0;
+	for(unsigned int x=0; x<space.Nx; x++){
+	  value_t sum(0);
 	  for(unsigned int s=0; s<M; s++)
 	    for(unsigned int l=0; l<M; l++){
-	      temp += Wsl(n,l+s*M) * H_nonlin[l+q*M+s*M*M+j*M*M*M];
+	      sum += Wsl(x,l+s*M) * H_nonlin[l+q*M+s*M*M+j*M*M*M];
 	    }
-	  H_nl[j][n] += (*this)[q][n] * temp;
+	  H_nl[j][x] += phi[q][x] * sum;
 	}
     
     return H_nl;
   }    
 
-  basisset orthonormalise_advanced(const Array2D<scalar_t>& overlap_matrix, basisset& phi)
+  basisset orthonormalise_advanced(const Array2D<scalar_t>& overlap_matrix_inv, basisset& phi)
   {
     basisset& F(*this);
     unsigned int M = this->size();
     scalar_t ovrlp = 0;
-    Array2D<scalar_t> overlap_matrix_inv = overlap_matrix;
     
     for(unsigned int j=0; j<M; j++)
       for(unsigned int q=0; q<M; q++)
 	{     	
 	  ovrlp = space.inner(phi[q], F[j]);
 	  for(unsigned int k=0; k<M; k++)
-	    F[j] -= phi[k] * ovrlp * overlap_matrix(k,q);
+	    F[j] -= phi[k] * ovrlp * overlap_matrix_inv(k,q);
 	}
-    
     return F;
   }
-  
 };
 
 #endif

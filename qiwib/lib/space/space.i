@@ -6,13 +6,13 @@
 %include <std_vector.i>
 %include "grid1d.hh"
 
-%template(realgrid)        Grid1D<double>;
-%template(complexgrid)     Grid1D< std::complex<double> >;
+%template(realgrid)        Grid1D<double,double>;
+%template(complexgrid)     Grid1D< std::complex<double>, std::complex<double> >;
 
 %include "grid1d.hh"
 
-%template(realfunction_)    gridfunction< Grid1D<double> >;
-%template(complexfunction_) gridfunction< Grid1D<std::complex<double> > >;
+%template(realfunction_)    gridfunction< Grid1D<double, double> >;
+%template(complexfunction_) gridfunction< Grid1D<std::complex<double>, std::complex<double> > >;
 
 %include "grid-instances.hh"
 
@@ -21,10 +21,7 @@
 
 %include "basisset.hh"
 
-%template(realbasis) basisset< gridfunction< Grid1D<double> > >;
-%template(complexbasis) basisset< gridfunction< Grid1D<std::complex<double> > > >;
-
-
-
+%template(realbasis) basisset< gridfunction< Grid1D<double,double> > >;
+%template(complexbasis) basisset< gridfunction< Grid1D<std::complex<double>, std::complex<double> > > >;
 
 
