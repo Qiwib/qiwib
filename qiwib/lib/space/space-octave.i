@@ -21,7 +21,7 @@
 }
 
 
-%typemap(in) (const std::complex<double> *v, unsigned int n) 
+%typemap(in) (complex_t const *v, unsigned int n) 
 {
     const octave_value mat_feat=$input;
     if (!mat_feat.is_matrix_type() || !mat_feat.is_complex_type() 
@@ -37,22 +37,28 @@
 }
 
 %typemap(typecheck, precedence=SWIG_TYPECHECK_POINTER)
+  (complex_t const *v, unsigned int n)
+{
+  const octave_value& m($input);
+
+  $1 = (m.is_matrix_type() && m.is_double_type() && m.is_complex_type() && m.rows()==1) ? 1 : 0;
+  fprintf(stderr,"typemap(typecheck, precedence=SWIG_TYPECHECK_POINTER)(const std::complex<double> *v, unsigned int n) ~> %d\n",$1);
+  fprintf(stderr,"matrix(%d), double(%d), complex(%d), rows(%d), columns(%d)\n",
+  	  m.is_matrix_type(), m.is_double_type(), m.is_complex_type(), m.rows(), m.columns());
+}
+
+
+%typemap(typecheck, precedence=SWIG_TYPECHECK_POINTER)
   (const double *v, unsigned int n)
 {
   const octave_value& m($input);
 
-  $1 = (m.is_matrix_type() && m.is_double_type() && m.rows()==1) ? 1 : 0;
+  $1 = (m.is_matrix_type() && m.is_double_type() && !m.is_complex_type() && m.rows()==1) ? 1 : 0;
   fprintf(stderr,"typemap(typecheck, precedence=SWIG_TYPECHECK_POINTER)(const double *v, unsigned int n) ~> %d\n",$1);
+  fprintf(stderr,"matrix(%d), double(%d), complex(%d), rows(%d), columns(%d)\n",
+  	  m.is_matrix_type(), m.is_double_type(), m.is_complex_type(), m.rows(), m.columns());
 }
 
-%typemap(typecheck, precedence=SWIG_TYPECHECK_POINTER)
-  (const std::complex<double> *v, unsigned int n)
-{
-  const octave_value& m($input);
-
-  $1 = (m.is_matrix_type() && m.is_complex_type() && m.rows()==1) ? 1 : 0;
-  fprintf(stderr,"typemap(typecheck, precedence=SWIG_TYPECHECK_POINTER)(const std::complex<double> *v, unsigned int n) ~> %d\n",$1);
-}
 
 
 %typemap(out) std::vector<double> 
@@ -79,10 +85,10 @@
 
 
 
-%typemap(in) (const double *v, unsigned int m, unsigned int n) 
+%typemap(in) (double const *v, unsigned int m, unsigned int n) 
 {
     const octave_value mat_feat=$input;
-    if (!mat_feat.is_matrix_type() || !mat_feat.is_double_type())
+    if (!mat_feat.is_matrix_type() || !mat_feat.is_double_type() || mat_feat.is_complex_type())
       SWIG_fail;
 
     fprintf(stderr,"typemap(in) (const double *v, unsigned int m, unsigned int n)\n");
@@ -92,10 +98,10 @@
     $3 = mat_feat.columns();
 }
 
-%typemap(in) (const std::complex<double> *v, unsigned int m, unsigned int n) 
+%typemap(in) (complex_t const *v, unsigned int m, unsigned int n) 
 {
     const octave_value mat_feat=$input;
-    if (!mat_feat.is_matrix_type() || !mat_feat.is_complex_type())
+    if (!mat_feat.is_matrix_type() || !mat_feat.is_complex_type() || !mat_feat.is_complex_type())
       SWIG_fail;
 
     fprintf(stderr,"typemap(in) (const std::complex<double> *v, unsigned int m, unsigned int n)\n");
@@ -111,7 +117,7 @@
 {
   const octave_value& m($input);
 
-  $1 = (m.is_matrix_type() && m.is_double_type()) ? 1 : 0;
+  $1 = (m.is_matrix_type() && m.is_double_type() && !m.is_complex_type()) ? 1 : 0;
 }
 
 %typemap(typecheck, precedence=SWIG_TYPECHECK_POINTER)
@@ -120,14 +126,14 @@
   fprintf(stderr,"typemap(typecheck, precedence=SWIG_TYPECHECK_POINTER)(const Array2D<std::complex<double> >&)\n");
   const octave_value& m($input);
 
-  $1 = (m.is_matrix_type() && m.is_complex_type()) ? 1 : 0;
+  $1 = (m.is_matrix_type() && m.is_double_type() && m.is_complex_type()) ? 1 : 0;
 }
 
 
 %typemap(in) (const Array2D<double>&) 
 {
     const octave_value mat_feat=$input;
-    if (!mat_feat.is_matrix_type() || !mat_feat.is_double_type())
+    if (!mat_feat.is_matrix_type() || !mat_feat.is_double_type() || mat_feat.is_complex_type())
       SWIG_fail;
 
     fprintf(stderr,"typemap(in) (const Array2D<double>&)\n");
@@ -139,7 +145,7 @@
 %typemap(in) (const Array2D<std::complex<double> >&) 
 {
     const octave_value mat_feat=$input;
-    if (!mat_feat.is_matrix_type() || !mat_feat.is_complex_type())
+    if (!mat_feat.is_matrix_type() || !mat_feat.is_complex_type() || !mat_feat.is_complex_type())
       SWIG_fail;
 
     fprintf(stderr,"typemap(in) (const Array2D<std::complex<double> >&)\n");
