@@ -10,14 +10,14 @@ phi2 = phi;
 
 
 for i = [1:4]
-  phi(i-1) = complexfunction(exp(I*xs)/sqrt(2*pi));
+  phi(i-1) = complexfunction(exp(I*i*xs)/sqrt(2*pi));
 end
 
 plot(xs,real(phi(0).get_data()),xs,imag(phi(0).get_data()))
 pause
 
-S = phi.overlap_matrix()		# Should be 1
-T = -0.5*phi.laplacian_matrix()
+S = phi.overlap_matrix()		# Should be identity matrix
+T = -0.5*phi.laplacian_matrix()         # Should be -1/2 (j^2 * \delta_{ij})
 
 dphi = phi.derivative();
 
