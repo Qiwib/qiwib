@@ -96,28 +96,28 @@ grid_member(gridfunction_t) third_derivative(const function_t& f) const
 grid_member(gridfunction_t) stencil_operator(const function_t& f, const double *stencil, size_t stencil_length, double delta) const
 {
   function_t df(*this);
-  unsigned int n = f.size();
-  unsigned int max = stencil_length/2;
+  int n = f.size();
+  int max = stencil_length/2;
 
   switch(boundary_condition){	
   case OPEN_BOUNDARY:                   // Open boundary condition 
                                         // (assume function continues outside [a;b]; C1-continuous on boundary)
-    for(size_t i=max;i<n-max;i++){	// For this boundary type, numerical derivative is only
+    for(int i=max;i<n-max;i++){	// For this boundary type, numerical derivative is only
       value_t sum(0);			// defined on inner points. End point is included in interval.
-      for(size_t j=0;j<stencil_length;j++)
+      for(int j=0;j<stencil_length;j++)
 	sum += stencil[j]*f[i+j-max];	
       df[i] = sum*delta;	
     }
-    for(size_t i=0;i<max;i++){        // Boundary point derivatives are set to same as last inner point
+    for(int i=0;i<max;i++){        // Boundary point derivatives are set to same as last inner point
       df[i]     = df[max];	      // (TODO: C2-continuity instead of C1)
       df[n-i-1] = df[n-max-1];		
     }
     break;
 
   case BOX_BOUNDARY:            // Homogeneous Dirichlet boundary condition (f(x) = 0 outside [a;b])
-    for(size_t i=0;i<n;i++){	// End point is included in interval [a;b]
+    for(int i=0;i<n;i++){	// End point is included in interval [a;b]
       value_t sum(0);
-      for(size_t j=0;j<stencil_length;j++)
+      for(int j=0;j<stencil_length;j++)
 	if(i+j-max>=0 && i+j-max<n)
 	  sum += stencil[j]*f[i+j-max];
       df[i] = sum*delta;
@@ -125,16 +125,16 @@ grid_member(gridfunction_t) stencil_operator(const function_t& f, const double *
     break;
     
   case PERIODIC_BOUNDARY:	        
-    for(size_t i=0;i<n;i++){	// End point is not included in interval [a;b[
+    for(int i=0;i<n;i++){	// End point is not included in interval [a;b[
       value_t sum(0);
-      for(size_t j=0;j<stencil_length;j++)
+      for(int j=0;j<stencil_length;j++)
 	sum += stencil[j]*f[mod(i+j-max,n)];
       df[i] = sum*delta;
     }
     break;
 
   default:
-    fprintf(stderr,"Invalid input: boundary type %d\n",boundary_condition);
+   // fprintf(stderr,"Invalid input: boundary type %d\n",boundary_condition);
     abort();
   }
 

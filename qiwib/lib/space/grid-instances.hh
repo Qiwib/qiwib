@@ -13,7 +13,7 @@ public:
   realfunction(const baseclass& b) : baseclass(b) {}
   realfunction(const Space& space) : baseclass(space.Nx) {  }
   realfunction(const double *v, unsigned int n) : baseclass(std::vector<double>(v,v+n)) { 
-    fprintf(stderr,"realfunction(pointer) : size(%d)\n",int(this->size()));
+  //  fprintf(stderr,"realfunction(pointer) : size(%d)\n",int(this->size()));
     // for(unsigned int i=0;i<this->size();i++)
     //   fprintf(stderr,"(%d %g) ",i, (*this)[i]);
     // fprintf(stderr,"\n");
@@ -35,14 +35,14 @@ public:
   complexfunction(const baseclass& b) : baseclass(b) {}
   complexfunction(const Space& space) : baseclass(space.Nx) { }
   complexfunction(const complex_t *v, unsigned int n) : baseclass(std::vector< complex_t >(v,v+n)) { 
-    fprintf(stderr,"complexfunction(pointer) : size(%d)\n",int(this->size()));
+  //  fprintf(stderr,"complexfunction(pointer) : size(%d)\n",int(this->size()));
   }
   complexfunction(const double *v, unsigned int n) : baseclass(std::vector< std::complex<double> >(n)) { 
-    fprintf(stderr,"complexfunction(real pointer) : size(%d)\n",int(this->size()));
+ //   fprintf(stderr,"complexfunction(real pointer) : size(%d)\n",int(this->size()));
     for(unsigned int i=0;i<n;i++) (*this)[i] = v[i];
   }
   complexfunction& operator=(const complexfunction& b){ 
-    fprintf(stderr,"complexfunction assignment\n");
+   // fprintf(stderr,"complexfunction assignment\n");
     resize(b.size());
     copy(b.begin(),b.end(),begin());    
     return *this;
