@@ -4,7 +4,7 @@
 #include "space.h"
 
 #include "grid1d.cc"
-#include "basisset.hh"
+#include "basisset.cc"
 using namespace std;
 
 typedef complex<double> complex_t;
