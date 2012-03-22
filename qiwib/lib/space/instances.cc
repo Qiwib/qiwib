@@ -27,8 +27,11 @@ template class spingridfunction<complex_t,2>;
 
 template class basisset<realfunction>;
 template class basisset<complexfunction>;
+template class basisset<gridfunction<Grid1D<double, double> > >;
+template class basisset<gridfunction<Grid1D<complex_t, complex_t> > >;
 template class basisset<spingridfunction<double,2> >;
 template class basisset<spingridfunction<complex_t,2> >;
+
 
 template class std::vector<double>;
 template class std::vector< complex_t >;

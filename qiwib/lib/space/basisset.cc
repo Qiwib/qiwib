@@ -195,7 +195,7 @@ basisset_t set_data_vector(const Array2D<value_t>& vect) const
   return phi;
 }
 
-#if 0
+
 basisset_t propagate(const term_t& a0, const term_t& a1, const term_t& a2, const term_t& anl,
 				    const scalar_t& direction, const Array2D<scalar_t>& H_nonlin, 
 				    const Array2D<scalar_t>& overlap_matrix_inv) const
@@ -213,7 +213,6 @@ basisset_t propagate(const term_t& a0, const term_t& a1, const term_t& a2, const
   }
   return F.orthonormalise_advanced(overlap_matrix_inv,phi);
 }  
-#endif
 
   // TODO: Rearrange parameters
 basisset_t propagate(const scalar_t& direction, const scalar_t& a1, const scalar_t& a2, const scalar_t& g, const Function& a0, const Array2D<scalar_t>& H_nonlin, const Array2D<scalar_t>& overlap_matrix_inv) const

@@ -67,6 +67,50 @@ public:
   typedef typename basetype::value_t    value_t;
   typedef typename basetype::function_t function_t;
 
+  class Term {
+  public:
+    scalar_t v;
+    function_t f;
+    Array2D<scalar_t> A;    
+    Array2D<function_component_t> Af;
+    int type;
+  
+    Term(const scalar_t& v=0) : v(v), type(0) {}
+    Term(const function_t& f) : f(f), type(1) {}
+    Term(const Array2D<scalar_t>& A) : A(A), type(2) {}
+    Term(const Array2D<function_component_t>& Af) : Af(Af), type(3) {}
+    
+    function_t operator *(const function_t& g) const {
+      switch(type){
+      case 0: return g*v;
+      case 1: return g*f;
+      case 2: 
+      case 3: {
+	function_t h(g.size());
+	
+	for(int ix=0;ix<g.size();ix++){
+	  value_t hx(0);
+
+	  if(type == 2){
+	    for(int i=0;i<A.m;i++)
+	      for(int j=0;j<A.n;j++)
+		hx[i] += A(i,j) *g[ix][j];
+	  } else {
+	    for(int i=0;i<Af.m;i++)
+	      for(int j=0;j<Af.n;j++)
+		hx[i] += Af(i,j)[ix] * g[ix][j];
+	  }
+	  h[ix] = hx;
+	}
+	return h;
+      }
+      default:
+	fprintf(stderr,"gridterm type %d not implemented.\n",type);
+	abort();
+      }
+    }
+  };
+
 
   SpinGrid1D(double xmin=0,double xmax=1, unsigned int Nx=1, boundary_t boundary = PERIODIC_BOUNDARY) : basetype(xmin,xmax,Nx,boundary)
   {}
@@ -83,6 +127,7 @@ public:
   spingridfunction() {  }
   spingridfunction(const Space& space) : basetype(space) {}
   spingridfunction(const std::vector<value_t>& v) : basetype(v) { }
+
   spingridfunction(const Array2D<scalar_t>& vs) {
     std::vector<value_t> v(vs.rows());
     for(unsigned int i=0;i<vs.rows();i++)
@@ -98,6 +143,7 @@ public:
   }
 
 };
+
 
 
 

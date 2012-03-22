@@ -5,6 +5,7 @@
 #include <list>
 #include <string>
 #include <stdio.h>
+#include <stdlib.h>
 #include <complex>
 
 typedef enum { OPEN_BOUNDARY, BOX_BOUNDARY, PERIODIC_BOUNDARY }  boundary_t;
@@ -76,6 +77,7 @@ public:
   
 };
 
+
 template <typename Scalar = double, typename Value = Scalar> class Grid1D {
 public:
   typedef Scalar scalar_t;
@@ -87,6 +89,24 @@ public:
   double xmin, xmax, dx;
   unsigned int Nx;
   boundary_t boundary_condition;
+
+  class Term {
+  public:
+    scalar_t   v;
+    function_t f;
+    int type;
+  
+    Term(const scalar_t& v=0) : v(v), type(0) {}
+    Term(const function_t& f) : f(f), type(1) {}
+    
+    function_t operator *(const function_t& g) const {
+      if(type==0) return g*v;
+      if(type==1) return g*f;
+      fprintf(stderr,"gridterm type %d not implemented.\n",type);
+      abort();
+    }
+  };
+
   
   Grid1D(double xmin=0,double xmax=1, unsigned int Nx=1, boundary_t boundary = PERIODIC_BOUNDARY) : xmin(xmin), xmax(xmax), dx((xmax-xmin)/static_cast<double>(Nx+(boundary==PERIODIC_BOUNDARY)-1)), Nx(Nx), boundary_condition(boundary) {}  
 
