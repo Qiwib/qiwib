@@ -154,6 +154,8 @@
     $1 = new Array2D< std::complex<double> >(mat_feat.rows(),mat_feat.columns(),ptr);
 }
 
+
+
 %typemap(out) Array2D<double> 
 {
   const size_t m = $1.rows(), n = $1.columns();

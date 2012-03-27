@@ -90,22 +90,22 @@ public:
   unsigned int Nx;
   boundary_t boundary_condition;
 
-//   class Term {
-//   public:
-//     scalar_t   v;
-//     function_t f;
-//     int type;
-//   
-//     Term(const scalar_t& v=0) : v(v), type(0) {}
-//     Term(const function_t& f) : f(f), type(1) {}
-//     
-//     function_t operator *(const function_t& g) const {
-//       if(type==0) return g*v;
-//       if(type==1) return g*f;
-//       fprintf(stderr,"gridterm type %d not implemented.\n",type);
-//       abort();
-//     }
-//   };
+  class Term {
+  public:
+    scalar_t   v;
+    function_t f;
+    int type;
+  
+    Term(const scalar_t& v=0) : v(v), type(0) {}
+    Term(const function_t& f) : f(f), type(1) {}
+    
+    function_t operator *(const function_t& g) const {
+      if(type==0) return g*v;
+      if(type==1) return g*f;
+      fprintf(stderr,"gridterm type %d not implemented.\n",type);
+      abort();
+    }
+  };
 
   
   Grid1D(double xmin=0,double xmax=1, unsigned int Nx=1, boundary_t boundary = PERIODIC_BOUNDARY) : xmin(xmin), xmax(xmax), dx((xmax-xmin)/static_cast<double>(Nx+(boundary==PERIODIC_BOUNDARY)-1)), Nx(Nx), boundary_condition(boundary) {}  

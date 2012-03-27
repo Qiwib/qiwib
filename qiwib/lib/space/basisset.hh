@@ -5,7 +5,6 @@
 #include <iostream>
 #include <assert.h>
 #include "array.hh"
-#include "term.hh"
 
 template <typename Function> class basisset : public std::vector<Function> {
 public:
@@ -15,7 +14,7 @@ public:
   typedef typename std::vector<Function>::const_iterator const_iterator;
   typedef typename std::vector<Function>::iterator iterator; 
 
-  typedef typename Term term_t;
+  typedef typename Space::Term term_t;
   
   const Space&     space;
 
@@ -69,12 +68,13 @@ public:
 
   basisset set_data_vector(const Array2D<value_t>& vect) const;
 
-  basisset propagate(const term_t<scalar_t,Function>& a0, const term_t<scalar_t,Function>& a1, const term_t<scalar_t,Function>& a2, const term_t<scalar_t,Function>& anl,
+  basisset propagate(const term_t& a0, const term_t& a1, const term_t& a2, const term_t& anl,
 		     const scalar_t& direction, const Array2D<scalar_t>& H_nonlin, 
 		     const Array2D<scalar_t>& overlap_matrix_inv) const;
 
-  basisset propagate(const Function& a0, const scalar_t& a1, const scalar_t& a2, const scalar_t& anl, const scalar_t& direction, const Array2D<scalar_t>& H_nonlin, const Array2D<scalar_t>& overlap_matrix_inv) const;
-  
+  // TODO: Rearrange parameters
+  basisset propagate(const scalar_t& direction, const scalar_t& a1, const scalar_t& a2, const scalar_t& g, const Function& a0, const Array2D<scalar_t>& H_nonlin, const Array2D<scalar_t>& overlap_matrix_inv) const;
+
   Array2D<value_t> Wsl() const;
   
   basisset nonlin(const Array2D<scalar_t>& H_nonlin) const;
