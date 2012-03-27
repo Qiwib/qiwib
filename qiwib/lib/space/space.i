@@ -11,8 +11,18 @@
 
 %include "grid1d.hh"
 
-%template(realfunction_)    gridfunction< Grid1D<double, double> >;
-%template(complexfunction_) gridfunction< Grid1D<std::complex<double>, std::complex<double> > >;
+%template(realfunction)    gridfunction< Grid1D<double, double> >;
+%template(complexfunction) gridfunction< Grid1D<std::complex<double>, std::complex<double> > >;
+
+%include "spingrid1d.hh"
+
+* %template(realspin2grid)        SpinGrid1D<double,2>;
+* %template(complexspin2grid)     SpinGrid1D< std::complex<double>, 2 >;
+
+* %include "spingrid1d.hh"
+* 
+* %template(realspin2function)    spingridfunction< double,2 >;
+* %template(complexspin2function) spingridfunction< std::complex<double>, 2 >;
 
 %include "grid-instances.hh"
 
@@ -23,4 +33,5 @@
 
 %template(realbasis) basisset< gridfunction< Grid1D<double,double> > >;
 %template(complexbasis) basisset< gridfunction< Grid1D<std::complex<double>, std::complex<double> > > >;
-
+* %template(realspin2basis) basisset< spingridfunction< double,2> >;
+* %template(complexspin2basis) basisset< spingridfunction< std::complex<double>, 2 > >;

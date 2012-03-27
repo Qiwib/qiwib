@@ -12,8 +12,8 @@ template class Grid1D<double>;
 template class Grid1D< complex_t >;
 template class Grid1D<double, SpinValue<double,2> >;
 template class Grid1D<complex_t, SpinValue<complex_t,2> >;
-template class gridfunction< Grid1D<double> >;
 
+template class gridfunction< Grid1D<double> >;
 template class gridfunction< Grid1D< complex_t > >;
 template class gridfunction< Grid1D<double, SpinValue<double,2> > >;
 template class gridfunction< Grid1D<complex_t, SpinValue<complex_t,2> > >;

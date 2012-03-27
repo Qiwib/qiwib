@@ -1,8 +1,11 @@
 #include "grid1d.hh"
+#include "spingrid1d.hh"
 #include <algorithm>
 
 typedef Grid1D<double> RealGrid1D;
 typedef Grid1D<complex_t> ComplexGrid1D;
+typedef SpinGrid1D<double,2> RealSpin2Grid1D;
+typedef SpinGrid1D<complex_t,2> ComplexSpin2Grid1D;
 
 class realfunction : public gridfunction<Grid1D<double> > {
 public:
@@ -48,4 +51,3 @@ public:
     return *this;
   }
 };
-

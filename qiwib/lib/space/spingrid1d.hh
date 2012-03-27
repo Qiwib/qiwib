@@ -67,6 +67,7 @@ public:
   typedef typename basetype::value_t    value_t;
   typedef typename basetype::function_t function_t;
 
+  
   class Term {
   public:
     scalar_t v;
@@ -92,12 +93,12 @@ public:
 	  value_t hx(0);
 
 	  if(type == 2){
-	    for(int i=0;i<A.m;i++)
-	      for(int j=0;j<A.n;j++)
+	    for(int i=0;i<A.rows();i++)
+	      for(int j=0;j<A.columns();j++)
 		hx[i] += A(i,j) *g[ix][j];
 	  } else {
-	    for(int i=0;i<Af.m;i++)
-	      for(int j=0;j<Af.n;j++)
+	    for(int i=0;i<Af.rows();i++)
+	      for(int j=0;j<Af.columns();j++)
 		hx[i] += Af(i,j)[ix] * g[ix][j];
 	  }
 	  h[ix] = hx;

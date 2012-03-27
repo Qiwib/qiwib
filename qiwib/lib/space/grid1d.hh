@@ -92,6 +92,7 @@ public:
 
   class Term {
   public:
+    typedef gridfunction<Grid1D> function_t;
     scalar_t   v;
     function_t f;
     int type;

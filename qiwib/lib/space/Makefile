@@ -1,4 +1,4 @@
-SWIG=swig2 -w365,366,367,368,124
+SWIG=swig -w365,366,367,368,124 -debug-classes -debug-module 1,2,3,4
 # -debug-template
 # -debug-tmsearch
 # -debug-top 1,2,3,4
@@ -6,8 +6,8 @@ SWIG=swig2 -w365,366,367,368,124
 # Python include directory is OS dependent
 PYTHONINCLUDE= /usr/include/python
 
-CXX=clang -x c++ -O3 
-#CXX=c++ -O3 -march=native -msse4 -std=c++0x
+CXX=clang -x c++ -O2
+#CXX=c++ -O2 -march=native -msse4 -std=c++0x
 #CXX=icpc
 
 CXXLINK=g++ ${CXXFLAGS} 
