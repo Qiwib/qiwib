@@ -123,7 +123,7 @@ public:
   typedef gridfunction<space_component_t> function_component_t;
   typedef SpinGrid1D<scalar_t,n> Space;
   typedef gridfunction<Space> basetype;
-  typedef typename Space::value_t value_t;
+  typedef SpinValue<scalar_t,n> value_t;
 
   spingridfunction() {  }
   spingridfunction(const Space& space) : basetype(space) {}
@@ -144,8 +144,6 @@ public:
   }
 
 };
-
-
 
 
 #endif
