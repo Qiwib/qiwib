@@ -9,7 +9,7 @@
 #include <complex>
 
 typedef enum { OPEN_BOUNDARY, BOX_BOUNDARY, PERIODIC_BOUNDARY }  boundary_t;
-typedef std::complex<double> complex_t; // TODO: organize
+typedef std::complex<double> complex_t; 
 
 template <typename scalar_t, typename value_t = scalar_t> struct FieldTraits {
   static scalar_t contract(const value_t& x){ return x.contract(); }
@@ -90,6 +90,7 @@ public:
   unsigned int Nx;
   boundary_t boundary_condition;
 
+#ifndef SWIG
   class Term {
   public:
     typedef gridfunction<Grid1D> function_t;
@@ -107,6 +108,7 @@ public:
       abort();
     }
   };
+#endif
 
   
   Grid1D(double xmin=0,double xmax=1, unsigned int Nx=1, boundary_t boundary = PERIODIC_BOUNDARY) : xmin(xmin), xmax(xmax), dx((xmax-xmin)/static_cast<double>(Nx+(boundary==PERIODIC_BOUNDARY)-1)), Nx(Nx), boundary_condition(boundary) {}  

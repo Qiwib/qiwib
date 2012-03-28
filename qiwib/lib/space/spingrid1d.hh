@@ -67,7 +67,8 @@ public:
   typedef typename basetype::value_t    value_t;
   typedef typename basetype::function_t function_t;
 
-  
+
+#ifndef SWIG  
   class Term {
   public:
     scalar_t v;
@@ -111,7 +112,7 @@ public:
       }
     }
   };
-
+#endif
 
   SpinGrid1D(double xmin=0,double xmax=1, unsigned int Nx=1, boundary_t boundary = PERIODIC_BOUNDARY) : basetype(xmin,xmax,Nx,boundary)
   {}
