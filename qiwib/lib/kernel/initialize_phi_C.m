@@ -19,7 +19,7 @@
 ## THE SOFTWARE.
 
 function inp_error = initialize_phi_C();
-mlock(); global pa basis_diff space realgrid realfunction realbasis complexgrid complexfunction complexbasis phiCpp VCpp
+mlock(); global pa basis_diff space grid gridfunction gridbasis
 inp_error = 0;
 
 %%%%%%%%%%%%%%%%% variables I need %%%%%%%%%%%%%%%%%%%%%%%
@@ -37,11 +37,11 @@ inp_error = 0;
 	pa.rho_ksql = zeros(pa.M*pa.M*pa.M*pa.M,1);
 	pa.H_C = sparse(pa.nmax);
 
-	space = complexgrid(pa.xpos0,pa.xpos0+pa.L,pa.Ng);
+	space = grid(pa.xpos0,pa.xpos0+pa.L,pa.Ng);
 	space.set_boundary(pa.boundary);
 
 	pa.xpos = space.get_xs(); pa.dx = space.dx;
-	phiCpp = complexbasis(space,pa.M);
+	pa.phiCpp = gridbasis(space,pa.M);
         	
 	
 	if isempty(pa.nl), pa.nl=pa.xpos0+pa.L/2; end
@@ -56,7 +56,7 @@ inp_error = 0;
 	else printf("\n\nERROR: wrong dimensions for pa.V!\n"); inp_error = 1; return;
 	end
 	Calc_H_phi_lin();
-        VCpp = complexfunction(pa.V.'); % TODO: Possibility for different spin-components in V
+        pa.a0Cpp = gridfunction(pa.V.'); % TODO: Possibility for different spin-components in V
 
 	
 %%%%%%%%%%%%%%%%% create initial state %%%%%%%%%%%%%%%%%%%%%%%
@@ -80,7 +80,7 @@ inp_error = 0;
 		for n=1:pa.M, pa.phi(:,n) = pa.phi(:,n)/sqrt( abs(pa.phi(:,n))'*abs(pa.phi(:,n))*pa.dx); end
 		
 		%%Create initial C
-		phiCpp = phiCpp.set_data_vector(complex(pa.phi(:)));
+		pa.phiCpp = pa.phiCpp.set_data_vector(complex(pa.phi(:)));
 		calc_fields(); calc_H_C();
 		
 		n=pa.nmax-4; n=max(n,pa.relaxation+1);
@@ -133,7 +133,7 @@ inp_error = 0;
 		
 	end
 	
-	for i=1:pa.M, phiCpp(i-1) = complexfunction(pa.phi(:,i).'); end
+	for i=1:pa.M, pa.phiCpp(i-1) = gridfunction(pa.phi(:,i).'); end
 	Normalise();
 	
 	if pa.load_phi_C != 0, calc_fields(); calc_rho(); end

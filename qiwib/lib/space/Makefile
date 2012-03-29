@@ -1,4 +1,4 @@
-SWIG=swig -w365,366,367,368,124 -debug-classes -debug-module 1,2,3,4
+SWIG=swig -w365,366,367,368,124
 # -debug-template
 # -debug-tmsearch
 # -debug-top 1,2,3,4

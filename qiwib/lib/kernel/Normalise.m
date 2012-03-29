@@ -20,12 +20,12 @@
 
 
 function Normalise()
-mlock(); global pa basis_diff space realgrid realfunction realbasis complexgrid complexfunction complexbasis phiCpp
+mlock(); global pa basis_diff space grid gridfunction gridbasis
 
 
 	pa.C = pa.C / sqrt(abs(pa.C'*pa.C));
 	
-	S = phiCpp.overlap_matrix();                                                                                                                                    
+	S = pa.phiCpp.overlap_matrix();                                                                                                                                    
 	C = S**(-1/2);                                                                                                                                                 
                                                                                                                                                       
-	phiCpp = phiCpp*complex(C);           # Is actually left multiplication :-/ 
+	pa.phiCpp = pa.phiCpp*complex(C);           # Is actually left multiplication :-/ 

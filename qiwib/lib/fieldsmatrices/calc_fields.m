@@ -19,7 +19,7 @@
 ## THE SOFTWARE.
 
 function calc_fields()
-mlock(); global pa phiCpp VCpp
+mlock(); global pa
 
 %  	al = pa.H_Diff/12/pa.dx;
 %  	al2 = pa.H_Diff2/12/pa.dx/pa.dx;
@@ -54,8 +54,8 @@ mlock(); global pa phiCpp VCpp
 	
 %  	pa.h_kq = pa.h_kq * pa.dx;
 
-	pa.h_kq = ( phiCpp.hkq(pa.H_Diff, pa.H_Diff2, VCpp) ).';
+	pa.h_kq = ( pa.phiCpp.hkq(pa.H_Diff, pa.H_Diff2, pa.a0Cpp) ).';
 
 	%% create rho_ksql
-	pa.w_ksql = (phiCpp.Wksql()).'; %calc_fields_C(pa.Ng,pa.M,pa.phi);
+	pa.w_ksql = (pa.phiCpp.Wksql()).'; %calc_fields_C(pa.Ng,pa.M,pa.phi);
 	pa.w_ksql = pa.g * pa.w_ksql; %pa.g * pa.dx * pa.w_ksql;

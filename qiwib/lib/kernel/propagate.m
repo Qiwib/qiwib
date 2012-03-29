@@ -20,7 +20,7 @@
 
 	
 function propagate()
-mlock(); global pa basis_diff space realgrid realfunction realbasis complexgrid complexfunction complexbasis phiCpp VCpp
+mlock(); global pa basis_diff space grid gridfunction gridbasis
 
 	printf("\nStart Propagation: Initialise...\r"); fflush(stdout);		
 %%initial energy and other variables and display it%%
@@ -48,7 +48,7 @@ mlock(); global pa basis_diff space realgrid realfunction realbasis complexgrid 
 
 while(pa.time<pa.endtime || pa.endtime<0)
 
-		phi0 = phiCpp; C0 = pa.C; E0 = E; h_kq0 = pa.h_kq; w_ksql0 = pa.w_ksql; H_phi_nl0 = pa.H_phi_nl; H_C0 = pa.H_C;
+		phi0 = pa.phiCpp; C0 = pa.C; E0 = E; h_kq0 = pa.h_kq; w_ksql0 = pa.w_ksql; H_phi_nl0 = pa.H_phi_nl; H_C0 = pa.H_C;
 		rho_kq0 = pa.rho_kq; rho_ksql0 = pa.rho_ksql; rho_kq_inv0 = pa.rho_kq_inv;
 
 	%%the next few lines is the propagation
@@ -68,7 +68,7 @@ while(pa.time<pa.endtime || pa.endtime<0)
 			
 			cpu_time_temp = time();
 			phi12 = Integrator_phi(pa.dt/2,pa.time,phi0);
-			phiCpp = Integrator_phi(pa.dt/2,pa.time+pa.dt/2,phi12);
+			pa.phiCpp = Integrator_phi(pa.dt/2,pa.time+pa.dt/2,phi12);
 			cpu_time_phi_prop = cpu_time_phi_prop+time()-cpu_time_temp;
 
 			cpu_time_temp = time(); calc_fields(); cpu_time_phi = cpu_time_phi+time()-cpu_time_temp;
@@ -80,7 +80,7 @@ while(pa.time<pa.endtime || pa.endtime<0)
 			cpu_time_C_prop = cpu_time_C_prop+time()-cpu_time_temp;
 		else
 			cpu_time_temp = time(); calc_fields(); cpu_time_phi = cpu_time_phi+time()-cpu_time_temp;
-			phi12 = phiCpp; phi12b = phi12;			
+			phi12 = pa.phiCpp; phi12b = phi12;			
 			cpu_time_temp = time();
 			pa.C = Integrator_C(pa.dt,pa.time,C0);
 			pa.H_C_direction = i; C0b = Integrator_C(pa.dt,pa.time+pa.dt,pa.C); pa.H_C_direction = -i;
@@ -93,7 +93,7 @@ while(pa.time<pa.endtime || pa.endtime<0)
 		
 		delta = Calc_error(phi12,phi12b,C0,C0b);
 		%phi_corr = min(abs( (sum(conj(phi0) .* pa.phi) * pa.dx).^2));
-		phi_corr = min(abs( diag(phi0.overlap_matrix(phiCpp)).^2));
+		phi_corr = min(abs( diag(phi0.overlap_matrix(pa.phiCpp)).^2));
 		C_corr = abs(pa.C'*C0)^2;
 		if pa.qiwib_verbose_output==1, disp([pa.dt,delta]); end		
 	
@@ -130,7 +130,7 @@ while(pa.time<pa.endtime || pa.endtime<0)
 			
 		else
 		
-			phiCpp = phi0; pa.C = C0; E = E0; pa.h_kq = h_kq0; pa.w_ksql = w_ksql0; pa.H_phi_nl = pa.H_phi_nl0; pa.H_C = H_C0;
+			pa.phiCpp = phi0; pa.C = C0; E = E0; pa.h_kq = h_kq0; pa.w_ksql = w_ksql0; pa.H_phi_nl = pa.H_phi_nl0; pa.H_C = H_C0;
 			pa.rho_kq = rho_kq0; pa.rho_ksql = rho_ksql0; pa.rho_kq_inv = rho_kq_inv0;
 			pa.dt = 0.5 * pa.dt * (pa.CMF_error/delta)^(1/4);
 			if pa.dt>pa.max_CMF_step, pa.dt=pa.max_CMF_step; end

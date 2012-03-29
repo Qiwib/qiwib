@@ -24,7 +24,7 @@ function qiwib(input_file, out_arg, ow=[], vv=1, gg=1, print_qiwib_version='unkn
 %qiwib('inputvariables_relax.m','results/test_relax_15p4mtest/','ow')
  
 %global structure, to save memory basis_diff is seperate
-mlock(); space -global; global pa basis_diff space grid gridfunction gridbasis realgrid realfunction realbasis complexgrid complexfunction complexbasis realspingrid realspinfunction realspinbasis complexspingrid complexspinfunction complexspinbasis phiCpp a0Cpp a1Cpp a2Cpp
+mlock(); space -global; global pa basis_diff space grid gridfunction gridbasis realgrid realfunction realbasis complexgrid complexfunction complexbasis realspin2grid realspin2function realspin2basis complexspin2grid complexspin2function complexspin2basis
 
 %thats my global structure
 pa.basis = 0;
@@ -35,6 +35,7 @@ pa.hilbert_file = 0;
 pa.N  = [];
 pa.M  = [];
 pa.L  = [];
+pa.spins = 1;
 pa.phi  = [];
 pa.C  = 0;
 pa.Ng  = [];
@@ -42,6 +43,10 @@ pa.dx  = 0;
 pa.nmax = 0;
 pa.V = 0;
 pa.V_build = 0;
+pa.phiCpp = 0;
+pa.a0Cpp = 0;
+pa.a1Cpp = 0;
+pa.a2Cpp = 0;
 pa.relaxation = [];
 pa.endtime = -1;
 pa.dt = 1E-4;
@@ -157,6 +162,7 @@ more off;
 %%initialise and then let's go
 
 	format short e;
+	set_gridfunctionbasis();
 	if initialize_phi_C(), return; end;
 	if pa.relaxation<0
 		propagate();

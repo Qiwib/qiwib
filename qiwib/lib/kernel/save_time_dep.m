@@ -20,7 +20,7 @@
 
 	
 function save_time_dep(dt,save_time,E,dE,C_corr,phi_corr,eigs_flag,steps_count,cpu_time1,cpu_time0,cpu_time00,cpu_time_phi,cpu_time_phi_tot,cpu_time_C,cpu_time_C_tot,cpu_time_phi_prop,cpu_time_phi_prop_tot,cpu_time_C_prop,cpu_time_C_prop_tot)
-mlock(); global pa basis_diff space realgrid realfunction realbasis complexgrid complexfunction complexbasis phiCpp
+mlock(); global pa basis_diff space grid gridfunction gridbasis
 
 	calc_g1(); n_p_phi = sum(pa.g1_diag) * pa.dx; n_p_C = abs(pa.C'*pa.C);
 	nl = sum(pa.g1_diag(1:pa.nl))*pa.dx; nm = sum(pa.g1_diag(pa.nl+1:pa.nr-1))*pa.dx; nr = sum(pa.g1_diag(pa.nr:end))*pa.dx;
@@ -37,7 +37,7 @@ mlock(); global pa basis_diff space realgrid realfunction realbasis complexgrid 
 
 	if pa.relaxation!=-2 || pa.t_initial!=pa.time
     
-		for i=1:pa.M, pa.phi(:,i) = (phiCpp(i-1).get_data()).'; end
+		for i=1:pa.M, pa.phi(:,i) = (pa.phiCpp(i-1).get_data()).'; end
 
 		save("-z",[pa.save_dir_out,'phiC_restart.gz'],'-struct','pa','N','M','time','phi','xpos','C');
 		
