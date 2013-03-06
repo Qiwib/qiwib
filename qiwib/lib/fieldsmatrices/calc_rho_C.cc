@@ -61,36 +61,49 @@
 				
 				for(int n=0; n<nmax_h; n++)
 				{
+					// nCr and nCl are the indices of the bra and ket of the n-th non zero element H_ijksql
 					nCr = basis_diff(2,n); // this is correct as it is supposed to be the other way round
 					nCl = basis_diff(1,n);
 					for(int i=0; i<M; i++)
 					{
+						// basisnCl is the state in Fock representation pointed by nCl
 						basisnCl[i] = basis(nCl,i);
+						
+						// nindex stores the index of the orbitals ordered according to the occupation number difference
+						// between the ket and the bra (the order is from the largest difference to the smallest)
 						for(int i=0; i<M; i++) nindex[i] = int(basis_diff(i+3,n));
 					}
 					temp = 0;
 					temp2 = 0;
 	
+					// multiplication of the expansion coefficient for the left and right side
 					CC = conj(C(nCl)) * C(nCr);
 
+							// and here we multiply CC by the result of < basisnCl | a^{\dagger}_{k} a^{\dagger}_{s} a_{q} a_{l} | basisnCr >
 							switch(int(basis_diff(0,n)))
 							{
 															
 								case 0:
 									for(k=0; k<M; k++)
 									{
+										// diagonal terms
 										rho_kq(k*M+k) = rho_kq(k*M+k) + CC * basisnCl[k];
 										rho_ksql(k*M*M*M+k*M*M+k*M+k) = rho_ksql(k*M*M*M+k*M*M+k*M+k) + CC * basisnCl[k]*(basisnCl[k]-1);
+										
+										// terms: a^{\dagger}_{k} a^{\dagger}_{s} a_{s} a_{k}
+										// we split the loop over s in two because we don't want to include the case s = k which we already considered
 										for(s=0; s<k; s++)
 										{	
 											temp = CC * basisnCl[k] * basisnCl[s];
 											rho_ksql(k*M*M*M+s*M*M+k*M+s) = rho_ksql(k*M*M*M+s*M*M+k*M+s) + temp;
+											// symmetry of the density matrix
 											rho_ksql(k*M*M*M+s*M*M+s*M+k) = rho_ksql(k*M*M*M+s*M*M+k*M+s);
 										}
 										for(s=k+1; s<M; s++)
 										{	
 											temp = CC * basisnCl[k] * basisnCl[s];
 											rho_ksql(k*M*M*M+s*M*M+k*M+s) = rho_ksql(k*M*M*M+s*M*M+k*M+s) + temp;
+											// symmetry of the density matrix
 											rho_ksql(k*M*M*M+s*M*M+s*M+k) = rho_ksql(k*M*M*M+s*M*M+k*M+s);
 										}										
 									}
@@ -98,16 +111,25 @@
 
 								case 21:
 									k = nindex[M-1]; s = nindex[0]; l = nindex[0]; q = nindex[0];
-									rho_kq(k*M+q) = rho_kq(k*M+q) + CC * sqrt( basisnCl[k]*(basisnCl[q]+1) );	
+									
+									// this rely on the fact that q is going to span on every index 0:M-1 different from k
+									// a^{\dagger}_{k}a_{q} acting on the left
+									rho_kq(k*M+q) = rho_kq(k*M+q) + CC * sqrt( basisnCl[k]*(basisnCl[q]+1) );
+									
+									// a^{\dagger}_{k} a^{\dagger}_{k} a_{l} a_{k}	
 									temp = CC * (basisnCl[k]-1) * sqrt( basisnCl[k]*(basisnCl[l]+1) );
 									rho_ksql(k*M*M*M+k*M*M+k*M+l) = rho_ksql(k*M*M*M+k*M*M+k*M+l) + temp;
 									rho_ksql(k*M*M*M+k*M*M+l*M+k) = rho_ksql(k*M*M*M+k*M*M+k*M+l);
+									
+									// a^{\dagger}_{s} a^{\dagger}_{k} a_{s} a_{s}
 									temp = CC * basisnCl[s] * sqrt( basisnCl[k]*(basisnCl[s]+1) );
 									rho_ksql(k*M*M*M+s*M*M+s*M+s) = rho_ksql(k*M*M*M+s*M*M+s*M+s) + temp;
 									rho_ksql(s*M*M*M+k*M*M+s*M+s) = rho_ksql(k*M*M*M+s*M*M+s*M+s);
+									
 									for(int i=1; i<M-1; i++)
 									{
 										s = nindex[i];
+										// a^{\dagger}_{k} a^{\dagger}_{s} a_{s} a_{l}
 										temp = CC * basisnCl[s] * sqrt( basisnCl[k]*(basisnCl[l]+1) );
 										rho_ksql(k*M*M*M+s*M*M+s*M+l) = rho_ksql(k*M*M*M+s*M*M+s*M+l) + temp;
 										rho_ksql(k*M*M*M+s*M*M+l*M+s) = rho_ksql(k*M*M*M+s*M*M+s*M+l);
@@ -118,12 +140,14 @@
 									
 								case 22:			
 									k = nindex[M-1]; q = nindex[0];
+									// a^{\dagger}_{k} a^{\dagger}_{k} a_{q} a_{q}
 									temp = CC * sqrt( (basisnCl[k]-1)*basisnCl[k]*(basisnCl[q]+1)*(basisnCl[q]+2) );
 									rho_ksql(k*M*M*M+k*M*M+q*M+q) = rho_ksql(k*M*M*M+k*M*M+q*M+q) + temp;
 									break;
 													
 								case 31:
 									k = nindex[M-1]; q = nindex[0]; l = nindex[1];
+									// a^{\dagger}_{k} a^{\dagger}_{k} a_{q} a_{l}
 									temp = CC * sqrt( (basisnCl[k]-1)*basisnCl[k]*(basisnCl[q]+1)*(basisnCl[l]+1) );
 									rho_ksql(k*M*M*M+k*M*M+q*M+l) = rho_ksql(k*M*M*M+k*M*M+q*M+l) + temp;
 									rho_ksql(k*M*M*M+k*M*M+l*M+q) = rho_ksql(k*M*M*M+k*M*M+q*M+l);
@@ -131,12 +155,14 @@
 																	
 								case 32:
 									k = nindex[M-2]; s = nindex[M-1]; q = nindex[0];
+									// a^{\dagger}_{k} a^{\dagger}_{s} a_{q} a_{q}
 									temp = CC * sqrt( basisnCl[k]*basisnCl[s]*(basisnCl[q]+1)*(basisnCl[q]+2) );
 									rho_ksql(k*M*M*M+s*M*M+q*M+q) = rho_ksql(k*M*M*M+s*M*M+q*M+q) + temp;
 									rho_ksql(s*M*M*M+k*M*M+q*M+q) = rho_ksql(k*M*M*M+s*M*M+q*M+q);
 									break;
 																					
 								case 41:
+									// a^{\dagger}_{k} a^{\dagger}_{s} a_{q} a_{l}
 									k = nindex[M-2]; s = nindex[M-1]; q = nindex[0]; l = nindex[1];
 									temp = CC * sqrt( basisnCl[k]*basisnCl[s]*(basisnCl[q]+1)*(basisnCl[l]+1) );
 									rho_ksql(k*M*M*M+s*M*M+q*M+l) = rho_ksql(k*M*M*M+s*M*M+q*M+l) + temp;

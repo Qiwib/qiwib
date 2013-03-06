@@ -41,7 +41,7 @@
 		   
 			if (! error_state)
            	{ 
-				
+				// see Eq. 2.44 of Thomas thesis
 				for(int j=0; j<M; j++)	
 					for(int s=0; s<M; s++)
 						for(int q=0; q<M; q++)

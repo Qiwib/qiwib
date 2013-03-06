@@ -20,6 +20,9 @@
  * THE SOFTWARE.
 */
 
+// This creates the basis of the Hilbert space
+// This can be made more efficient see: European Journal of Physics, 31(3), 591–602.
+// You can create the basis of the Hilbert space already in the right order saving the ordering call later
 
      #include <octave/oct.h>
 	 

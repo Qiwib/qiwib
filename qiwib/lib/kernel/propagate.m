@@ -36,7 +36,9 @@ mlock(); global pa basis_diff space grid gridfunction gridbasis
 
 
 %%initial mean fields%%	
-	cpu_time_C = time(); calc_rho(); cpu_time_C = time()-cpu_time_C;
+	cpu_time_C = time(); 
+	calc_rho(); %% compute rho_kq and rho_ksql and the inverse of rho_kq
+	cpu_time_C = time()-cpu_time_C;
 	cpu_time_phi = time(); pa.H_phi_nl = Calc_H_phi_nl(); cpu_time_phi = time()-cpu_time_phi;
 	cpu_time_temp = time(); calc_fields(); cpu_time_phi = cpu_time_phi+time()-cpu_time_temp;
 	cpu_time_temp = time(); calc_H_C(); cpu_time_C = cpu_time_C+time()-cpu_time_temp;

@@ -30,7 +30,10 @@ template <> struct FieldTraits<complex_t,complex_t> {
 };
 
 
-
+// This class is the representation of an actual wavefunction
+// Space here is the grid over which the wavefunction is defined
+// in this case Grid1D (see later)
+// the only data that this class holds is a vector of type value_t, everything else are constructor, overloaded operators and output functions
 template <typename Space>
 class gridfunction : public std::vector<typename Space::value_t> {
 public:
@@ -40,6 +43,7 @@ public:
   typedef std::vector<value_t> basetype;
   typedef FieldTraits<scalar_t,value_t> Traits;
 
+  // overloaded operations on wavefunctions
   gridfunction& operator += (const gridfunction& g);
   gridfunction& operator -= (const gridfunction& g);
   gridfunction& operator *= (const gridfunction& g);
@@ -54,21 +58,28 @@ public:
 
   gridfunction conj () const;
 
+  // default constructor the instatiate a vector of length Nx of value_t type
   gridfunction(const unsigned int Nx=0) : basetype(Nx) {
     //    fprintf(stderr,"default constructor gridfunction()\n");
   }
 
+  // this constructor accept a Space (or grid1D) as argument and instantiate a vector of the same
+  // length of the number of points in the grid (space.Nx) of value_t type
   gridfunction(const Space& space) : std::vector<value_t>(space.Nx) {
     //    fprintf(stderr,"gridfunction(space)\n");
   }
+  
+  // this constructor accepts a vector as input argument and initialise a wavefunction with the values in the vector
   gridfunction(const std::vector<value_t>& v) : std::vector<value_t>(v.begin(),v.end()) { 
     //    fprintf(stderr,"gridfunction(vectord) : size(%d)\n",this->size());
   }
 
+  // read the wavefunction out in form of a std::vector of type value_t
   std::vector<value_t> get_data() const {
     return std::vector<value_t>(this->begin(),this->end());
   }
 
+  // output the wavefunction
   friend std::ostream& operator<<(std::ostream& s, const gridfunction& f) {
     s << "[";
     for(unsigned int i=0;i<f.size();i++) s << f[i] << (i+1<f.size()?", ":"]");
@@ -77,7 +88,14 @@ public:
   
 };
 
+// This defines the 1D grid over which a wavefunction ("gridfunction") is defined
+// It knows how to compute basic operations on the wavefunction defined over it like: intergrate, inner product, norm, derivatives etc
+// the only properties of the class are:
+// xmin, xmax, dx 		define the grid
+// Nx 					number of points in the grid
+// boundary_condition	kind of boundary conditions
 
+// Value (value_t) is the type of variable of the wavefunction at every point, the default is to have a scalar real field defined over the grid
 template <typename Scalar = double, typename Value = Scalar> class Grid1D {
 public:
   typedef Scalar scalar_t;
@@ -110,18 +128,22 @@ public:
   };
 #endif
 
-  
+  // default constructor
   Grid1D(double xmin=0,double xmax=1, unsigned int Nx=1, boundary_t boundary = PERIODIC_BOUNDARY) : xmin(xmin), xmax(xmax), dx((xmax-xmin)/static_cast<double>(Nx+(boundary==PERIODIC_BOUNDARY)-1)), Nx(Nx), boundary_condition(boundary) {}  
 
+  // setter for the boundary conditions
   void set_boundary(const boundary_t boundary){ 
     boundary_condition = boundary; 
 
     dx = (xmax-xmin)/static_cast<double>(Nx+(boundary_condition==PERIODIC_BOUNDARY)-1);
   }
+  
+  // overloaded setter of the boundary conditions that accepts a string as input
   void set_boundary(const std::string& boundary){
   set_boundary(boundary == "open"? OPEN_BOUNDARY : (boundary == "box"? BOX_BOUNDARY : PERIODIC_BOUNDARY) );
   }
 
+  // basi operations on the wavefunctions that depends on the grid (grid spacing actually)
   value_t  integrate(const function_t& f) const;
   scalar_t inner(const function_t& f, const function_t& g) const;
   scalar_t inner(const function_t& f, const function_t& g, const function_t& h) const;
@@ -140,6 +162,8 @@ public:
 			      double delta) const;
 
 
+  // let's compute the x coordinates of the points on the grid on the fly
+  // FIXME: the grid is most likely not too large so why not saving time by keeping this in memory
   std::vector<double> get_xs() const {
     std::vector<double> xs(Nx);
     for(size_t i=0;i<Nx;i++) xs[i] = xmin+i*dx;

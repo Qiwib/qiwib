@@ -9,6 +9,8 @@
 
 using namespace std;
 
+// This class implement the spin representation
+// x[n] holds the values describing an n-dimensional spin at any given point
 template <typename scalar_t, unsigned int n> class SpinValue {
 public:
   scalar_t x[n];
@@ -59,6 +61,8 @@ public:
   }
 };
 
+// definition of a 1D grid for a spinor wavefunction. Basically it's the same as Grid1D but with the information that
+// the wavefunction defined over the grid is going to be of SpinValue type (n-dimensional spinor wavefunction)
 template <typename scalar_t, unsigned int n> class SpinGrid1D : public Grid1D< scalar_t, SpinValue<scalar_t,n> > {
 public:
   typedef Grid1D< scalar_t, SpinValue<scalar_t,n> > basetype;
@@ -118,6 +122,10 @@ public:
   {}
 };
 
+// true spinorial wvaefunction
+// it inherits from gridfunction and extends the constructor adding a method to initialise the wavefunction from a 2D matrix
+// whose columns are the components of the spinor wavefunction
+// it also adds a method (spingridfunction::component) to retrieve a specific component 
 template <typename scalar_t, unsigned int n> class spingridfunction : public gridfunction<SpinGrid1D<scalar_t,n> > {
 public:
   typedef Grid1D< scalar_t > space_component_t;
