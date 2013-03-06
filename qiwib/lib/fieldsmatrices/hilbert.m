@@ -30,7 +30,7 @@ mlock(); global pa basis_diff
 		%% create hilbert space	
 		printf("Create Hilbert space:  basis...\r"); fflush(stdout);
 		pa.basis = calc_hilbert_C(pa.N,pa.M,bincoeff(pa.N+pa.M-1,pa.N)); if pa.N == 1, pa.basis = eye(pa.M); end
-		if pa.N~=1 && pa.M~=1, pa.basis=sortrows(pa.basis,[pa.M:-1:1]); end
+		%% if pa.N~=1 && pa.M~=1, pa.basis=sortrows(pa.basis,[pa.M:-1:1]); end
 		printf("Create Hilbert space:  basis_diff...\r"); fflush(stdout);
 		[basis_diff,pa.basis_diff_nz] = calc_hilbert_diff_C(pa.basis,pa.M,bincoeff(pa.N+pa.M-1,pa.N));
 		printf("Create Hilbert space:  done in %ds.                                      \n",time()-cputime);

@@ -45,42 +45,80 @@
 		   int row = 0;
 		   int basis_len = 0;
 		   
+		   int temp[M];
+		   int basisIndex = -1;
+		   int numberOfParticlesUpToNonZero = 0;
+		   
            if (! error_state)
            	{ 
 					
 	           	for(int i=0; i<nmax; i++)
 						for(int j=0; j<M; j++) basis(i,j) = 0;
-	           	for(int i=1; i<N; i++) a[i] = 1;
-	           	a[0] = M;
-	           	
-	           	while(a[N-1]<M)
-	           	{
-					for(int i=0; i<a[0]; i++)
-						for(int j=0; j<M; j++) b[i][j] = 0;
+				
+				// This algorithm produces a basis already in the order state
+				// The first state in the basis is | N , 0 , 0 , 0 , ... , 0 >
+				// Then | N - 1 , 1 , 0 , 0 , ... , 0 >
+				// Then | N - 1 , 0 , 1 , 0 , ... , 0 >
+				// and so on until
+				// Then | 0 , 0 , 0 , 0 , ... , N >
+				
+				
+				for (int i=1; i<M; i++) temp[i] = 0;
+				temp[0] = N;
+				
+				
+				while temp[M-1] < N {
+				
+					basisIndex++;
+					for (int i=0; i<M; i++) basis(basisIndex,i) = temp[i];
 					
-					for(int i=0; i<a[0]; i++) b[i][i+(M-a[0])] = 1;
-					
-					for(int s=1; s<N; s++)
-					{
-						row = a[s]-1;
-						for(int i=0; i<a[0]; i++) b[i][row] += 1;
-					}
-					for(int i=0; i<a[0]; i++)
-						for(int j=0; j<M; j++) basis(i+basis_len,j) = b[i][j];
-						
-					basis_len += a[0];
-					
-					a[1]++;
-					
-					for(int r=1; r<N-1; r++)
-						if(a[r]==M+1)
-						{
-							a[r+1] += 1;
-							for(int i=1; i<r+1; i++) a[i] = a[r+1];
+					for (int i=M-2; i>=0; i--) {
+						if ( temp[i] != 0 ) {
+							indexOfLastNonZeroEntry = i;
+							break;
 						}
-					a[0] = M - a[1] + 1;		
+					}
+					temp[indexOfLastNonZeroEntry]--;
+					
+					numberOfParticlesUpToNonZero = 0;
+					for (int i=0; i <= indexOfLastNonZeroEntry; i++) numberOfParticlesUpToNonZero += temp[i];
+					temp[indexOfLastNonZeroEntry+1] = N - numberOfParticlesUpToNonZeroEntry;
+					for (int i=indexOfLastNonZeroEntry+2; i<M; i++) temp[i] = 0;
+				
 				}
-				basis(basis_len,M-1) = N;
+				for (int i=0; i<M; i++) basis(basisIndex+1,i) = temp[i];					
+						
+// 	           	for(int i=1; i<N; i++) a[i] = 1;
+// 	           	a[0] = M;
+// 	           	
+// 	           	while(a[N-1]<M)
+// 	           	{
+// 					for(int i=0; i<a[0]; i++)
+// 						for(int j=0; j<M; j++) b[i][j] = 0;
+// 					
+// 					for(int i=0; i<a[0]; i++) b[i][i+(M-a[0])] = 1;
+// 					
+// 					for(int s=1; s<N; s++)
+// 					{
+// 						row = a[s]-1;
+// 						for(int i=0; i<a[0]; i++) b[i][row] += 1;
+// 					}
+// 					for(int i=0; i<a[0]; i++)
+// 						for(int j=0; j<M; j++) basis(i+basis_len,j) = b[i][j];
+// 						
+// 					basis_len += a[0];
+// 					
+// 					a[1]++;
+// 					
+// 					for(int r=1; r<N-1; r++)
+// 						if(a[r]==M+1)
+// 						{
+// 							a[r+1] += 1;
+// 							for(int i=1; i<r+1; i++) a[i] = a[r+1];
+// 						}
+// 					a[0] = M - a[1] + 1;		
+// 				}
+// 				basis(basis_len,M-1) = N;
 	           	
 	           	 
 	           	retval(0) = basis;
