@@ -146,18 +146,18 @@
 									}
 									hilbert_nz++;
 									break;
-													
-								// This term doesn't make any sense
-								// case 31:
-// 									hilbert_diff(0,hilbert_nz) = 31;
-// 									hilbert_diff(1,hilbert_nz) = nr;
-// 									hilbert_diff(2,hilbert_nz) = nl;
-// 									for(int i=3; i<M+3; i++)
-// 									{
-// 										hilbert_diff(i,hilbert_nz) = nindex[i-3];
-// 									}
-// 									hilbert_nz++;
-// 									break;
+								
+								// this is parametric up conversion					
+								case 31:
+									hilbert_diff(0,hilbert_nz) = 31;
+									hilbert_diff(1,hilbert_nz) = nr;
+									hilbert_diff(2,hilbert_nz) = nl;
+									for(int i=3; i<M+3; i++)
+									{
+										hilbert_diff(i,hilbert_nz) = nindex[i-3];
+									}
+									hilbert_nz++;
+									break;
 																
 								// this is the case where two particles are moved from one orbital
 								// into two different orbitals (parametric down conversion)
