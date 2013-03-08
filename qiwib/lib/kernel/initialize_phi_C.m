@@ -65,8 +65,10 @@ inp_error = 0;
 	if pa.relaxation >= 0 && pa.load_phi_C == 0
 
 		%%Create initial phi
-		al=pa.H_Diff2/12/pa.dx/pa.dx;
-		T = sparse( diag(-30.0*al*ones(pa.Ng,1) + pa.V_build.*ones(pa.Ng,1)) + diag( al*16*ones(pa.Ng-1,1),1) + diag( al*16*ones(pa.Ng-1,1),-1) - diag( al*ones(pa.Ng-2,1),2) - diag( al*ones(pa.Ng-2,1),-2) );
+		
+		%% changed al to al2 for consistency with Calc_H_phi_lin
+		al2=pa.H_Diff2/12/pa.dx/pa.dx;
+		T = sparse( diag(-30.0*al2*ones(pa.Ng,1) + pa.V_build.*ones(pa.Ng,1)) + diag( al*16*ones(pa.Ng-1,1),1) + diag( al*16*ones(pa.Ng-1,1),-1) - diag( al*ones(pa.Ng-2,1),2) - diag( al*ones(pa.Ng-2,1),-2) );
 		if strcmp(pa.boundary,'periodic')
 			T(1,pa.Ng) = 16*al;
 			T(pa.Ng,1) = 16*al;

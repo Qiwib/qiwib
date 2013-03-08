@@ -37,6 +37,7 @@ basisset_t operator +(const basisset& A) const
 {
   basisset newbasis(space,this->size());
 
+  // FIXME: is the operation here a bug?
   for(unsigned int i=0;i<this->size();i++) newbasis[i] = (*this)[i]*A[i];  
     
   return newbasis;
@@ -64,6 +65,7 @@ basisset_t second_derivative() const {
   return derivative_basis;
 }
   
+// This seems to compute OverlapMatrix_ij = \psi_i^* \psi_j or OverlapMatrix = \psi^* \psi^T
 basisset_member(Array2D<scalar_t>) overlap_matrix() const
 {
   Array2D<scalar_t> overlap(this->size(),this->size());
@@ -95,6 +97,10 @@ basisset_member(Array2D<scalar_t>) overlap_matrix(const basisset& phi1) const
   return overlap;
 }
 
+
+// FIXME: This is not a normalisation
+// Instead of dividing by the sum of the sum of |\psi_{i}|^2 which would return a normalised wavefunction
+// doing \psi_{i} / |\psi_{i}|^2 returns a complex field of unit magnitude
 basisset_t normalise() const
 {
   basisset phi_new(space,this->size());
@@ -106,6 +112,7 @@ basisset_t normalise() const
   return phi_new;
 }
 
+// This returns |\psi_{i}|
 basisset_member(std::vector<scalar_t>) norm() const
 {
   std::vector<scalar_t> norm(this->size());
@@ -116,6 +123,7 @@ basisset_member(std::vector<scalar_t>) norm() const
   }
   return norm;
 }
+
 
 basisset_member(Array2D<scalar_t>) calc_error(basisset& phi1) const
 {
@@ -128,6 +136,7 @@ basisset_member(Array2D<scalar_t>) calc_error(basisset& phi1) const
   norm1 = phi1.norm();
 
   for (unsigned int i=0;i<this->size();i++)
+    // FIXME: why not using directly normalise() for the rhs here, it seems to do the same thing
     phi[i] = phi0[i]/norm0[i] - phi1[i]/norm1[i];
 
   return phi.overlap_matrix();

@@ -24,13 +24,17 @@ mlock(); global pa
 
 %% fourth order derivatives!!!
 
+	%% five-points stencil derivatives (the 12 is part of the definition of the finite difference derivative)
+	%% FIXME: the 1/12 is included in the definition of the derivative in grid1D so isn't this extra?
 	al = pa.H_Diff/12/pa.dx;
 	al2 = pa.H_Diff2/12/pa.dx/pa.dx;
 	
 	pa.H_phi_lin = zeros(pa.Ng+8,1);
 	
-	
+	%% FIXME: where does the 30 come from?
 	pa.H_phi_lin(1:pa.Ng) = -30.0*al2*ones(pa.Ng,1) + pa.V.*ones(pa.Ng,1);
+	
+	%% the extra 8 elements seems to be related to the specification of the derivative at the boundaries
 	pa.H_phi_lin(pa.Ng+1) = 16*al2+8*al;
 	pa.H_phi_lin(pa.Ng+2) = 16*al2-8*al;
 	pa.H_phi_lin(pa.Ng+5) = -al2-al;
