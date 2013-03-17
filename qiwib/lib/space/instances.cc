@@ -9,7 +9,7 @@ using namespace std;
 
 typedef complex<double> complex_t;
 template class Grid1D<double>;
-template class Grid1D< complex_t >;
+template class Grid1D<complex_t>;
 template class Grid1D<double, SpinValue<double,2> >;
 template class Grid1D<complex_t, SpinValue<complex_t,2> >;
 
@@ -32,9 +32,11 @@ template class basisset<gridfunction<Grid1D<complex_t, complex_t> > >;
 template class basisset<spingridfunction<double,2> >;
 template class basisset<spingridfunction<complex_t,2> >;
 
+template class gridfunction<SpinGrid1D<double, 2u> >;
+template class gridfunction<SpinGrid1D<complex_t, 2u> >;
 
 template class std::vector<double>;
-template class std::vector< complex_t >;
+template class std::vector<complex_t>;
 
 #endif
 
