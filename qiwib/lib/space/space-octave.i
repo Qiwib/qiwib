@@ -6,9 +6,12 @@
 %template(vectord) std::vector<double>;
 %template(vectorc) std::vector< std::complex<double> >;
 
+// Convert array of real from octave to C
 %typemap(in) (const double *v, unsigned int n) 
 {
     const octave_value mat_feat=$input;
+    
+    // fail whenever the input is not of matrix type, double type or has more than 1 row (ie it's a true matrix and not a vector)
     if (!mat_feat.is_matrix_type() || !mat_feat.is_double_type() 
 	|| mat_feat.rows()!=1)
       SWIG_fail;
@@ -16,11 +19,13 @@
  //  fprintf(stderr,"typemap(in) (const double *v, unsigned int n)\n");
 
     const Array<double>& m(mat_feat.vector_value());
+    
+    // fortran_vec() is an octave oct-file method to directly access the values in an array without error checking 
     $1 = (double*)m.fortran_vec();
     $2 = mat_feat.columns();
 }
 
-
+// Convert array of complex from octave to C
 %typemap(in) (complex_t const *v, unsigned int n) 
 {
     const octave_value mat_feat=$input;
@@ -36,11 +41,17 @@
     $2 = mat_feat.columns();
 }
 
+
+// this is used by swig to choose between different types in overloaded methods and functions
+// SWIG_TYPECHECK_POINTER is the highest order available in SWIG
+
+// We can have array of reals or array of complex and the following two typechecks helps swig distinguish between the two
 %typemap(typecheck, precedence=SWIG_TYPECHECK_POINTER)
   (complex_t const *v, unsigned int n)
 {
   const octave_value& m($input);
 
+	// FIXME: is a complex vector also a double in Octave? the m.is_double_type() call is missing the exclamation mark
   $1 = (m.is_matrix_type() && m.is_double_type() && m.is_complex_type() && m.rows()==1) ? 1 : 0;
  // fprintf(stderr,"typemap(typecheck, precedence=SWIG_TYPECHECK_POINTER)(const //std::complex<double> *v, unsigned int n) ~> %d\n",$1);
  // fprintf(stderr,"matrix(%d), double(%d), complex(%d), rows(%d), columns(%d)\n",
