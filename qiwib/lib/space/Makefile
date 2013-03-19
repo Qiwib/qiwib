@@ -1,22 +1,22 @@
-SWIG=swig -w365,366,367,368,124
+SWIG=swig204 -w365,366,367,368,124,362,503 
 # -debug-template
 # -debug-tmsearch
 # -debug-top 1,2,3,4
 
-# Python include directory is OS dependent
-PYTHONINCLUDE= /usr/include/python
+# Python include directory is OS typedefdependent
+PYTHONINCLUDE= /usr/include/python2.7
 
-CXX=clang -x c++ -O2
-#CXX=c++ -O2 -march=native -msse4 -std=c++0x
+#CXX=clang -x c++ -O2
+CXX=c++
 #CXX=icpc
 
 CXXLINK=g++ ${CXXFLAGS} 
-CXXFLAGS=-Wall -fPIC -DDERIVATIVE_FIVE_POINT
+CXXFLAGS=-Wall -fPIC -DDERIVATIVE_FIVE_POINT -O2 -march=native -std=c++0x -Wno-sign-compare
 
-swigtest: test.hh test.i
-	${SWIG} -c++ -octave test.i
+swigtest: test.h test.i
+	${SWIG} -c++ -python test.i
 	mv test_wrap.cxx test_wrap.cc
-	mkoctfile -o test.oct test_wrap.cc
+	${CXXLINK} -o _test.so -shared test_wrap.cc instances.o -I${PYTHONINCLUDE}
 
 cctest: test.o instances.o grid1d.hh grid1d.cc
 	${CXXLINK} -o test test.o instances.o -lm
