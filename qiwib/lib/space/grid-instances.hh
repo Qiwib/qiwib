@@ -51,3 +51,26 @@ public:
     return *this;
   }
 };
+
+// class realspin2function : public spingridfunction<double,2> {
+// public:
+//   typedef spingridfunction<double,2> baseclass;
+//   typedef SpinGrid1D<double,2> Space;
+
+//   realspin2function() {}
+//   realspin2function(const baseclass& b) : baseclass(b) {}
+//   realspin2function(const Space& space) : baseclass(space) {  }
+//   realspin2function(const Array2D<double>& vs) : baseclass(vs)
+//   {
+//   //  fprintf(stderr,"realspin2function(pointer) : size(%d)\n",int(this->size()));
+//     // for(unsigned int i=0;i<this->size();i++)
+//     //   fprintf(stderr,"(%d %g) ",i, (*this)[i]);
+//     // fprintf(stderr,"\n");
+//   }
+//   realspin2function& operator=(const realspin2function& b){ 
+//     resize(b.size());
+//     copy(b.begin(),b.end(),begin());
+//     return *this;
+//   }
+
+// };

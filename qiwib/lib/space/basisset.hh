@@ -9,8 +9,8 @@
 template <typename Function> class basisset : public std::vector<Function> {
 public:
   typedef typename Function::space_t Space;
-  typedef typename Space::value_t  value_t;
-  typedef typename Space::scalar_t scalar_t;
+  typedef typename Function::value_t  value_t;
+  typedef typename Function::scalar_t scalar_t;
   typedef typename std::vector<Function>::const_iterator const_iterator;
   typedef typename std::vector<Function>::iterator iterator; 
 

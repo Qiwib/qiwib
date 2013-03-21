@@ -21,6 +21,9 @@ swigtest: test.h test.i
 cctest: test.o instances.o grid1d.hh grid1d.cc
 	${CXXLINK} -o test test.o instances.o -lm
 
+cctest2: test2.o instances.o grid1d.hh grid1d.cc
+	${CXXLINK} -o test2 test2.o instances.o -lm
+
 pymodule:  space-python_wrap.cxx
 	${CXXLINK} -o _space.so -shared space-python_wrap.cxx instances.o -I${PYTHONINCLUDE}
 

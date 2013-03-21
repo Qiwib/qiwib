@@ -3,11 +3,9 @@ space -global
 
 space = complexgrid(-pi,pi,2001);
 xs    = space.get_xs();
-xmin = space.xmin 
+xmin  = space.xmin 
 
 phi   = complexbasis(space,4);
-phi2 = phi;
-
 
 for i = [1:4]
   phi(i-1) = complexfunction(exp(I*i*xs)/sqrt(2*pi));
