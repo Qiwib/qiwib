@@ -19,11 +19,19 @@
 ## THE SOFTWARE.
 
 function inp_error = initialize_phi_C();
-mlock(); global pa basis_diff space grid gridfunction gridbasis
+mlock(); global pa basis_diff space complexgrid complexfunction complexbasis
 inp_error = 0;
 
-%%%%%%%%%%%%%%%%% variables I need %%%%%%%%%%%%%%%%%%%%%%%
 
+%%%
+%% TODO: grid gridfunction gridbasis instead of (real|complex|realspin2|complexspin2|...)function, etc.
+
+        grid         = complexgrid;
+	gridfunction = complexfunction;
+	gridbasis    = complexbasis;
+	disp("entering initialie_phi_C\n");
+%%%%%%%%%%%%%%%%% variables I need %%%%%%%%%%%%%%%%%%%%%%%
+	
 	printf("Creating initial environment:\r"); fflush(stdout);
 	
 	%%Initialize all variables
@@ -37,12 +45,19 @@ inp_error = 0;
 	pa.rho_ksql = zeros(pa.M*pa.M*pa.M*pa.M,1);
 	pa.H_C = sparse(pa.nmax);
 
+	printf("Creating grid: %d,%d,%d\n",pa.xpos0,pa.xpos0+pa.L,pa.Ng);
 	space = grid(pa.xpos0,pa.xpos0+pa.L,pa.Ng);
+	printf("Setting boundary condition: %d\n",pa.boundary);
 	space.set_boundary(pa.boundary);
-
+	printf("Getting x-coordinates\n");
 	pa.xpos = space.get_xs(); pa.dx = space.dx;
-	pa.phiCpp = gridbasis(space,pa.M);
-        	
+	printf("Creating basis with %d orbitals\n",pa.M);
+	pa.phiCpp = complexbasis(space,pa.M); 
+	printf("Done.\n");
+
+	%% grid = realgrid|complexgrid|complexspin2grid
+	%% gridfunction = realgridfunction|complexgridfunction|complexspin2gridfunction
+	%% gridbasis = (realbasis|complexbasis|complexspin2basis|complexspin3basis)
 	
 	if isempty(pa.nl), pa.nl=pa.xpos0+pa.L/2; end
 	if isempty(pa.nr), pa.nr=pa.xpos0+pa.L/2; end
@@ -56,17 +71,20 @@ inp_error = 0;
 	else printf("\n\nERROR: wrong dimensions for pa.V!\n"); inp_error = 1; return;
 	end
 	Calc_H_phi_lin();
-        pa.a0Cpp = gridfunction(pa.V.'); % TODO: Possibility for different spin-components in V
+	printf("Initializing exernal potential\n");
+%%        pa.a0Cpp = gridfunction(pa.V.'); % TODO: Possibility for different spin-components in V
+        pa.a0Cpp = gridfunction(pa.V.'); 
 
 	
 %%%%%%%%%%%%%%%%% create initial state %%%%%%%%%%%%%%%%%%%%%%%
 
-	
+	printf("Creating initial state. relaxation: %g, load_phi_C: %d\n",pa.relaxation,pa.load_phi_C);
 	if pa.relaxation >= 0 && pa.load_phi_C == 0
-
+	        printf("Create initial phi\n");
 		%%Create initial phi
 		al=pa.H_Diff2/12/pa.dx/pa.dx;
 		T = sparse( diag(-30.0*al*ones(pa.Ng,1) + pa.V_build.*ones(pa.Ng,1)) + diag( al*16*ones(pa.Ng-1,1),1) + diag( al*16*ones(pa.Ng-1,1),-1) - diag( al*ones(pa.Ng-2,1),2) - diag( al*ones(pa.Ng-2,1),-2) );
+
 		if strcmp(pa.boundary,'periodic')
 			T(1,pa.Ng) = 16*al;
 			T(pa.Ng,1) = 16*al;
@@ -76,12 +94,15 @@ inp_error = 0;
 			T(pa.Ng-1,1) = -al;			
 		end
 		[v,lambda]=eigs(T,pa.M+2,'sa'); [B_dummy,n_eigen] = sort( real(diag(lambda)) );
+
 		pa.phi = v(:,n_eigen(1:pa.M));
 		for n=1:pa.M, pa.phi(:,n) = pa.phi(:,n)/sqrt( abs(pa.phi(:,n))'*abs(pa.phi(:,n))*pa.dx); end
 		
 		%%Create initial C
+		printf("Initializing data in orbital basis set\n");
 		pa.phiCpp = pa.phiCpp.set_data_vector(complex(pa.phi(:)));
 		calc_fields(); calc_H_C();
+
 		
 		n=pa.nmax-4; n=max(n,pa.relaxation+1);
 		if !strcmp(pa.improved_rlx,'imaginary')
@@ -102,7 +123,7 @@ inp_error = 0;
 		pa.C = c(:,n_eigen(pa.relaxation+1));
 		pa.C = pa.C / sqrt(sum(abs(pa.C).^2));
 		calc_rho();
-		
+
 	elseif pa.relaxation >= 0 && pa.load_phi_C != 1 && pa.load_phi_C != 0
 	
 		load(pa.load_phi_C);
@@ -132,8 +153,10 @@ inp_error = 0;
 		pa.C = C;	
 		
 	end
-	
-	for i=1:pa.M, pa.phiCpp(i-1) = gridfunction(pa.phi(:,i).'); end
+	dbstop("initialize_phi_C.m",156);
+
+	pa.phiCpp = pa.phiCpp.set_data_vector(complex(pa.phi));
+
 	Normalise();
 	
 	if pa.load_phi_C != 0, calc_fields(); calc_rho(); end
