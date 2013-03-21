@@ -19,7 +19,7 @@
 ## THE SOFTWARE.
 
 
-function Normalise()
+function Orthonormalise()
 mlock(); global pa basis_diff space grid gridfunction gridbasis
 
 
@@ -28,4 +28,4 @@ mlock(); global pa basis_diff space grid gridfunction gridbasis
 	S = pa.phiCpp.overlap_matrix();                                                                                                                                    
 	C = S**(-1/2);                                                                                                                                                 
                                                                                                                                                       
-	pa.phiCpp = pa.phiCpp*complex(C);           # Is actually left multiplication :-/ 
+	pa.phiCpp = pa.phiCpp*pa.scalar_type(C);           # Is actually left multiplication :-/ 

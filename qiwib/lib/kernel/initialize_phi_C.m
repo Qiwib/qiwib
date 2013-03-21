@@ -18,17 +18,12 @@
 ## OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 ## THE SOFTWARE.
 
+
 function inp_error = initialize_phi_C();
-mlock(); global pa basis_diff space complexgrid complexfunction complexbasis
+mlock(); global pa basis_diff space grid gridfunction gridbasis 
 inp_error = 0;
 
-
-%%%
-%% TODO: grid gridfunction gridbasis instead of (real|complex|realspin2|complexspin2|...)function, etc.
-
-        grid         = complexgrid;
-	gridfunction = complexfunction;
-	gridbasis    = complexbasis;
+%%%        [grid,gridfunction,gridbasis] = select_grid(pa.scalar_type, pa.Ncomponents);
 	disp("entering initialie_phi_C\n");
 %%%%%%%%%%%%%%%%% variables I need %%%%%%%%%%%%%%%%%%%%%%%
 	
@@ -45,20 +40,16 @@ inp_error = 0;
 	pa.rho_ksql = zeros(pa.M*pa.M*pa.M*pa.M,1);
 	pa.H_C = sparse(pa.nmax);
 
-	printf("Creating grid: %d,%d,%d\n",pa.xpos0,pa.xpos0+pa.L,pa.Ng);
+	printf("\nCreating grid: %d,%d,%d\n",pa.xpos0,pa.xpos0+pa.L,pa.Ng); 
 	space = grid(pa.xpos0,pa.xpos0+pa.L,pa.Ng);
-	printf("Setting boundary condition: %d\n",pa.boundary);
+	printf("Setting boundary condition: %s\n",pa.boundary);
 	space.set_boundary(pa.boundary);
 	printf("Getting x-coordinates\n");
 	pa.xpos = space.get_xs(); pa.dx = space.dx;
 	printf("Creating basis with %d orbitals\n",pa.M);
-	pa.phiCpp = complexbasis(space,pa.M); 
+	pa.phiCpp = gridbasis(space,pa.M); 
 	printf("Done.\n");
 
-	%% grid = realgrid|complexgrid|complexspin2grid
-	%% gridfunction = realgridfunction|complexgridfunction|complexspin2gridfunction
-	%% gridbasis = (realbasis|complexbasis|complexspin2basis|complexspin3basis)
-	
 	if isempty(pa.nl), pa.nl=pa.xpos0+pa.L/2; end
 	if isempty(pa.nr), pa.nr=pa.xpos0+pa.L/2; end
 	[tsts,tsts_i] = min(abs([pa.xpos0:pa.L/(pa.Ng-1):pa.xpos0+pa.L]-pa.nl)); pa.nl = tsts_i;
@@ -100,7 +91,7 @@ inp_error = 0;
 		
 		%%Create initial C
 		printf("Initializing data in orbital basis set\n");
-		pa.phiCpp = pa.phiCpp.set_data_vector(complex(pa.phi(:)));
+		pa.phiCpp = pa.phiCpp.set_data_vector(pa.scalar_type(pa.phi));
 		calc_fields(); calc_H_C();
 
 		
@@ -153,11 +144,8 @@ inp_error = 0;
 		pa.C = C;	
 		
 	end
-	dbstop("initialize_phi_C.m",156);
-
-	pa.phiCpp = pa.phiCpp.set_data_vector(complex(pa.phi));
-
-	Normalise();
+	pa.phiCpp = pa.phiCpp.set_data_vector(pa.scalar_type(pa.phi));
+	Orthonormalise();
 	
 	if pa.load_phi_C != 0, calc_fields(); calc_rho(); end
 
@@ -167,8 +155,11 @@ inp_error = 0;
 		pa.H_phi_direction = -1; pa.H_C_direction = -1;   %% -1 for relaxation
 	end
 	pa.time = pa.t_initial;
-	printf("Creating initial environment: done     \n"); fflush(stdout);
 	fflush(stdout);
+	printf("Creating initial environment: done     \n"); 
+	fflush(stdout);
+      endfunction
+      
 
 function [phi,C,inp_error] = AddModes(phi,C)
 mlock(); global pa
@@ -222,4 +213,7 @@ mlock(); global pa
 		
 		printf('Adding single-particle functions to the initial set: done in %ds.                          \n',time()-cputime); fflush(stdout);
 	end
-	
+endfunction
+		       
+
+

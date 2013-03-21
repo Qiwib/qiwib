@@ -27,87 +27,12 @@ function qiwib(input_file, out_arg, ow=[], vv=1, gg=1, print_qiwib_version='unkn
 mlock(); space -global; 
 global pa basis_diff space grid gridfunction gridbasis realgrid realfunction realbasis complexgrid complexfunction complexbasis realspin2grid realspin2function realspin2basis complexspin2grid complexspin2function complexspin2basis
 
-%thats my global structure
-pa.basis = 0;
-basis_diff = 0;
-pa.basis_diff_nz = 0;
-pa.hilbert = ['create'];
-pa.hilbert_file = 0;
-pa.N  = [];
-pa.M  = [];
-pa.L  = [];
-pa.spins = 1;
-pa.phi  = [];
-pa.C  = 0;
-pa.Ng  = [];
-pa.dx  = 0;
-pa.nmax = 0;
-pa.V = 0;
-pa.V_build = 0;
-pa.phiCpp = 0;
-pa.a0Cpp = 0;
-pa.a1Cpp = 0;
-pa.a2Cpp = 0;
-pa.relaxation = [];
-pa.endtime = -1;
-pa.dt = 1E-4;
-pa.g = 0;
-pa.h_kq = 0;
-pa.w_ksql = 0;
-pa.rho_kq = 0;
-pa.rho_ksql = 0;
-pa.rho_kq_inv= 0;
-pa.CMF_error= 1E-6;
-pa.max_CMF_step = 1.0;
-pa.xpos = 0;
-pa.xpos0 = [];
-pa.boundary = 'box';
-pa.improved_rlx = 'fixed';
-pa.save_dir_out = "";
-pa.load_phi_C = 0;
-pa.ode_phi = 'RK78';
-pa.ode_phi_opts = odeset("AbsTol",1e-10,"InitialStep",1e-4,"MaxStep",1e-3,"RelTol",1e-10);
-pa.ode_C = [];
-pa.ode_C_opts = [];
-pa.H_phi_lin = 0;
-pa.H_phi_nl0 = 0;
-pa.H_phi_nl1 = 0;
-pa.H_phi_nl = 0;
-pa.H_phi_direction = 0;
-pa.H_C_direction = 0;
-pa.Ov_inv = 0;
-pa.psi = 0;
-pa.H_nl = 0;
-pa.nthreads = 0;
-pa.nl = [];
-pa.nr = [];
-pa.dE_limit = -1;
-pa.show_plot = 0;
-pa.save_step = 1;
-pa.H_update_step = -1;
-pa.t_initial = 0;
-pa.H_Diff = 0;
-pa.H_Diff2 = -1/2;
-pa.save_options = [1,0,0,0,0];
-pa.time = 0;
-pa.g1 = 0;
-pa.g1_slice = 0;
-pa.g1_diag = 0;
-pa.C = 0;
-pa.qiwib_output = qiwib_output;
-pa.dir_current = dir_current;
-pa.no_prop_phi = 0;
-pa.qiwib_verbose_output = qiwib_verbose_output;
-pa.print_qiwib_version = print_qiwib_version;
-
-%% here we have the two variables from the input parameters that can be used in the input-file
-pa.V0 = vv;
-pa.g0 = gg;
 
 %dir_qiwib = pwd;
 %ignore_function_time_stamp ("all");
 more off;
 %addpath(dir,[dir,"/fieldsmatrices"],[dir,"/integrator"],[dir,"/kernel"],[dir,"/observables"]);
+source("./lib/kernel/defaults.input")
 
 %%nice logo
 	printf("\n");
@@ -163,8 +88,8 @@ more off;
 %%initialise and then let's go
 
 	format short e;
-%%	set_gridfunctionbasis();
 	disp("Reached initialize_phi_C()\n");
+        [grid,gridfunction,gridbasis] = select_grid(pa.scalar_type,pa.Ncomponents);
 	if initialize_phi_C(), return; end;
 	if pa.relaxation<0
 		propagate();
@@ -173,3 +98,44 @@ more off;
 	end
 	
 	more on; format;
+endfunction
+
+
+%% This can be made shorter and more general, but not really necessary until
+%% we get more grid types.
+function [grid,gridfunction,gridbasis] = select_grid(scalar_type,Ncomponents)
+global pa realgrid realfunction realbasis complexgrid complexfunction complexbasis realspin2grid realspin2function realspin2basis complexspin2grid complexspin2function complexspin2basis
+	printf("Orbital space is %s with %d components\n",ifelse(scalar_type==@real,"real","complex"),Ncomponents)
+	if scalar_type == @real
+		if Ncomponents == 1
+			grid         = realgrid;
+			gridfunction = realfunction;
+			gridbasis    = realbasis;
+		elseif Ncomopnents == 2
+			grid         = realspin2grid;
+			gridfunction = realspin2function;
+			gridbasis    = realspin2basis;
+		else
+			disp("Ncomponents > 2. Rebuild Octave module for libspace with support for higher number of components.")
+			exit;
+		end
+	elseif scalar_type == @complex
+		if Ncomponents == 1
+			grid         = complexgrid;
+			gridfunction = complexfunction;
+			gridbasis    = complexbasis;
+		elseif Ncomopnents == 2
+			grid         = complexspin2grid;
+			gridfunction = complexspin2function;
+			gridbasis    = complexspin2basis;
+		else
+			disp("Ncomponents > 2. Rebuild Octave module for libspace with support for higher number of components.")
+			exit;
+		end
+	else
+	    printf("Unsupported scalar type '%s' selected.\n",scalar_type)
+	    exit;
+	end        
+ endfunction		       
+		       
+

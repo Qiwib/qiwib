@@ -146,7 +146,7 @@ while(pa.time<pa.endtime || pa.endtime<0)
 	%%Calculate observables and output or reset time-step%%	
 
 		delta = Calc_error(phi1,pa.phiCpp,1,1);
-		Normalise();
+		Orthonormalise();
 
 		phi_corr = min(diag( abs( (phi0.overlap_matrix(pa.phiCpp)).^2) ));
 		C_corr = abs(pa.C'*C0)^2;

@@ -40,7 +40,7 @@ mlock(); global pa
 			psi = phi.get_data_vector();
 			[tarray,v] = ode78( @Calc_F_phi,[t t+dt],psi(:),pa.ode_phi_opts);
 			psi = v(end,:).';
-			phix = phi.set_data_vector(complex(psi));
+			phix = phi.set_data_vector(pa.scalar_type(psi));
 
 		case {'adams' 'bdf'}
 			lsode_options("absolute tolerance", pa.ode_phi_opts(1));
