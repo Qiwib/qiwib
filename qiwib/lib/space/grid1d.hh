@@ -74,7 +74,8 @@ public:
     for(unsigned int i=0;i<f.size();i++) s << f[i] << (i+1<f.size()?", ":"]");
     return s;
   }
-  
+
+  void print() const;
 };
 
 
