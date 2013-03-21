@@ -8,7 +8,6 @@ function newbasis = symmetric_orthogonalize(basis)
   newbasis = basis*C;		# Is actually left multiplication :-/
 endfunction
 
-
 space = realgrid(0,20,10000);
 xs    = space.get_xs();
 

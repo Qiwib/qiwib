@@ -25,6 +25,10 @@ gridfunction_member(gridfunction<space>) conj() const
   return z;
 }
 
+gridfunction_member(void) print() const {
+  cout << *this << endl;
+}
+
 grid_member(value_t) integrate(const function_t& f) const 
 {
   value_t sum(0);

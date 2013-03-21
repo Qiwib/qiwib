@@ -57,6 +57,14 @@ public:
     for(unsigned int i=0;i<n;i++) stream << v.x[i] << (i+1<n?", ":")");
     return stream;
   }
+  
+  vector<scalar_t> get_data() const {
+    return vector<scalar_t>(x,x+n);
+  }
+
+  void print() const {
+    std::cout << *this << endl;
+  }
 };
 
 template <typename scalar_t, unsigned int n> class SpinGrid1D : public Grid1D< scalar_t, SpinValue<scalar_t,n> > {
@@ -64,8 +72,8 @@ public:
   typedef Grid1D< scalar_t, SpinValue<scalar_t,n> > basetype;
   typedef Grid1D< scalar_t > space_component_t;
   typedef gridfunction<space_component_t> function_component_t;
-  typedef typename basetype::value_t    value_t;
-  typedef typename basetype::function_t function_t;
+  typedef SpinValue<scalar_t,n>        value_t;
+  typedef gridfunction< SpinGrid1D<scalar_t,n> > function_t;
 
 
 #ifndef SWIG  
@@ -116,6 +124,9 @@ public:
 
   SpinGrid1D(double xmin=0,double xmax=1, unsigned int Nx=1, boundary_t boundary = PERIODIC_BOUNDARY) : basetype(xmin,xmax,Nx,boundary)
   {}
+
+  using basetype::inner;
+  using basetype::integrate;
 };
 
 template <typename scalar_t, unsigned int n> class spingridfunction : public gridfunction<SpinGrid1D<scalar_t,n> > {
@@ -130,16 +141,28 @@ public:
   spingridfunction(const Space& space) : basetype(space) {}
   spingridfunction(const std::vector<value_t>& v) : basetype(v) { }
 
-  spingridfunction(const Array2D<scalar_t>& vs) {
-    std::vector<value_t> v(vs.rows());
+  spingridfunction(const Array2D<scalar_t>& vs) { 
+    std::vector<value_t> v(vs.columns());
+
     for(unsigned int i=0;i<vs.rows();i++)
-      v[i] = value_t(&vs[i*n],n);
+      for(unsigned int j=0;j<vs.columns();j++)
+	v[j][i] = vs[i+j*vs.rows()]; // Octave lays out matrices in column-major order!
+
     *this = v;
+  }
+
+  Array2D<scalar_t> get_data() const {
+    Array2D<scalar_t> A(this->size(),n);
+    for(int i=0;i<this->size();i++) 
+      for(int j=0;j<n;j++) 
+	A(i,j) = (*this)[i][j];
+
+    return A;
   }
 
   function_component_t component(unsigned int j) const { 
     function_component_t f(this->size());
-    for(unsigned int i=0;i<f.size();i++)
+    for(unsigned int i=0;i<this->size();i++)
       f[i] = (*this)[i][j];
     return f;
   }
