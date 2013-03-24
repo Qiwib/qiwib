@@ -16,16 +16,18 @@ public:
   realfunction(const baseclass& b) : baseclass(b) {}
   realfunction(const Space& space) : baseclass(space.Nx) {  }
   realfunction(const double *v, unsigned int n) : baseclass(std::vector<double>(v,v+n)) { 
-  //  fprintf(stderr,"realfunction(pointer) : size(%d)\n",int(this->size()));
+    //    fprintf(stderr,"realfunction(pointer) : size(%d)\n",int(this->size()));
     // for(unsigned int i=0;i<this->size();i++)
     //   fprintf(stderr,"(%d %g) ",i, (*this)[i]);
     // fprintf(stderr,"\n");
   }
-  realfunction& operator=(const realfunction& b){ 
-    resize(b.size());
-    copy(b.begin(),b.end(),begin());
-    return *this;
-  }
+  // realfunction& operator=(const realfunction& b){ 
+  //   fprintf(stderr,"realfunction assignment operator\n");
+  //   resize(b.size());
+  //   copy(b.begin(),b.end(),begin());
+  //   fprintf(stderr,"done\n");
+  //   return *this;
+  // }
 
 };
 
@@ -44,12 +46,12 @@ public:
  //   fprintf(stderr,"complexfunction(real pointer) : size(%d)\n",int(this->size()));
     for(unsigned int i=0;i<n;i++) (*this)[i] = v[i];
   }
-  complexfunction& operator=(const complexfunction& b){ 
-   // fprintf(stderr,"complexfunction assignment\n");
-    resize(b.size());
-    copy(b.begin(),b.end(),begin());    
-    return *this;
-  }
+  // complexfunction& operator=(const complexfunction& b){ 
+  //  // fprintf(stderr,"complexfunction assignment\n");
+  //   resize(b.size());
+  //   copy(b.begin(),b.end(),begin());    
+  //   return *this;
+  // }
 };
 
 // class realspin2function : public spingridfunction<double,2> {
