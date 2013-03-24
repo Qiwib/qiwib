@@ -25,7 +25,7 @@ function qiwib(input_file, out_arg, ow=[], vv=1, gg=1, print_qiwib_version='unkn
  
 %global structure, to save memory basis_diff is seperate
 mlock(); space -global; 
-global pa basis_diff space grid gridfunction gridbasis realgrid realfunction realbasis complexgrid complexfunction complexbasis realspin2grid realspin2function realspin2basis complexspin2grid complexspin2function complexspin2basis
+global pa basis_diff space gridtype gridfunction gridbasis realgrid realfunction realbasis complexgrid complexfunction complexbasis realspin2grid realspin2function realspin2basis complexspin2grid complexspin2function complexspin2basis
 
 
 %dir_qiwib = pwd;
@@ -89,7 +89,7 @@ source("./lib/kernel/defaults.input")
 
 	format short e;
 	disp("Reached initialize_phi_C()\n");
-        [grid,gridfunction,gridbasis] = select_grid(pa.scalar_type,pa.Ncomponents);
+        [gridtype,gridfunction,gridbasis] = select_grid(pa.scalar_type,pa.Ncomponents);
 	if initialize_phi_C(), return; end;
 	if pa.relaxation<0
 		propagate();
@@ -103,16 +103,16 @@ endfunction
 
 %% This can be made shorter and more general, but not really necessary until
 %% we get more grid types.
-function [grid,gridfunction,gridbasis] = select_grid(scalar_type,Ncomponents)
+function [gridtype,gridfunction,gridbasis] = select_grid(scalar_type,Ncomponents)
 global pa realgrid realfunction realbasis complexgrid complexfunction complexbasis realspin2grid realspin2function realspin2basis complexspin2grid complexspin2function complexspin2basis
 	printf("Orbital space is %s with %d components\n",ifelse(scalar_type==@real,"real","complex"),Ncomponents)
 	if scalar_type == @real
 		if Ncomponents == 1
-			grid         = realgrid;
+			gridtype     = realgrid;
 			gridfunction = realfunction;
 			gridbasis    = realbasis;
-		elseif Ncomopnents == 2
-			grid         = realspin2grid;
+		elseif Ncomponents == 2
+			gridtype     = realspin2grid;
 			gridfunction = realspin2function;
 			gridbasis    = realspin2basis;
 		else
@@ -121,11 +121,11 @@ global pa realgrid realfunction realbasis complexgrid complexfunction complexbas
 		end
 	elseif scalar_type == @complex
 		if Ncomponents == 1
-			grid         = complexgrid;
+			gridtype     = complexgrid;
 			gridfunction = complexfunction;
 			gridbasis    = complexbasis;
 		elseif Ncomopnents == 2
-			grid         = complexspin2grid;
+			gridtype     = complexspin2grid;
 			gridfunction = complexspin2function;
 			gridbasis    = complexspin2basis;
 		else

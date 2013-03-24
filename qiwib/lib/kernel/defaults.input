@@ -79,6 +79,6 @@ pa = struct(
 	     %% here we have the two variables from the input parameters that can be used in the input-file
      "V0",  vv,
      "g0",  gg
-)
+);
 
 

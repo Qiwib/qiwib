@@ -20,10 +20,9 @@
 
 
 function inp_error = initialize_phi_C();
-mlock(); global pa basis_diff space grid gridfunction gridbasis 
+mlock(); global pa basis_diff space gridtype gridfunction gridbasis 
 inp_error = 0;
 
-%%%        [grid,gridfunction,gridbasis] = select_grid(pa.scalar_type, pa.Ncomponents);
 	disp("entering initialie_phi_C\n");
 %%%%%%%%%%%%%%%%% variables I need %%%%%%%%%%%%%%%%%%%%%%%
 	
@@ -41,14 +40,13 @@ inp_error = 0;
 	pa.H_C = sparse(pa.nmax);
 
 	printf("\nCreating grid: %d,%d,%d\n",pa.xpos0,pa.xpos0+pa.L,pa.Ng); 
-	space = grid(pa.xpos0,pa.xpos0+pa.L,pa.Ng);
+	space = gridtype(pa.xpos0,pa.xpos0+pa.L,pa.Ng);
 	printf("Setting boundary condition: %s\n",pa.boundary);
 	space.set_boundary(pa.boundary);
 	printf("Getting x-coordinates\n");
 	pa.xpos = space.get_xs(); pa.dx = space.dx;
 	printf("Creating basis with %d orbitals\n",pa.M);
-	pa.phiCpp = gridbasis(space,pa.M); 
-	printf("Done.\n");
+	pa.phiCpp = gridbasis(space,pa.M);
 
 	if isempty(pa.nl), pa.nl=pa.xpos0+pa.L/2; end
 	if isempty(pa.nr), pa.nr=pa.xpos0+pa.L/2; end
@@ -87,11 +85,12 @@ inp_error = 0;
 		[v,lambda]=eigs(T,pa.M+2,'sa'); [B_dummy,n_eigen] = sort( real(diag(lambda)) );
 
 		pa.phi = v(:,n_eigen(1:pa.M));
-		for n=1:pa.M, pa.phi(:,n) = pa.phi(:,n)/sqrt( abs(pa.phi(:,n))'*abs(pa.phi(:,n))*pa.dx); end
 		
 		%%Create initial C
-		printf("Initializing data in orbital basis set\n");
-		pa.phiCpp = pa.phiCpp.set_data_vector(pa.scalar_type(pa.phi));
+		for i = 1:pa.M
+		  f = gridfunction(pa.scalar_type(pa.phi(:,i))');
+		  pa.phiCpp.setfunction(i-1,f/sqrt(space.inner(f,f)));
+		end
 		calc_fields(); calc_H_C();
 
 		

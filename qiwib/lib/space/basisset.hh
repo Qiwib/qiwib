@@ -66,6 +66,7 @@ public:
 
   std::vector<value_t> get_data_vector() const;
 
+  void setfunction(size_t i, const Function& f){ (*this)[i] = f; }
   basisset set_data_vector(const Array2D<value_t>& vect) const;
 
   basisset propagate(const term_t& a0, const term_t& a1, const term_t& a2, const term_t& anl,
