@@ -6,7 +6,7 @@ QiwiB is developed by members of the CTCP group at Massey University Auckland (l
 
 QiwiB is written in Octave and C++. Included in the QiwiB package is a comprehensive HTML manual. See the Wiki pages for more information about QiwiB as well as installation instructions.
 
-Packaged snapshots of the code, that are considered as stable, can be found in the "Downloads tab", whereas the current development of QiwiB can be followed in the "Source" tab.
+See more information on our Wiki pages (https://github.com/Qiwib/qiwib/tree/wiki)
 
 Because QiwiB is still in its early stages, we can not guarantee it to be completely bug free. If you discover a bug please let us know by filing a bug report in the "Issues" tab.
 
