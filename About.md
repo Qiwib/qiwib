@@ -1,0 +1,13 @@
+QiwiB is an open source project being developed in our group to integrate the MCTDHB equations given in reference: O. E. Alon, A. I. Streltsov, and L. S. Cederbaum, Phys. Rev. A 77, 033613 (2008). ([link](http://link.aps.org/doi/10.1103/PhysRevA.77.033613)).  Codes for solving the MCTDHB equations were also developed independently at the University of Heidelberg. For details see the Heidelberg MCTDHB page ([link](http://www.pci.uni-heidelberg.de/tc/usr/mctdhb/)).
+
+QiwiB simulates the full many-body physics of interacting ultracold bosons in one dimension.
+
+So far it was successfully tested and run on GNU Linux and MacOSX. It is mainly written in GNU Octave which is an open source high-level programming language. Its syntax is highly compatible with the commercial MATLAB. The reasons why we did not choose to implement the program in a faster low-level language, such as C/C++ or Fortran, are manifold:
+
+• First of all, Octave/Matlab code is much easier to write and to maintain. The code itself is much more readable as well, which might result in new collaborators joining the development of QiwiB. Furthermore, human readable error messages assist in the debugging process, which is a general feature of high-level languages and greatly helps in the debugging process.
+
+• Octave includes many useful built-in functions that have been thoroughly tested by the Octave community. Amongst many other functions, Octave includes several integration methods (e.g. Runge-Kutta and Adams-Bashfourth) as well as eigenvalue problem solvers. Having these readily available reduced the coding effort for QiwiB significantly. Often, those functions are just templates for widely used and established numerical libraries, i.e. LAPACK, BLAS or ATLAS. These libraries already include optimised routines for many problems and Octave takes advantage of that knowledge.
+
+• Octave provides several features for user input and output, including plotting functions that are independent from the operating system. It provides tools that allow the development of a user-friendly interface for QiwiB.
+
+• Octave provides an API to use C/C++ code for time-critical parts of the code. In QiwiB, especially for problems involving a large Hilbert space, most of the CPU time is spent inside those C/C++ functions. An estimate of the memory consumption shows that it could roughly be halved by using purely C/C++ instead of Octave. However, this would not be very helpful considering the exponential increase of the Hilbert space for increasing number of particles or single-particle functions. Therefore, not much would be gained, at least in the current state of QiwiB.
